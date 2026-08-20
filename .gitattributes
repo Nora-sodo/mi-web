@@ -1,0 +1,13 @@
+# Mantener archivos de texto con finales de línea consistentes.
+* text=auto eol=lf
+
+# Binarios: Git normal (NO Git LFS; GitHub Pages no sirve objetos LFS).
+*.zip binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary

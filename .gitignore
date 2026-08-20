@@ -1,0 +1,26 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editores / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporales y logs
+*.log
+*.tmp
+*.temp
+*.bak
+*~
+
+# Dependencias/builds accidentales
+node_modules/
+dist/
+build/
+.cache/
+
+# Paquetes de distribución generados fuera del sitio
+universidad_sistemas_*.zip

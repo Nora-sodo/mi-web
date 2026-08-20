@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#020407">
+  <title>PROYECTO NEXUS // NODO 03</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<script>
+/*
+                                                     .--'''''''''--.
+                                                  .'      .---.      '.
+                                                 /    .-----------.    \
+                                                /        .-----.        \
+                                                |       .-.   .-.       |
+                                                |      /   \ /   \      |
+                                                \     | .-. | .-. |    /
+                                                  '-._| | | | | | |_.-'
+                                                       | '-' | '-' |
+                                                         \___/ \___/
+                                                      _.-'  /   \  `-._
+                                                    .' _.--|     |--._ '.
+                                                    ' _...-|     |-..._ '
+                                                           |     |
+                                                           '.___.'
+                                                              | |
+                                                             _| |_
+                                                           /\( )/\
+                                                          /  ` '  \
+                                                         | |     | |
+                                                         '-'     '-'
+                                                           | |     | |
+                                                           | |     | |
+                                                           | |-----| |
+                                                        .`/  |     | |/`.
+                                                        |    |     |    |
+                                                        '._.'| .-. |'._.'
+                                                             \ | /
+                                                             | | |
+                                                             | | |
+                                                             | | |
+                                                            /| | |\
+                                                          .'_| | |_`.
+                                                          `. | | | .'
+                                                      .     /  |  \     .
+                                                     /o`.-'  / \  `-.`o\
+                                                    /o  o\ .'   `. /o  o\
+
+       .--..--..--..--..--..--.                    `.___.'       `.___.'
+    .' \  (`._   (_)     _   \
+  .'    |  '._)         (_)  |
+  \ _.')\      .----..---.   /
+  |(_.'  |    /    .-\-.  \  |
+  \     0|    |   ( O| O) | o|
+   |  _  |  .--.____.'._.-.  |
+   \ (_) | o         -` .-`  |
+    |    \   |`-._ _ _ _ _\ /
+    \    |   |  `. |_||_|   |
+    | o  |    \_      \     |
+    |.-.  \     `--..-'   O |
+  _.'  .' |      `-.-'      /-.__
+.' `-.` '.|='=.='=.='=.='=|._/_ `-.
+`-._  `.  |________/\_____|    `-.'
+   .'   ).| '=' '='\/ '=' |
+   `._.`  '---------------'
+            //___\   //___\
+              ||       ||
+              ||_.-.   ||_.-.
+             (_.--__) (_.--__)                                  /s3cr3t-cas3/
+*/
+</script>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-box">N</span><span><b>NEXUS</b><small>SISTEMA DE RECUPERACIÓN DE ARCHIVOS</small></span></div>
+      <div class="node"><i></i> NODO 03 // <span id="clock">--:--:--</span></div>
+    </header>
+
+    <section id="screen-login" class="screen active login-screen">
+      <div class="login-copy">
+        <div class="eyebrow">PROYECTO NEXUS</div>
+        <h1>RECUPERACIÓN<br><span>DE EXPEDIENTES</span></h1>
+        <p>Se ha detectado una solicitud externa. Introduzca las credenciales asociadas al expediente.</p>
+      </div>
+      <form id="login-form" class="panel login-panel" autocomplete="off">
+        <div class="panel-title">AUTENTICACIÓN // EXTERNA</div>
+        <label>USUARIO<input id="login-user" spellcheck="false" required></label>
+        <label>UNIDAD<input id="login-unit" spellcheck="false" required></label>
+        <label>CLAVE<input id="login-key" type="password" spellcheck="false" required></label>
+        <button class="primary" type="submit">VALIDAR CREDENCIALES</button>
+        <p id="login-feedback" class="feedback"></p>
+      </form>
+    </section>
+
+    <section id="screen-loading" class="screen center-screen">
+      <div class="panel loading-panel">
+        <div class="eyebrow ok">CREDENCIALES ACEPTADAS</div>
+        <h2>Recuperando sesión de A. Varela...</h2>
+        <div class="progress"><i id="login-bar"></i></div>
+        <div id="login-percent" class="percent">0%</div>
+      </div>
+    </section>
+
+    <section id="screen-dashboard" class="screen">
+      <div class="heading"><div><div class="eyebrow">SESIÓN DE INVESTIGACIÓN</div><h2>EXPEDIENTE N-151</h2></div><span id="global-status" class="badge">RECUPERACIÓN EN CURSO</span></div>
+      <div class="dashboard-top">
+        <article class="panel dossier">
+          <div><span>Investigador</span><b>A. Varela</b></div>
+          <div><span>Unidad</span><b>025</b></div>
+          <div><span>Estado</span><b id="case-status">INCOMPLETO</b></div>
+          <div><span>Progreso</span><b id="progress-text">0 / 8</b></div>
+        </article>
+        <article class="panel evidence">
+          <div class="panel-title">DATOS RECUPERADOS</div>
+          <div id="evidence-chips" class="chips"><span class="muted-chip">NINGÚN DATO VALIDADO</span></div>
+        </article>
+      </div>
+      <article class="panel security-global">
+        <div class="warning-icon">!</div>
+        <div><b>POLÍTICA DE VALIDACIÓN</b><p>Las validaciones críticas usan protección anti-fuerza-bruta. Un resultado incorrecto bloquea ese nodo durante <strong>05:00</strong>. Los errores de formato no penalizan.</p></div>
+      </article>
+      <div id="module-grid" class="module-grid"></div>
+      <div id="unlock-toast" class="toast hidden"><b>ÍNDICE ACTUALIZADO</b><span id="toast-copy"></span></div>
+    </section>
+
+    <section id="screen-records" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ARCHIVO 01</div><h2>AUDITORÍA DE REGISTROS</h2></div><span class="badge warn">VALIDACIÓN CRÍTICA</span></div>
+      <article class="panel security-warning" data-lock-warning="records">
+        <b>ADVERTENCIA DEL SISTEMA</b>
+        <p>Cada intento incorrecto activa un bloqueo temporal de seguridad de <strong>5 minutos</strong>. Durante ese periodo no podrán enviarse nuevas respuestas.</p>
+        <small>Revise sus conclusiones antes de validar. Errores de formato no activan el bloqueo.</small>
+        <div class="lock-status">Intentos incorrectos → bloqueo de <b>05:00</b> <span id="records-lock"></span></div>
+      </article>
+      <article class="panel">
+        <div class="audit-rules">
+          <div><small>REGLA A // SESIONES ACTIVAS</small><p>VARELA 22:00–22:37 · MORA 22:38–23:15 · SERRANO 23:16–23:50</p></div>
+          <div><small>REGLA B // VENTANA DE EDICIÓN</small><p>Una modificación válida ocurre como máximo 12 minutos después de la creación.</p></div>
+          <div><small>REGLA C // CRC POR BLOQUE</small><p>R1–R3 → prefijo A · R4–R6 → prefijo C · R7–R9 → prefijo F.</p></div>
+        </div>
+        <p class="lead">Localice el único registro que viola <b>simultáneamente las tres reglas</b>. Introduzca el código de fila y el CRC observado.</p>
+        <div class="table-wrap"><table><thead><tr><th>Código</th><th>Archivo</th><th>Creado</th><th>Modificado</th><th>Autor</th><th>CRC</th></tr></thead><tbody>
+          <tr><td>R1</td><td>OBS_004</td><td>22:04</td><td>22:08</td><td>VARELA</td><td>A1</td></tr>
+          <tr><td>R2</td><td>OBS_017</td><td>22:11</td><td>22:17</td><td>VARELA</td><td>A4</td></tr>
+          <tr><td>R3</td><td>OBS_025</td><td>22:20</td><td>22:29</td><td>VARELA</td><td>A7</td></tr>
+          <tr><td>R4</td><td>MEM_031</td><td>22:39</td><td>22:46</td><td>MORA</td><td>C3</td></tr>
+          <tr><td>R5</td><td>MEM_044</td><td>22:47</td><td>22:58</td><td>MORA</td><td>C8</td></tr>
+          <tr><td>R6</td><td>MEM_052</td><td>23:01</td><td>23:09</td><td>MORA</td><td>C5</td></tr>
+          <tr><td>R7</td><td>OBS_063</td><td>22:24</td><td>23:41</td><td>VARELA</td><td>D2</td></tr>
+          <tr><td>R8</td><td>SYS_081</td><td>23:17</td><td>23:24</td><td>SERRANO</td><td>F6</td></tr>
+          <tr><td>R9</td><td>OBS_092</td><td>23:30</td><td>23:39</td><td>SERRANO</td><td>F9</td></tr>
+        </tbody></table></div>
+        <form id="records-form" class="inline-form"><input id="records-input" placeholder="EJ. R4-C3" spellcheck="false" required><button class="primary" data-lock-button="records">VALIDAR AUDITORÍA</button></form>
+        <p id="records-feedback" class="feedback"></p>
+        <div id="records-result" class="result hidden">ANOMALÍA CONFIRMADA: <b>R7-D2</b> // EXPEDIENTE VINCULADO: <b>OBS_063</b></div>
+      </article>
+      <div class="hint-area" data-hints="records"></div>
+    </section>
+
+    <section id="screen-messages" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ARCHIVO 02</div><h2>RECONSTRUCCIÓN DE MENSAJES</h2></div><span class="badge warn">VALIDACIÓN CRÍTICA</span></div>
+      <article class="panel security-warning" data-lock-warning="messages">
+        <b>ADVERTENCIA DEL SISTEMA</b>
+        <p>Una reconstrucción incorrecta activa un bloqueo de <strong>5 minutos</strong>.</p>
+        <div class="lock-status">Nuevo intento → <b id="messages-lock">DISPONIBLE</b></div>
+      </article>
+      <article class="panel">
+        <p class="lead">El bloque recuperado pertenece al expediente asociado a <b>R7-D2</b>. Los mensajes están desordenados.</p>
+        <div class="message-protocol">
+          <small>PROTOCOLO DE EXTRACCIÓN</small>
+          <p>1) Ordene los mensajes cronológicamente. 2) Tome el fragmento de cada mensaje enviado <b>exactamente 3 minutos</b> después del anterior. 3) Una los fragmentos en orden.</p>
+        </div>
+        <div id="message-sort" class="message-sort"></div>
+        <div class="actions"><button id="messages-reset-order" class="ghost">RESTABLECER ORDEN</button></div>
+        <form id="messages-form" class="inline-form"><input id="messages-input" placeholder="RESULTADO EXTRAÍDO" spellcheck="false" required><button class="primary" data-lock-button="messages">VALIDAR RECONSTRUCCIÓN</button></form>
+        <p id="messages-feedback" class="feedback"></p>
+        <div id="messages-result" class="result hidden">CONVERSACIÓN RECONSTRUIDA // NATURALEZA REAL: <b>CONTENEDOR</b></div>
+      </article>
+      <div class="hint-area" data-hints="messages"></div>
+    </section>
+
+    <section id="screen-catalog" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ARCHIVO 03</div><h2>CATÁLOGO CRUZADO</h2></div><span class="badge warn">VALIDACIÓN CRÍTICA</span></div>
+      <article class="panel security-warning" data-lock-warning="catalog">
+        <b>ADVERTENCIA DEL SISTEMA</b>
+        <p>Un código de catálogo incorrecto activa un bloqueo de <strong>5 minutos</strong>.</p>
+        <div class="lock-status">Nuevo intento → <b id="catalog-lock">DISPONIBLE</b></div>
+      </article>
+      <article class="panel">
+        <div class="catalog-note">
+          <small>NOTA DE CORRELACIÓN // R7-D2</small>
+          <p>La ficha vinculada cumple todas las condiciones: su <b>índice = suma de sus dígitos − incidencias abiertas</b>; fue abierta <b>después de Mora y antes de Varela</b>; y su estado no figura como estable.</p>
+          <p>Últimos accesos de referencia: MORA <b>22:19</b> · VARELA <b>22:27</b>.</p>
+        </div>
+        <div id="eco-list" class="eco-list catalog-table"></div>
+        <p class="lead">Construya el código con <b>NÚMERO + ÍNDICE + CLASE</b>.</p>
+        <form id="catalog-form" class="inline-form"><input id="catalog-input" placeholder="EJ. 025-4-VOLTAICA" spellcheck="false" required><button class="primary" data-lock-button="catalog">VALIDAR CÓDIGO</button></form>
+        <p id="catalog-feedback" class="feedback"></p>
+        <div id="catalog-result" class="result hidden">REFERENCIA CRUZADA: <b>063-8-ESPECTRAL</b></div>
+      </article>
+      <div class="hint-area" data-hints="catalog"></div>
+    </section>
+
+    <section id="screen-caesar" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ARCHIVO 04</div><h2>CIFRADO DE DESPLAZAMIENTO</h2></div><span class="badge">CÉSAR</span></div>
+      <article class="panel cipher-panel">
+        <div class="cipher-block"><small>REGISTRO RECUPERADO</small><strong>IZKPQDMZW</strong></div>
+        <blockquote>“El desplazamiento coincide con el índice interno de la anomalía.”</blockquote>
+        <div class="shift-tool"><label>DESPLAZAMIENTO<input id="shift-input" type="number" min="0" max="25" value="0"></label><div><small>VISTA PREVIA</small><strong id="shift-preview">IZKPQDMZW</strong></div></div>
+        <form id="caesar-form" class="inline-form"><input id="caesar-input" placeholder="TEXTO DESCIFRADO" spellcheck="false" required><button class="primary">VALIDAR</button></form>
+        <p id="caesar-feedback" class="feedback"></p><div id="caesar-result" class="result hidden">PALABRA RECUPERADA: <b>ARCHIVERO</b></div>
+      </article>
+      <div class="hint-area" data-hints="caesar"></div>
+    </section>
+
+    <section id="screen-sequence" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ARCHIVO 05</div><h2>SECUENCIA NUMÉRICA</h2></div><span class="badge">ANÁLISIS</span></div>
+      <article class="panel puzzle-center"><div class="big-sequence">2, 6, 12, 20, 30, 42, <em>?</em></div><p>Determine el siguiente valor de la serie.</p>
+        <form id="sequence-form" class="inline-form compact"><input id="sequence-input" inputmode="numeric" placeholder="?" required><button class="primary">VALIDAR</button></form>
+        <p id="sequence-feedback" class="feedback"></p><div id="sequence-result" class="result hidden">VALOR RECUPERADO: <b>56</b></div>
+      </article>
+      <div class="hint-area" data-hints="sequence"></div>
+    </section>
+
+    <section id="screen-matrix" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ARCHIVO 06</div><h2>MATRIZ DE VERIFICACIÓN</h2></div><span class="badge">PATRÓN</span></div>
+      <article class="panel puzzle-center"><div class="number-matrix"><div>2</div><div>3</div><b>13</b><div>4</div><div>5</div><b>41</b><div>6</div><div>7</div><b>?</b></div><p>Determine el valor que completa la tercera fila.</p>
+        <form id="matrix-form" class="inline-form compact"><input id="matrix-input" inputmode="numeric" placeholder="?" required><button class="primary">VALIDAR</button></form>
+        <p id="matrix-feedback" class="feedback"></p><div id="matrix-result" class="result hidden">VALOR RECUPERADO: <b>85</b></div>
+      </article>
+      <div class="hint-area" data-hints="matrix"></div>
+    </section>
+
+    <section id="screen-logic" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ARCHIVO 07</div><h2>LÓGICA DE PERSONAL</h2></div><span class="badge">AUTORIZACIONES</span></div>
+      <article class="panel logic-layout"><div><p>Cuatro empleados ocupan exactamente un nivel distinto entre 1 y 4.</p><ul class="clues"><li>Varela tiene más acceso que Serrano.</li><li>Mora no tiene nivel 1 ni 4.</li><li>Ibarra tiene menos acceso que Mora.</li><li>Serrano no tiene nivel 1.</li><li>Varela no tiene nivel 3.</li></ul></div><div class="logic-question"><p>¿Quién tiene nivel de acceso <b>3</b>?</p><div id="logic-options" class="option-grid"></div></div></article>
+      <p id="logic-feedback" class="feedback"></p><div id="logic-result" class="result hidden">RESPONSABLE RECUPERADO: <b>MORA</b></div>
+      <div class="hint-area" data-hints="logic"></div>
+    </section>
+
+    <section id="screen-grid" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ARCHIVO 08</div><h2>COORDENADAS DE ARCHIVO</h2></div><span class="badge">MATRIZ 5×5</span></div>
+      <article class="panel grid-layout">
+        <div class="coord-grid-wrap"><div class="coord-head"><i></i><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b></div><div id="coord-grid" class="coord-grid"></div></div>
+        <div><p>Las coordenadas se leen como <b>fila-columna</b>.</p><div class="coordinates">B2 – C3 – E4 – A5 – D1</div><form id="grid-form" class="inline-form vertical"><input id="grid-input" maxlength="5" placeholder="RESULTADO" spellcheck="false" required><button class="primary">VALIDAR</button></form><p id="grid-feedback" class="feedback"></p><div id="grid-result" class="result hidden">MÉTODO RECUPERADO: <b>LOCAL</b></div></div>
+      </article>
+      <div class="hint-area" data-hints="grid"></div>
+    </section>
+
+    <section id="screen-master" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow">ÍNDICE 151</div><h2>CONSTRUCCIÓN DE CLAVE MAESTRA</h2></div><span class="badge warn">ACCESO RESTRINGIDO</span></div>
+      <article class="panel security-warning" data-lock-warning="master">
+        <b>ADVERTENCIA DEL SISTEMA</b>
+        <p>La validación de la clave maestra es crítica. Una combinación incorrecta bloquea el nodo durante <strong>5 minutos</strong>.</p>
+        <div class="lock-status">Nuevo intento → <b id="master-lock">DISPONIBLE</b></div>
+      </article>
+      <article class="panel">
+        <p class="lead">Los datos recuperados contienen la ruta de acceso. Seleccione los cuatro fragmentos en el orden solicitado.</p>
+        <div class="master-order"><span>1. CÓDIGO DE ANOMALÍA</span><span>2. NATURALEZA REAL</span><span>3. RESPONSABLE NIVEL 3</span><span>4. MÉTODO DE EJECUCIÓN</span></div>
+        <div id="master-slots" class="master-slots"></div>
+        <div id="master-bank" class="master-bank"></div>
+        <div class="actions"><button id="master-reset" class="ghost">REINICIAR</button><button id="master-check" class="primary" data-lock-button="master">VALIDAR RUTA</button></div>
+        <p id="master-feedback" class="feedback"></p>
+      </article>
+      <div class="hint-area" data-hints="master"></div>
+    </section>
+
+    <section id="screen-expedient" class="screen module">
+      <button class="back" data-back>← PANEL</button>
+      <div class="heading"><div><div class="eyebrow ok">ACCESO CONCEDIDO</div><h2>EXPEDIENTE 151</h2></div><span class="badge ok">DESBLOQUEADO</span></div>
+      <article class="panel final-dossier">
+        <div class="final-grid"><div><span>Tipo</span><b>CONTENEDOR</b></div><div><span>Estado</span><b>LISTO</b></div><div><span>Método</span><b>EJECUCIÓN LOCAL</b></div><div><span>Responsable</span><b>MORA</b></div></div>
+        <blockquote>El archivo no puede abrirse desde el navegador. La recuperación debe completarse en un entorno local.</blockquote>
+        <button id="prepare-btn" class="primary large">PREPARAR RECUPERACIÓN</button>
+      </article>
+    </section>
+
+    <section id="screen-check" class="screen center-screen">
+      <article class="panel check-panel"><div class="eyebrow">COMPROBACIÓN DE SISTEMA</div><h2>Validando entorno local...</h2><div id="checks" class="checks"></div><div id="integrity" class="hidden"><p>Validando integridad...</p><div class="progress"><i id="integrity-bar"></i></div><div id="integrity-percent" class="percent">0%</div></div><div id="last-check" class="hidden last-check"><h3>ERROR // FALTA UNA ÚLTIMA COMPROBACIÓN</h3><p>¿Desea continuar aunque el sistema recomienda claramente no hacerlo?</p><div class="two-buttons"><button class="primary continue-anyway">SÍ</button><button class="primary continue-anyway">TAMBIÉN SÍ</button></div></div></article>
+    </section>
+
+    <section id="screen-download" class="screen">
+      <div class="heading"><div><div class="eyebrow ok">ARCHIVO 151 RECUPERADO</div><h2>TRANSFERENCIA LOCAL</h2></div><span class="badge ok">COMPLETO</span></div>
+      <article class="panel download-panel"><p>Seleccione el paquete correspondiente al sistema donde se ejecutará la siguiente fase.</p><div class="downloads">
+        <button id="download-windows" class="download-card"><b>WINDOWS</b><span>ARCHIVO_151_WINDOWS.zip</span><em>DESCARGAR</em></button>
+        <button id="download-linux" class="download-card"><b>LINUX</b><span>ARCHIVO_151_LINUX.zip</span><em>DESCARGAR</em></button>
+      </div><div id="after-download" class="after-download hidden"><h3>TRANSFERENCIA FINALIZADA</h3><p>NEXUS ya no se hace responsable de lo que ocurra a continuación.</p><small>Esto es una cláusula legal completamente inventada.</small></div></article>
+    </section>
+
+    <footer><button id="reset-progress" class="footer-btn">REINICIAR PROGRESO LOCAL</button><span>NEXUS // NODO 03 // ARCHIVO INTERNO</span></footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

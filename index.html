@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f6f8f6">
+  <meta name="description" content="Universidad de Sistemas e Ingeniería Computacional — aprendizaje profundo, práctica adaptativa y progreso real.">
+  <title>USIC — Universidad de Sistemas e Ingeniería Computacional</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <noscript><div style="padding:1rem;font-family:system-ui">USIC necesita JavaScript para cargar las lecciones, guardar progreso y ejecutar los laboratorios.</div></noscript>
+<script>
+/*
+                                                     .--'''''''''--.
+                                                  .'      .---.      '.
+                                                 /    .-----------.    \
+                                                /        .-----.        \
+                                                |       .-.   .-.       |
+                                                |      /   \ /   \      |
+                                                \     | .-. | .-. |    /
+                                                  '-._| | | | | | |_.-'
+                                                       | '-' | '-' |
+                                                         \___/ \___/
+                                                      _.-'  /   \  `-._
+                                                    .' _.--|     |--._ '.
+                                                    ' _...-|     |-..._ '
+                                                           |     |
+                                                           '.___.'
+                                                              | |
+                                                             _| |_
+                                                           /\( )/\
+                                                          /  ` '  \
+                                                         | |     | |
+                                                         '-'     '-'
+                                                           | |     | |
+                                                           | |     | |
+                                                           | |-----| |
+                                                        .`/  |     | |/`.
+                                                        |    |     |    |
+                                                        '._.'| .-. |'._.'
+                                                             \ | /
+                                                             | | |
+                                                             | | |
+                                                             | | |
+                                                            /| | |\
+                                                          .'_| | |_`.
+                                                          `. | | | .'
+                                                      .     /  |  \     .
+                                                     /o`.-'  / \  `-.`o\
+                                                    /o  o\ .'   `. /o  o\
+
+       .--..--..--..--..--..--.                    `.___.'       `.___.'
+    .' \  (`._   (_)     _   \
+  .'    |  '._)         (_)  |
+  \ _.')\      .----..---.   /
+  |(_.'  |    /    .-\-.  \  |
+  \     0|    |   ( O| O) | o|
+   |  _  |  .--.____.'._.-.  |
+   \ (_) | o         -` .-`  |
+    |    \   |`-._ _ _ _ _\ /
+    \    |   |  `. |_||_|   |
+    | o  |    \_      \     |
+    |.-.  \     `--..-'   O |
+  _.'  .' |      `-.-'      /-.__
+.' `-.` '.|='=.='=.='=.='=|._/_ `-.
+`-._  `.  |________/\_____|    `-.'
+   .'   ).| '=' '='\/ '=' |
+   `._.`  '---------------'
+            //___\   //___\
+              ||       ||
+              ||_.-.   ||_.-.
+             (_.--__) (_.--__)                                  /s3cr3t-cas3/
+*/
+</script>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#inicio" data-route="inicio" aria-label="Ir al inicio">
+        <span class="brand-mark">U</span><span><strong>USIC</strong><small>Sistemas & Ingeniería</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <button class="nav-item active" data-route="inicio"><span>⌂</span>Inicio</button>
+        <button class="nav-item" data-route="aprender"><span>◫</span>Aprender</button>
+        <button class="nav-item" data-route="laboratorio"><span>⌘</span>Laboratorio</button>
+        <button class="nav-item" data-route="repasar"><span>↻</span>Repasar <b class="nav-badge" id="reviewBadge">0</b></button>
+        <button class="nav-item" data-route="biblioteca"><span>▤</span>Biblioteca</button>
+        <button class="nav-item" data-route="progreso"><span>⌁</span>Progreso</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" data-route="errores"><span>⚠</span>Mis errores</button>
+        <div class="profile-mini"><div class="avatar">A</div><div><strong>Estudiante</strong><small>Nivel: curiosidad peligrosa</small></div></div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Abrir menú">☰</button>
+        <button class="search-trigger" id="searchTrigger"><span>⌕</span><span>¿Qué quieres aprender?</span><kbd>Ctrl K</kbd></button>
+        <div class="top-actions"><span class="streak" title="La racha es secundaria; lo importante es recordar lo aprendido.">7 días · sin dramas</span><button class="icon-btn" aria-label="Notificaciones">◌</button></div>
+      </header>
+      <div id="view" class="view"></div>
+    </main>
+  </div>
+
+  <div class="search-overlay" id="searchOverlay" aria-hidden="true">
+    <div class="search-modal">
+      <div class="search-input-wrap"><span>⌕</span><input id="globalSearch" autocomplete="off" placeholder="Prueba “derivadas”, “TLS”, “caché”..."><button id="closeSearch">Esc</button></div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <button class="tutor-fab" id="tutorFab">🤖 <span>Preguntar al tutor</span></button>
+  <div class="tutor-panel" id="tutorPanel" aria-hidden="true">
+    <div class="tutor-head"><div><b>Tu tutor socrático</b><small>Pistas primero. Spoilers, solo si los pides.</small></div><button id="closeTutor">×</button></div>
+    <div class="tutor-messages" id="tutorMessages"><div class="msg ai">¿Dónde se ha atascado la neurona? Cuéntame qué paso no te convence.</div></div>
+    <form id="tutorForm"><input id="tutorInput" placeholder="Ej.: ¿por qué -log₂(p)?" autocomplete="off"><button>Enviar</button></form>
+  </div>
+
+  <!-- Datos y contenido -->
+  <script src="data.js"></script>
+  <script src="content/block-001.js"></script>
+  <script src="content/block-002.js"></script>
+  <script src="content/block-003.js"></script>
+  <script src="content/block-004.js"></script>
+  <script src="content/block-005.js"></script>
+  <script src="content/block-006.js"></script>
+  <script src="content/block-007.js"></script>
+  <script src="content/block-008.js"></script>
+  <script src="content/block-009.js"></script>
+  <script src="content/block-010.js"></script>
+  <script src="content/block-011.js"></script>
+  <script src="content/block-012.js"></script>
+  <script src="content/block-013.js"></script>
+  <script src="content/block-014.js"></script>
+  <script src="content/block-015.js"></script>
+  <script src="content/block-016.js"></script>
+  <script src="content/block-017.js"></script>
+  <script src="content/block-018.js"></script>
+  <script src="content/block-019.js"></script>
+  <script src="content/block-020.js"></script>
+  <script src="content/block-021.js"></script>
+  <script src="content/block-022.js"></script>
+  <script src="content/block-023.js"></script>
+  <script src="content/block-024.js"></script>
+  <script src="content/block-025.js"></script>
+  <script src="content/block-026.js"></script>
+  <script src="content/block-027.js"></script>
+  <script src="content/block-028.js"></script>
+  <script src="content/block-029.js"></script>
+  <script src="content/block-030.js"></script>
+  <script src="content/block-031.js"></script>
+  <script src="content/block-032.js"></script>
+  <script src="content/block-033.js"></script>
+  <script src="content/block-034.js"></script>
+  <script src="content/block-035.js"></script>
+  <script src="content/block-036.js"></script>
+  <script src="content/block-037.js"></script>
+  <script src="content/block-038.js"></script>
+  <script src="content/block-039.js"></script>
+  <script src="content/block-040.js"></script>
+  <script src="content/block-041.js"></script>
+  <script src="content/block-042.js"></script>
+  <script src="content/block-043.js"></script>
+  <script src="content/block-044.js"></script>
+  <script src="content/block-045.js"></script>
+  <script src="content/block-046.js"></script>
+  <script src="content/block-047.js"></script>
+  <script src="content/block-048.js"></script>
+  <script src="content/block-049.js"></script>
+  <script src="content/block-050.js"></script>
+  <script src="content/block-051.js"></script>
+    <script src="content/block-052.js"></script>
+    <script src="content/block-053.js"></script>
+    <script src="content/block-054.js"></script>
+    <script src="content/block-055.js"></script>
+    <script src="content/block-056.js"></script>
+    <script src="content/block-057.js"></script>
+    <script src="content/block-058.js"></script>
+  <script src="content/block-059.js"></script>
+  <script src="content/block-060.js"></script>
+  <script src="content/block-061.js"></script>
+  <script src="content/block-062.js"></script>
+  <script src="content/block-063.js"></script>
+  <script src="content/block-064.js"></script>
+  <script src="content/block-065.js"></script>
+  <script src="content/block-066.js"></script>
+  <script src="content/block-067.js"></script>
+  <script src="content/block-068.js"></script>
+  <script src="content/block-069.js"></script>
+  <script src="content/block-070.js"></script>
+  <script src="content/block-071.js"></script>
+  <script src="content/block-072.js"></script>
+  <script src="content/block-073.js"></script>
+  <script src="content/block-074.js"></script>
+  <script src="content/block-075.js"></script>
+  <script src="content/block-076.js"></script>
+  <script src="content/block-077.js"></script>
+  <script src="content/block-078.js"></script>
+  <script src="content/challenges.js"></script>
+
+  <!-- Estado y aplicación -->
+  <script src="labs.js"></script>
+  <script src="state.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
