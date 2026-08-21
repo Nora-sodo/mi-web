@@ -22,15 +22,79 @@
   let heartbeat = null;
   let lastStudyTick = null;
   let activityListenersBound = false;
+  let profileCloudAvailable = true;
+  let stateCloudAvailable = true;
+
+  function missingTable(error, table='') {
+    const raw=String(error?.message||error||'').toLowerCase();
+    return raw.includes('schema cache') || raw.includes('could not find the table') || raw.includes('relation') && raw.includes('does not exist') || (table && raw.includes(table.toLowerCase()) && raw.includes('not found'));
+  }
+
+  function setSyncIndicator(text, state='busy') {
+    const indicator=$('#syncIndicator');
+    if (indicator) { indicator.textContent=text; indicator.dataset.state=state; }
+  }
 
   const $ = (q, scope=document) => scope.querySelector(q);
   const overlay = $('#authGate');
   const status = $('#authStatus');
+  if (status) status.tabIndex = -1;
 
-  function msg(text, kind='info') {
+  function msg(payload='', kind='info') {
     if (!status) return;
-    status.textContent = text || '';
+    let title='', body='', hint='';
+    if (payload && typeof payload === 'object') {
+      title = payload.title || '';
+      body = payload.body || payload.text || '';
+      hint = payload.hint || '';
+      kind = payload.kind || kind;
+    } else {
+      body = payload || '';
+    }
     status.dataset.kind = kind;
+    status.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+    status.setAttribute('aria-live', kind === 'error' ? 'assertive' : 'polite');
+    const pieces = [];
+    if (title) pieces.push(`<strong class="auth-status-title">${escapeHtml(title)}</strong>`);
+    if (body) pieces.push(`<span class="auth-status-body">${escapeHtml(body)}</span>`);
+    if (hint) pieces.push(`<small class="auth-status-hint">${escapeHtml(hint)}</small>`);
+    status.innerHTML = pieces.join('');
+    if (!pieces.length) delete status.dataset.kind;
+    if ((kind === 'error' || kind === 'warn') && pieces.length) {
+      requestAnimationFrame(() => status.focus());
+    }
+  }
+
+  function clearFormFeedback(form){
+    form?.querySelectorAll('input,select,textarea').forEach(el=>{
+      el.classList.remove('is-invalid','is-valid');
+      el.removeAttribute('aria-invalid');
+    });
+  }
+
+  function markInvalid(form, names=[]) {
+    names.forEach(name=>{
+      const field=form?.elements?.[name];
+      if (!field) return;
+      field.classList.add('is-invalid');
+      field.setAttribute('aria-invalid','true');
+    });
+    const first=names.map(name=>form?.elements?.[name]).find(Boolean);
+    first?.focus();
+  }
+
+  function markValid(form, names=[]) {
+    names.forEach(name=>{
+      const field=form?.elements?.[name];
+      if (!field) return;
+      field.classList.remove('is-invalid');
+      field.classList.add('is-valid');
+      field.removeAttribute('aria-invalid');
+    });
+  }
+
+  function isLikelyEmail(value=''){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
   }
 
   function escapeHtml(v){ return String(v ?? '').replace(/[&<>\"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
@@ -80,14 +144,26 @@
 
   async function ensureProfile(user) {
     const display = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Estudiante';
-    let { data, error } = await client.from('profiles').select('*').eq('id', user.id).maybeSingle();
-    if (error && !/does not exist/i.test(error.message)) console.warn(error);
-    if (!data) {
-      const res=await client.from('profiles').upsert({id:user.id,display_name:display,email:user.email},{onConflict:'id'}).select().maybeSingle();
-      data=res.data; error=res.error;
-    }
-    if (error) console.warn('Perfil no disponible:', error.message);
-    profile=data || {id:user.id,display_name:display,email:user.email,onboarding_completed:false,weekly_goal_minutes:180,focus_area:null};
+    const fallback={id:user.id,display_name:display,email:user.email,onboarding_completed:true,weekly_goal_minutes:180,focus_area:null};
+    let data=null, error=null;
+    try {
+      ({data,error}=await client.from('profiles').select('*').eq('id', user.id).maybeSingle());
+      if (error && missingTable(error,'profiles')) {
+        profileCloudAvailable=false;
+        profile=fallback;
+        updateProfileUI();
+        setSyncIndicator('Solo local','local');
+        showCloudWarning('Falta la tabla public.profiles en Supabase');
+        return;
+      }
+      if (error) console.warn('No se pudo leer el perfil:',error.message);
+      if (!data && !error) {
+        const res=await client.from('profiles').upsert({id:user.id,display_name:display,email:user.email},{onConflict:'id'}).select().maybeSingle();
+        data=res.data; error=res.error;
+      }
+    } catch (e) { error=e; }
+    if (error) console.warn('Perfil no disponible:', error.message||error);
+    profile=data || fallback;
     updateProfileUI();
   }
 
@@ -101,17 +177,24 @@
   async function hydrateCloudState() {
     if (!session?.user || !window.STORE) return;
     hydrating=true;
+    setSyncIndicator('Conectando…','busy');
     try {
       const {data,error}=await client.from('user_state').select('state,updated_at').eq('user_id',session.user.id).maybeSingle();
       if (error) throw error;
       const local=STORE.snapshot();
       const merged=mergeStates(local,data?.state||null);
       STORE.replaceState(merged);
-      await client.from('user_state').upsert({user_id:session.user.id,state:STORE.snapshot(),updated_at:new Date().toISOString()},{onConflict:'user_id'});
+      const save=await client.from('user_state').upsert({user_id:session.user.id,state:STORE.snapshot(),updated_at:new Date().toISOString()},{onConflict:'user_id'});
+      if (save.error) throw save.error;
+      stateCloudAvailable=true;
+      setSyncIndicator('Sincronizado','ok');
       window.dispatchEvent(new CustomEvent('usic-cloud-ready'));
     } catch(error) {
       console.warn('No se pudo sincronizar el progreso cloud:',error);
-      showCloudWarning(error.message);
+      stateCloudAvailable=false;
+      setSyncIndicator('Solo local','local');
+      if (missingTable(error,'user_state')) showCloudWarning('Falta la tabla public.user_state en Supabase');
+      else showCloudWarning(error.message||String(error));
     } finally { hydrating=false; }
   }
 
@@ -126,19 +209,19 @@
     try {
       const {error}=await client.from('user_state').upsert({user_id:session.user.id,state:STORE.snapshot(),updated_at:new Date().toISOString()},{onConflict:'user_id'});
       if (error) throw error;
-      const indicator=$('#syncIndicator');
-      if(indicator){ indicator.textContent='Sincronizado'; indicator.dataset.state='ok'; }
+        stateCloudAvailable=true;
+      setSyncIndicator('Sincronizado','ok');
     } catch(error){
       console.warn('Sync falló',error);
-      const indicator=$('#syncIndicator');
-      if(indicator){ indicator.textContent='Solo local'; indicator.dataset.state='warn'; }
+      if (missingTable(error,'user_state')) stateCloudAvailable=false;
+      setSyncIndicator('Solo local','local');
     }
   }
 
   function scheduleSync(){
     if (!session?.user || hydrating) return;
-    const indicator=$('#syncIndicator');
-    if(indicator){ indicator.textContent='Guardando…'; indicator.dataset.state='busy'; }
+    if (!stateCloudAvailable) return;
+    setSyncIndicator('Guardando…','busy');
     clearTimeout(syncTimer);
     syncTimer=setTimeout(syncNow,900);
   }
@@ -169,16 +252,57 @@
     return `${base}${path}`;
   }
 
-  function authErrorMessage(error){
+  function authErrorDetails(error, context='generic'){
     const raw=String(error?.message||error||'No se pudo completar la operación.');
     const text=raw.toLowerCase();
-    if(text.includes('invalid login credentials')) return 'Email o contraseña incorrectos.';
-    if(text.includes('email not confirmed')) return 'Confirma tu email antes de iniciar sesión.';
-    if(text.includes('user already registered')) return 'Ya existe una cuenta con ese email.';
-    if(text.includes('password should be')) return 'La contraseña no cumple los requisitos de seguridad.';
-    if(text.includes('rate limit') || text.includes('too many')) return 'Demasiados intentos. Espera un momento y vuelve a probar.';
-    if(text.includes('network') || text.includes('fetch')) return 'No hay conexión con el servicio de acceso. Comprueba tu red.';
-    return raw;
+    const generic = { kind:'error', title:'No se pudo completar la operación', body:raw, hint:'Vuelve a intentarlo en unos segundos.' };
+    if(text.includes('invalid login credentials')) return {
+      kind:'error',
+      title:'No pudimos iniciar sesión',
+      body:'El email o la contraseña no coinciden con ninguna cuenta activa.',
+      hint:'Revisa mayúsculas, el correo usado o utiliza “¿La has olvidado?” si necesitas restaurar el acceso.'
+    };
+    if(text.includes('email not confirmed')) return {
+      kind:'warn',
+      title:'Falta confirmar el email',
+      body:'La cuenta existe, pero todavía no se ha confirmado desde el correo recibido.',
+      hint:'Busca el mensaje de confirmación en tu bandeja de entrada o spam y, si hace falta, vuelve a registrarte con el mismo email para reenviar el flujo.'
+    };
+    if(text.includes('user already registered')) return {
+      kind:'warn',
+      title:'Ese email ya tiene cuenta',
+      body:'Ya existe una cuenta asociada a esa dirección.',
+      hint:'Prueba a iniciar sesión o usa la recuperación de contraseña si no recuerdas la clave.'
+    };
+    if(text.includes('password should be') || text.includes('password is too weak')) return {
+      kind:'error',
+      title:'La contraseña es demasiado débil',
+      body:'Necesitas una contraseña más sólida para completar la operación.',
+      hint:'Usa al menos 8 caracteres y combina palabras largas con números o símbolos.'
+    };
+    if(text.includes('rate limit') || text.includes('too many')) return {
+      kind:'warn',
+      title:'Demasiados intentos',
+      body:'El servicio ha limitado temporalmente nuevas peticiones de acceso.',
+      hint:'Espera un momento antes de volver a intentarlo para evitar que el bloqueo se alargue.'
+    };
+    if(text.includes('network') || text.includes('fetch') || text.includes('failed to fetch')) return {
+      kind:'error',
+      title:'No pudimos contactar con el servicio',
+      body:'Parece un problema de red o de conexión con Supabase.',
+      hint:'Comprueba tu conexión y, si persiste, revisa la URL y la clave pública de Supabase.'
+    };
+    if(text.includes('schema cache') || text.includes('could not find the table') || text.includes('does not exist')) return {
+      kind:'warn',
+      title:'Falta terminar la configuración de Supabase',
+      body:'La autenticación funciona, pero no están listas las tablas que guardan perfil o progreso.',
+      hint:'Ejecuta SUPABASE_SETUP.sql en el SQL Editor de Supabase y vuelve a cargar la web.'
+    };
+    if(context === 'register') return { kind:'error', title:'No se pudo crear la cuenta', body:raw, hint:'Revisa el email, la contraseña y la configuración de Auth en Supabase.' };
+    if(context === 'forgot') return { kind:'error', title:'No se pudo preparar el enlace', body:raw, hint:'Comprueba que el proveedor de email y la URL de redirección estén configurados en Supabase.' };
+    if(context === 'recovery') return { kind:'error', title:'No se pudo actualizar la contraseña', body:raw, hint:'Asegúrate de que el enlace de recuperación sigue siendo válido.' };
+    if(context === 'login') return { kind:'error', title:'No se pudo iniciar sesión', body:raw, hint:'Comprueba el estado de Auth en Supabase e inténtalo de nuevo.' };
+    return generic;
   }
 
   function setAuthMode(mode, message=''){
@@ -217,53 +341,89 @@
     $('#loginForm')?.addEventListener('submit',async e=>{
       e.preventDefault();
       const form=e.currentTarget, fd=new FormData(form);
-      msg('Comprobando tus datos…'); setFormBusy(form,true,'Entrando…');
+      clearFormFeedback(form);
+      const email=String(fd.get('email')).trim();
+      const password=String(fd.get('password'));
+      if(!email || !password){
+        markInvalid(form,[!email?'email':'',!password?'password':''].filter(Boolean));
+        msg({kind:'error', title:'Faltan datos para entrar', body:'Necesitamos tu email y tu contraseña para iniciar sesión.', hint:'Si no recuerdas la contraseña, usa el enlace de recuperación.'});
+        return;
+      }
+      if(!isLikelyEmail(email)){
+        markInvalid(form,['email']);
+        msg({kind:'error', title:'El email no parece válido', body:'Revisa la dirección escrita antes de continuar.', hint:'Debe tener un formato parecido a nombre@dominio.com.'});
+        return;
+      }
+      markValid(form,['email','password']);
+      msg({kind:'info', title:'Comprobando tus datos', body:'Estamos verificando la cuenta en USIC…'});
+      setFormBusy(form,true,'Entrando…');
       try{
-        const {error}=await client.auth.signInWithPassword({email:String(fd.get('email')).trim(),password:String(fd.get('password'))});
-        if(error) msg(authErrorMessage(error),'error');
-      }catch(error){ msg(authErrorMessage(error),'error'); }
+        const {error}=await client.auth.signInWithPassword({email,password});
+        if(error){
+          markInvalid(form,['email','password']);
+          msg(authErrorDetails(error,'login'));
+        }
+      }catch(error){
+        markInvalid(form,['email','password']);
+        msg(authErrorDetails(error,'login'));
+      }
       finally{ setFormBusy(form,false); }
     });
 
     $('#registerForm')?.addEventListener('submit',async e=>{
       e.preventDefault();
-      const form=e.currentTarget, fd=new FormData(form), password=String(fd.get('password'));
-      if(password.length<8){msg('Usa al menos 8 caracteres.','error');return;}
-      msg('Creando tu cuenta…'); setFormBusy(form,true,'Creando cuenta…');
+      const form=e.currentTarget, fd=new FormData(form);
+      clearFormFeedback(form);
+      const display_name=String(fd.get('display_name')).trim();
+      const email=String(fd.get('email')).trim();
+      const password=String(fd.get('password'));
+      if(display_name.length < 2){ markInvalid(form,['display_name']); msg({kind:'error', title:'Tu nombre se ha quedado corto', body:'Usa al menos 2 caracteres para poder crear tu perfil.', hint:'Puedes poner tu nombre real o el nombre con el que quieras estudiar.'}); return; }
+      if(!isLikelyEmail(email)){ markInvalid(form,['email']); msg({kind:'error', title:'El email no parece válido', body:'Revisa la dirección antes de crear la cuenta.', hint:'Debe tener un formato parecido a nombre@dominio.com.'}); return; }
+      if(password.length<8){ markInvalid(form,['password']); msg({kind:'error', title:'La contraseña es demasiado corta', body:'USIC necesita una contraseña de al menos 8 caracteres.', hint:'Intenta usar una frase corta combinada con números o símbolos.'}); return; }
+      markValid(form,['display_name','email','password']);
+      msg({kind:'info', title:'Creando tu cuenta', body:'Estamos preparando tu acceso a USIC…'});
+      setFormBusy(form,true,'Creando cuenta…');
       try{
         const {data,error}=await client.auth.signUp({
-          email:String(fd.get('email')).trim(),password,
-          options:{data:{display_name:String(fd.get('display_name')).trim()},emailRedirectTo:authRedirectUrl()}
+          email,password,
+          options:{data:{display_name},emailRedirectTo:authRedirectUrl()}
         });
-        if(error) msg(authErrorMessage(error),'error');
-        else if(!data.session) msg('Cuenta creada. Revisa tu correo para confirmar el email.','ok');
-      }catch(error){ msg(authErrorMessage(error),'error'); }
+        if(error) { markInvalid(form,['email','password']); msg(authErrorDetails(error,'register')); }
+        else if(!data.session) msg({kind:'ok', title:'Cuenta creada', body:'Revisa tu correo para confirmar el email antes de entrar.', hint:'Si no lo ves en unos minutos, revisa también spam o promociones.'});
+      }catch(error){ markInvalid(form,['email','password']); msg(authErrorDetails(error,'register')); }
       finally{ setFormBusy(form,false); }
     });
 
     $('#forgotForm')?.addEventListener('submit',async e=>{
       e.preventDefault();
       const form=e.currentTarget, email=String(new FormData(form).get('email')).trim();
-      msg('Preparando el enlace seguro…'); setFormBusy(form,true,'Enviando…');
+      clearFormFeedback(form);
+      if(!email){ markInvalid(form,['email']); msg({kind:'error', title:'Falta el email', body:'Necesitamos saber a qué cuenta enviar el enlace de recuperación.', hint:'Escribe la dirección con la que te registraste.'}); return; }
+      if(!isLikelyEmail(email)){ markInvalid(form,['email']); msg({kind:'error', title:'El email no parece válido', body:'Revisa la dirección antes de pedir el enlace.', hint:'Debe tener un formato parecido a nombre@dominio.com.'}); return; }
+      markValid(form,['email']);
+      msg({kind:'info', title:'Preparando el enlace seguro', body:'Estamos pidiendo a Supabase que genere tu recuperación…'});
+      setFormBusy(form,true,'Enviando…');
       try{
         const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:authRedirectUrl()});
-        msg(error?authErrorMessage(error):'Si la cuenta existe, recibirás un enlace de recuperación.','ok');
-        if(error) status.dataset.kind='error';
-      }catch(error){ msg(authErrorMessage(error),'error'); }
+        msg(error ? authErrorDetails(error,'forgot') : {kind:'ok', title:'Enlace enviado', body:'Si la cuenta existe, recibirás un enlace de recuperación.', hint:'Revisa también la carpeta de spam o promociones.'});
+      }catch(error){ msg(authErrorDetails(error,'forgot')); }
       finally{ setFormBusy(form,false); }
     });
 
     $('#recoveryForm')?.addEventListener('submit',async e=>{
       e.preventDefault();
       const form=e.currentTarget, fd=new FormData(form), password=String(fd.get('password')), confirm=String(fd.get('password_confirm'));
-      if(password.length<8){ msg('La contraseña debe tener al menos 8 caracteres.','error'); return; }
-      if(password!==confirm){ msg('Las dos contraseñas no coinciden.','error'); return; }
-      msg('Actualizando contraseña…'); setFormBusy(form,true,'Guardando…');
+      clearFormFeedback(form);
+      if(password.length<8){ markInvalid(form,['password']); msg({kind:'error', title:'La contraseña es demasiado corta', body:'Necesitas al menos 8 caracteres para continuar.', hint:'Usa una frase corta, con números o símbolos, que luego puedas recordar.'}); return; }
+      if(password!==confirm){ markInvalid(form,['password','password_confirm']); msg({kind:'error', title:'Las contraseñas no coinciden', body:'Los dos campos deben contener exactamente la misma contraseña.', hint:'Vuelve a escribirla en ambos campos para evitar errores al entrar.'}); return; }
+      markValid(form,['password','password_confirm']);
+      msg({kind:'info', title:'Actualizando contraseña', body:'Estamos guardando tu nueva credencial de acceso…'});
+      setFormBusy(form,true,'Guardando…');
       try{
         const {error}=await client.auth.updateUser({password});
-        if(error) msg(authErrorMessage(error),'error');
-        else { msg('Contraseña actualizada correctamente. Ya puedes continuar.','ok'); setTimeout(()=>setAuthMode('login'),900); }
-      }catch(error){ msg(authErrorMessage(error),'error'); }
+        if(error){ markInvalid(form,['password','password_confirm']); msg(authErrorDetails(error,'recovery')); }
+        else { msg({kind:'ok', title:'Contraseña actualizada', body:'Ya puedes volver a entrar con tu nueva contraseña.', hint:'Te llevaremos otra vez al acceso para continuar.'}); setTimeout(()=>setAuthMode('login'),900); }
+      }catch(error){ markInvalid(form,['password','password_confirm']); msg(authErrorDetails(error,'recovery')); }
       finally{ setFormBusy(form,false); }
     });
   }
@@ -274,8 +434,25 @@
   async function updateProfile(fields){
     if(!session?.user) throw new Error('No hay sesión');
     const patch={id:session.user.id,...fields,updated_at:new Date().toISOString()};
+    if(!profileCloudAvailable){
+      profile={...(profile||{}),...patch};
+      updateProfileUI();
+      showCloudWarning('El perfil se mantiene solo en este navegador hasta que ejecutes SUPABASE_SETUP.sql');
+      return profile;
+    }
     const {data,error}=await client.from('profiles').upsert(patch,{onConflict:'id'}).select().single();
-    if(error) throw error; profile=data; updateProfileUI(); return data;
+    if(error){
+      if(missingTable(error,'profiles')){
+        profileCloudAvailable=false;
+        profile={...(profile||{}),...patch};
+        updateProfileUI();
+        setSyncIndicator('Solo local','local');
+        showCloudWarning('Falta la tabla public.profiles en Supabase');
+        return profile;
+      }
+      throw error;
+    }
+    profile=data; updateProfileUI(); return data;
   }
   async function signOut(){
     await syncNow();

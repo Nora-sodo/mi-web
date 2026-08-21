@@ -2451,3 +2451,303 @@ body.overlay-open{overflow:hidden}
 .course-orientation h2 { margin: 7px 0 0; font-size: clamp(1.3rem,2vw,1.65rem); }
 .orientation-list.compact { grid-template-columns: repeat(2, minmax(0,1fr)); }
 @media (max-width: 820px) { .orientation-list.compact { grid-template-columns: 1fr; } }
+
+/* P47 — correcciones visuales observadas en uso real */
+/* El botón de perfil debe integrarse en la sidebar; algunos navegadores aplicaban
+   el fondo nativo de <button> y generaban una caja clara de ancho completo. */
+.profile-button {
+  appearance:none;
+  -webkit-appearance:none;
+  background:transparent;
+  border:0;
+  border-top:1px solid rgba(255,255,255,.10);
+  border-radius:12px;
+  padding:14px 9px 10px;
+  min-width:0;
+  overflow:hidden;
+}
+.profile-button > div:last-child { min-width:0; overflow:hidden; }
+.profile-button strong,
+.profile-button small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.profile-button:hover { background:rgba(255,255,255,.055); }
+.profile-button:focus-visible { background:rgba(255,255,255,.06); }
+#syncIndicator[data-state="busy"] { color:#b9b8d0; }
+#syncIndicator[data-state="local"] { color:#f1bf62; }
+
+/* Repaso: tarjetas oscuras coherentes con el contenedor y contraste WCAG mucho
+   más claro. Se neutraliza también el aspecto nativo del botón. */
+.review-session {
+  background:linear-gradient(145deg,#111126,#151830 72%,#10233a);
+  border:1px solid rgba(151,133,255,.18);
+  box-shadow:0 18px 48px rgba(34,29,79,.12);
+  overflow:hidden;
+}
+.review-session .eyebrow { color:#8f7cff; }
+.review-session h2 { color:#fff; }
+.review-list { margin-top:16px; gap:10px; }
+.review-line {
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  min-width:0;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  background:rgba(255,255,255,.055);
+  color:#fff;
+  padding:16px 17px;
+  text-align:left;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:center;
+  cursor:pointer;
+}
+.review-line:last-child { border:1px solid rgba(255,255,255,.10); }
+.review-line:hover {
+  background:rgba(118,87,255,.14);
+  border-color:rgba(151,133,255,.36);
+  transform:translateY(-1px);
+}
+.review-line > span { min-width:0; }
+.review-line b {
+  display:block;
+  margin:0;
+  font-family:Manrope,system-ui,sans-serif;
+  font-size:15px;
+  line-height:1.35;
+  color:#fff;
+  overflow-wrap:anywhere;
+}
+.review-line small {
+  display:block;
+  margin-top:5px;
+  color:#c2c3d8;
+  font-size:13px;
+  line-height:1.45;
+}
+.review-line strong {
+  color:#d7d0ff;
+  font-size:14px;
+  white-space:nowrap;
+}
+.review-empty {
+  margin-top:16px;
+  border:1px dashed rgba(255,255,255,.18);
+  border-radius:14px;
+  padding:18px;
+  color:#c8c9dc;
+  line-height:1.55;
+}
+
+/* En zoom 125–150 % el viewport CSS se reduce aunque la pantalla sea grande.
+   Cambiamos antes a navegación móvil para evitar que el contenido quede comprimido. */
+@media (max-width:980px) {
+  .app-shell { display:block; }
+  .sidebar {
+    width:min(86vw,310px);
+    transform:translateX(-105%);
+    transition:transform .2s ease;
+    box-shadow:22px 0 70px rgba(15,12,48,.28);
+  }
+  .sidebar.open { transform:none; }
+  .main-area { grid-column:auto; }
+  .topbar { justify-content:flex-start; padding:0 14px; gap:10px; }
+  .mobile-menu { display:block; }
+  .search-trigger { width:auto; flex:1; min-width:0; }
+  .top-actions { display:none; }
+  .view { padding-inline:clamp(16px,4vw,28px); }
+}
+
+@media (max-width:620px) {
+  .review-session { padding:22px 16px; border-radius:20px; }
+  .review-session h2 { font-size:clamp(1.65rem,8vw,2rem); }
+  .review-line { grid-template-columns:1fr; gap:10px; }
+  .review-line strong { justify-self:start; }
+}
+
+
+/* P48 — feedback de login y estética plasma */
+@keyframes authPlasmaFloat {
+  0%,100% { transform:translate3d(0,0,0) scale(1); }
+  50% { transform:translate3d(0,-10px,0) scale(1.04); }
+}
+.auth-gate {
+  background:
+    radial-gradient(circle at 12% 16%, rgba(32,235,255,.26), transparent 20rem),
+    radial-gradient(circle at 84% 10%, rgba(173,108,255,.28), transparent 24rem),
+    radial-gradient(circle at 72% 82%, rgba(255,95,180,.18), transparent 18rem),
+    linear-gradient(135deg,#09091a 0%, #0d1025 38%, #14173d 100%);
+}
+.auth-gate::before,
+.auth-gate::after {
+  content:"";
+  position:absolute;
+  width:24rem;
+  height:24rem;
+  border-radius:50%;
+  filter:blur(38px);
+  opacity:.42;
+  pointer-events:none;
+  animation:authPlasmaFloat 8s ease-in-out infinite;
+}
+.auth-gate::before {
+  left:-6rem;
+  bottom:-5rem;
+  background:radial-gradient(circle, rgba(51,237,255,.82), rgba(51,237,255,0));
+}
+.auth-gate::after {
+  right:-8rem;
+  top:-5rem;
+  background:radial-gradient(circle, rgba(146,96,255,.86), rgba(146,96,255,0));
+  animation-delay:-4s;
+}
+.auth-shell {
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(125,110,255,.24);
+  background:rgba(12,12,28,.55);
+  box-shadow:0 32px 90px rgba(5,8,32,.48), 0 0 0 1px rgba(255,255,255,.03) inset;
+}
+.auth-shell::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:1px;
+  border-radius:inherit;
+  background:linear-gradient(135deg, rgba(44,241,255,.28), rgba(139,88,255,.26), rgba(255,108,182,.18));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.auth-aside {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(44,241,255,.18), transparent 16rem),
+    radial-gradient(circle at 86% 24%, rgba(139,88,255,.24), transparent 18rem),
+    linear-gradient(180deg,#0b0d25 0%, #13163b 52%, #111730 100%);
+}
+.auth-aside::after {
+  inset:auto -18% -16% auto;
+  width:24rem;
+  height:24rem;
+  background:radial-gradient(circle, rgba(53,231,255,.22), rgba(53,231,255,0) 68%);
+  filter:blur(14px);
+}
+.auth-kicker { color:#7fe9ff; text-shadow:0 0 18px rgba(63,223,255,.22); }
+.auth-aside h2 { text-shadow:0 8px 28px rgba(7,11,34,.42); }
+.auth-proof span {
+  border-color:rgba(104,239,255,.14);
+  background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
+  box-shadow:0 8px 26px rgba(7,12,40,.20);
+}
+.auth-panel {
+  background:
+    radial-gradient(circle at 0% 100%, rgba(63,225,255,.08), transparent 18rem),
+    radial-gradient(circle at 100% 0%, rgba(153,101,255,.08), transparent 18rem),
+    linear-gradient(180deg, rgba(253,253,255,.98), rgba(246,246,255,.98));
+}
+.auth-secure {
+  color:#6b6788;
+  padding:7px 12px;
+  border:1px solid rgba(135,128,185,.18);
+  border-radius:999px;
+  background:rgba(255,255,255,.65);
+  box-shadow:0 10px 24px rgba(35,30,88,.06);
+}
+.auth-view .eyebrow { color:#5f7bff; text-shadow:0 0 16px rgba(95,123,255,.15); }
+.auth-view h1 {
+  background:linear-gradient(135deg,#1a1736 0%, #533ef0 52%, #1294dd 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.auth-intro { color:#69667f; }
+.auth-form input {
+  border:1px solid rgba(141,136,187,.26);
+  background:rgba(255,255,255,.82);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72), 0 8px 22px rgba(21,18,52,.05);
+}
+.auth-form input:hover { border-color:rgba(108,102,179,.44); }
+.auth-form input:focus-visible {
+  border-color:rgba(103,93,255,.72);
+  box-shadow:0 0 0 4px rgba(118,87,255,.14), 0 18px 30px rgba(77,60,194,.14);
+}
+.auth-form input.is-invalid {
+  border-color:#ff6d9c;
+  background:linear-gradient(180deg,#fff,#fff7fb);
+  box-shadow:0 0 0 4px rgba(255,109,156,.13), 0 14px 26px rgba(165,38,94,.11);
+}
+.auth-form input.is-valid {
+  border-color:#72dcb8;
+  box-shadow:0 0 0 4px rgba(114,220,184,.12), 0 12px 24px rgba(31,144,98,.08);
+}
+.auth-link { color:#5d49f1; }
+.auth-link:hover { background:rgba(93,73,241,.08); }
+.auth-submit {
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,#4d7dff 0%, #7b54ff 46%, #e055d4 100%);
+  box-shadow:0 18px 44px rgba(96,72,238,.26), 0 0 0 1px rgba(255,255,255,.16) inset;
+}
+.auth-submit::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg, rgba(255,255,255,0) 20%, rgba(255,255,255,.32) 50%, rgba(255,255,255,0) 80%);
+  transform:translateX(-130%);
+  transition:transform .55s ease;
+}
+.auth-submit:hover { transform:translateY(-1px); box-shadow:0 24px 54px rgba(96,72,238,.34), 0 0 0 1px rgba(255,255,255,.18) inset; }
+.auth-submit:hover::after { transform:translateX(130%); }
+.auth-submit[disabled] { opacity:.78; }
+.auth-status { outline:none; }
+.auth-status:not(:empty) {
+  display:grid;
+  gap:4px;
+  position:relative;
+  padding:13px 14px 13px 44px;
+  border:1px solid rgba(124,117,177,.16);
+  background:rgba(255,255,255,.84);
+  box-shadow:0 14px 36px rgba(26,22,70,.08);
+}
+.auth-status:not(:empty)::before {
+  content:"✦";
+  position:absolute;
+  left:14px;
+  top:12px;
+  display:grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  font-size:.82rem;
+}
+.auth-status[data-kind="info"]:not(:empty)::before {
+  color:#6b57f0;
+  background:rgba(107,87,240,.12);
+}
+.auth-status[data-kind="ok"]:not(:empty)::before {
+  color:#169d73;
+  background:rgba(22,157,115,.12);
+}
+.auth-status[data-kind="warn"]:not(:empty)::before {
+  content:"!";
+  color:#a46a17;
+  background:rgba(241,191,98,.18);
+}
+.auth-status[data-kind="error"]:not(:empty)::before {
+  content:"×";
+  color:#c92c5d;
+  background:rgba(236,79,126,.15);
+}
+.auth-status-title { font-weight:900; color:#1f1c3c; }
+.auth-status-body { color:#4f4a68; }
+.auth-status-hint { color:#736f89; line-height:1.45; }
+.auth-status[data-kind="warn"] { color:#714f12; background:linear-gradient(180deg,#fff9ed,#fff5df); border-color:rgba(241,191,98,.28); }
+.auth-status[data-kind="error"] { color:#8f214c; background:linear-gradient(180deg,#fff4f7,#fff0f6); border-color:rgba(236,79,126,.26); }
+.auth-status[data-kind="ok"] { color:#20694f; background:linear-gradient(180deg,#eefcf5,#e9f9f3); border-color:rgba(33,185,124,.18); }
+.auth-privacy { color:#8985a0; }
+@media (max-width:760px){
+  .auth-gate::before, .auth-gate::after { opacity:.26; }
+  .auth-shell { background:rgba(11,12,28,.74); }
+}

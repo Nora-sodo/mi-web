@@ -1251,33 +1251,54 @@ function checkPracticeAnswer(button, lesson) {
 
 function renderReview() {
   const recentErrors = state.errors.slice(-5).reverse();
-  const fallback = Object.values(LESSONS).slice(0, 3).map(lesson => ({
-    lessonId: lesson.id,
-    topic: lesson.shortTitle,
-    problem: "Recuperación activa del concepto clave"
-  }));
-  const items = recentErrors.length ? recentErrors : fallback;
+  const activity = state.lessonActivity || {};
+  const staleCompleted = (state.completed || [])
+    .filter(id => LESSONS[id])
+    .map(id => ({
+      lessonId:id,
+      topic:LESSONS[id].shortTitle || LESSONS[id].title,
+      lastOpenedAt:Number(activity[id]?.lastOpenedAt || activity[id]?.completedAt || 0)
+    }))
+    .filter(item => item.lastOpenedAt > 0)
+    .sort((a,b) => a.lastOpenedAt - b.lastOpenedAt)
+    .slice(0,3)
+    .map(item => ({...item, problem:'Recuerdo espaciado: intenta explicar la idea sin mirar antes de abrirla.'}));
+
+  const items = recentErrors.length ? recentErrors : staleCompleted;
+  const sessionMinutes = Math.max(4, Math.min(12, items.length * 3));
 
   view.innerHTML = `
     <div class="page-title">
       <span class="eyebrow">Memoria a largo plazo</span>
       <h1>🧠 Repasar</h1>
-      <p>Priorizamos fallos y recuperación activa. Releer veinte veces produce una agradable ilusión de familiaridad; recordar sin mirar produce aprendizaje.</p>
+      <p>Priorizamos fallos y recuperación activa. Intenta recordar primero y consulta después: así distingues lo que reconoces de lo que realmente puedes recuperar.</p>
     </div>
 
     <section class="review-session">
-      <span class="eyebrow">Sesión sugerida · ~7 minutos</span>
-      <h2>${items.length} elementos prioritarios</h2>
-      <div class="review-list">
-        ${items.map(item => `
-          <button class="review-line" onclick="route('tema', '${item.lessonId}')">
-            <span><b>${escapeHtml(item.topic)}</b><small>${escapeHtml(item.problem)}</small></span>
-            <strong>Practicar →</strong>
-          </button>
-        `).join("")}
-      </div>
+      <span class="eyebrow">${items.length ? `Sesión sugerida · ~${sessionMinutes} minutos` : 'Repaso al día'}</span>
+      <h2>${items.length ? `${items.length} ${items.length === 1 ? 'elemento prioritario' : 'elementos prioritarios'}` : 'Nada urgente por repasar'}</h2>
+      ${items.length ? `
+        <div class="review-list">
+          ${items.map(item => `
+            <button class="review-line" data-review-lesson="${escapeHtml(item.lessonId)}">
+              <span><b>${escapeHtml(item.topic)}</b><small>${escapeHtml(item.problem)}</small></span>
+              <strong>Practicar <span aria-hidden="true">→</span></strong>
+            </button>
+          `).join("")}
+        </div>
+      ` : `
+        <div class="review-empty">
+          No tienes errores recientes ni temas dominados que necesiten mantenimiento todavía. Puedes seguir aprendiendo y esta vista irá construyendo una cola de repaso real con tu actividad.
+          <div><button class="btn btn-primary" data-review-go-learn style="margin-top:14px">Seguir aprendiendo</button></div>
+        </div>
+      `}
     </section>
   `;
+
+  view.querySelectorAll('[data-review-lesson]').forEach(btn => {
+    btn.addEventListener('click', () => route('tema', btn.dataset.reviewLesson));
+  });
+  view.querySelector('[data-review-go-learn]')?.addEventListener('click', () => route('aprender'));
 }
 
 function renderErrors() {
