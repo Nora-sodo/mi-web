@@ -2751,3 +2751,87 @@ body.overlay-open{overflow:hidden}
   .auth-gate::before, .auth-gate::after { opacity:.26; }
   .auth-shell { background:rgba(11,12,28,.74); }
 }
+
+
+/* P49 — corrección definitiva de rectángulos blancos en botones nativos */
+/* Algunos navegadores seguían pintando el fondo nativo de <button> en dos zonas
+   concretas: el mini perfil de la sidebar y las filas de Repasar. Aquí se anula
+   de forma explícita cualquier apariencia/fondo/borde heredado. */
+.sidebar .profile-mini.profile-button,
+.profile-mini.profile-button {
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  width:100% !important;
+  margin:0 !important;
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  color:inherit !important;
+  border:0 !important;
+  border-top:1px solid rgba(255,255,255,.10) !important;
+  border-radius:12px !important;
+  box-shadow:none !important;
+  text-align:left !important;
+  text-decoration:none !important;
+  padding:14px 9px 10px !important;
+}
+.sidebar .profile-mini.profile-button:hover,
+.sidebar .profile-mini.profile-button:focus-visible {
+  background:rgba(255,255,255,.055) !important;
+}
+.sidebar .profile-mini.profile-button strong,
+.sidebar .profile-mini.profile-button small,
+.sidebar .profile-mini.profile-button span {
+  color:inherit;
+}
+
+.review-session .review-line,
+button.review-line {
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  align-items:center !important;
+  gap:18px !important;
+  width:100% !important;
+  margin:0 !important;
+  background:#1b1e36 !important;
+  background-color:#1b1e36 !important;
+  background-image:none !important;
+  color:#ffffff !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  border-radius:14px !important;
+  box-shadow:none !important;
+  text-align:left !important;
+  text-decoration:none !important;
+  padding:16px 17px !important;
+}
+.review-session .review-line:hover,
+.review-session .review-line:focus-visible,
+button.review-line:hover,
+button.review-line:focus-visible {
+  background:rgba(118,87,255,.18) !important;
+  border-color:rgba(151,133,255,.36) !important;
+}
+.review-session .review-line b,
+button.review-line b {
+  color:#ffffff !important;
+}
+.review-session .review-line small,
+button.review-line small {
+  color:#cfd2e6 !important;
+}
+.review-session .review-line strong,
+button.review-line strong {
+  color:#ddd7ff !important;
+}
+@media (max-width:620px) {
+  .review-session .review-line,
+  button.review-line {
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+  }
+}
