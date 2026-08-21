@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f6f8f6">
+  <meta name="theme-color" content="#111126">
   <meta name="description" content="Universidad de Sistemas e Ingeniería Computacional — aprendizaje profundo, práctica adaptativa y progreso real.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest">
   <title>USIC — Universidad de Sistemas e Ingeniería Computacional</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +16,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#view">Saltar al contenido principal</a>
   <noscript><div style="padding:1rem;font-family:system-ui">USIC necesita JavaScript para cargar las lecciones, guardar progreso y ejecutar los laboratorios.</div></noscript>
 <script>
 /*
@@ -23,37 +28,37 @@
                                                 |      /   \ /   \      |
                                                 \     | .-. | .-. |    /
                                                   '-._| | | | | | |_.-'
-                                                       | '-' | '-' |
-                                                         \___/ \___/
-                                                      _.-'  /   \  `-._
-                                                    .' _.--|     |--._ '.
-                                                    ' _...-|     |-..._ '
-                                                           |     |
-                                                           '.___.'
-                                                              | |
-                                                             _| |_
-                                                           /\( )/\
-                                                          /  ` '  \
-                                                         | |     | |
-                                                         '-'     '-'
-                                                           | |     | |
-                                                           | |     | |
-                                                           | |-----| |
-                                                        .`/  |     | |/`.
-                                                        |    |     |    |
-                                                        '._.'| .-. |'._.'
-                                                             \ | /
-                                                             | | |
-                                                             | | |
-                                                             | | |
-                                                            /| | |\
-                                                          .'_| | |_`.
-                                                          `. | | | .'
-                                                      .     /  |  \     .
-                                                     /o`.-'  / \  `-.`o\
-                                                    /o  o\ .'   `. /o  o\
+                                                      | '-' | '-' |
+                                                       \___/ \___/
+                                                    _.-'  /   \  `-._
+                                                  .' _.--|     |--._ '.
+                                                  ' _...-|     |-..._ '
+                                                         |     |
+                                                         '.___.'
+                                                           | |
+                                                          _| |_
+                                                         /\( )/\
+                    /s3cr3t-cas3/                       /  ` '  \
+                                                       | |     | |
+                                                       '-'     '-'
+                                                       | |     | |
+                                                       | |     | |
+                                                       | |-----| |
+                                                    .`/  |     | |/`.
+                                                    |    |     |    |
+                                                    '._.'| .-. |'._.'
+                                                          \ | /
+                                                          | | |
+                                                          | | |
+                                                          | | |
+                                                         /| | |\
+                                                       .'_| | |_`.
+                                                       `. | | | .'
+                                                   .     /  |  \     .
+                                                   /o`.-'  / \  `-.`o\
+                                                  /o  o\ .'   `. /o  o\
 
-       .--..--..--..--..--..--.                    `.___.'       `.___.'
+     .--..--..--..--..--..--.                     `.___.'       `.___.'
     .' \  (`._   (_)     _   \
   .'    |  '._)         (_)  |
   \ _.')\      .----..---.   /
@@ -70,12 +75,122 @@
 `-._  `.  |________/\_____|    `-.'
    .'   ).| '=' '='\/ '=' |
    `._.`  '---------------'
-            //___\   //___\
-              ||       ||
-              ||_.-.   ||_.-.
-             (_.--__) (_.--__)                                  /s3cr3t-cas3/
+          //___\   //___\
+            ||       ||
+            ||_.-.   ||_.-.
+           (_.--__) (_.--__)                                  
+
+    Hay lugares de esta web que no aparecen en ningún menú.
+    Si has llegado hasta este comentario, quizá ya sabes dónde mirar.
+    /s3cr3t-cas3/
 */
 </script>
+  <section class="auth-gate" id="authGate" aria-hidden="false">
+    <div class="auth-shell" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <aside class="auth-aside" aria-label="Presentación de USIC">
+        <a class="auth-brand" href="#" aria-label="USIC — Universidad de Sistemas e Ingeniería Computacional">
+          <span class="brand-mark">U</span>
+          <span><strong>USIC</strong><small>Universidad de Sistemas</small></span>
+        </a>
+        <div class="auth-aside-copy">
+          <span class="auth-kicker">AURORA CIRCUIT</span>
+          <h2>Aprende sistemas<br>con profundidad.</h2>
+          <p>Lecciones, laboratorios y progreso real en un único espacio de estudio.</p>
+        </div>
+        <div class="auth-proof" aria-label="Características de la plataforma">
+          <span><b>78</b> bloques</span><span><b>1.000+</b> lecciones</span><span><b>Cloud</b> sincronizado</span>
+        </div>
+      </aside>
+
+      <main class="auth-panel">
+        <div class="auth-panel-head">
+          <span class="auth-mobile-brand"><span class="brand-mark">U</span><strong>USIC</strong></span>
+          <span class="auth-secure">● Conexión segura</span>
+        </div>
+
+        <div class="auth-view" data-auth-view="login">
+          <span class="eyebrow">Bienvenido de nuevo</span>
+          <h1 id="authTitle">Continúa donde lo dejaste</h1>
+          <p class="auth-intro">Accede a tu progreso, objetivos y estadísticas.</p>
+          <form id="loginForm" class="auth-form">
+            <label>Email<input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="tu@email.com"></label>
+            <label>Contraseña
+              <span class="password-field"><input type="password" name="password" required autocomplete="current-password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña" title="Mostrar contraseña">Ver</button></span>
+            </label>
+            <div class="auth-form-meta"><span class="auth-session-note">La sesión se mantiene de forma segura en este dispositivo.</span><button class="auth-link auth-link-inline" id="showForgot" type="button">¿La has olvidado?</button></div>
+            <button class="btn btn-primary auth-submit" type="submit">Entrar a USIC</button>
+          </form>
+          <p class="auth-switch">¿Primera vez aquí? <button class="auth-link" type="button" data-auth-mode="register">Crear una cuenta</button></p>
+        </div>
+
+        <div class="auth-view" data-auth-view="register" hidden>
+          <button class="auth-back" type="button" data-auth-mode="login">← Volver al acceso</button>
+          <span class="eyebrow">Nueva cuenta</span>
+          <h1>Crea tu espacio de estudio</h1>
+          <p class="auth-intro">Solo necesitamos tres datos. Podrás configurar tus objetivos después.</p>
+          <form id="registerForm" class="auth-form">
+            <label>Nombre visible<input type="text" name="display_name" maxlength="60" required autocomplete="name" placeholder="Cómo quieres que te llamemos"></label>
+            <label>Email<input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="tu@email.com"></label>
+            <label>Contraseña
+              <span class="password-field"><input type="password" name="password" minlength="8" required autocomplete="new-password" placeholder="Mínimo 8 caracteres"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña" title="Mostrar contraseña">Ver</button></span>
+              <small class="field-hint">Usa al menos 8 caracteres.</small>
+            </label>
+            <button class="btn btn-primary auth-submit" type="submit">Crear mi cuenta</button>
+          </form>
+        </div>
+
+        <div class="auth-view" data-auth-view="forgot" hidden>
+          <button class="auth-back" id="backToLogin" type="button">← Volver al acceso</button>
+          <span class="eyebrow">Recuperar acceso</span>
+          <h1>Restablece tu contraseña</h1>
+          <p class="auth-intro">Escribe el email de tu cuenta y te enviaremos un enlace seguro.</p>
+          <form id="forgotForm" class="auth-form">
+            <label>Email<input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="tu@email.com"></label>
+            <button class="btn btn-primary auth-submit" type="submit">Enviar enlace</button>
+          </form>
+        </div>
+
+        <div class="auth-view" data-auth-view="recovery" hidden>
+          <span class="eyebrow">Nueva contraseña</span>
+          <h1>Protege tu cuenta</h1>
+          <p class="auth-intro">El enlace es válido. Define una nueva contraseña para terminar.</p>
+          <form id="recoveryForm" class="auth-form">
+            <label>Nueva contraseña
+              <span class="password-field"><input type="password" name="password" minlength="8" required autocomplete="new-password" placeholder="Mínimo 8 caracteres"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña" title="Mostrar contraseña">Ver</button></span>
+            </label>
+            <label>Repite la contraseña
+              <span class="password-field"><input type="password" name="password_confirm" minlength="8" required autocomplete="new-password" placeholder="Repite la contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña" title="Mostrar contraseña">Ver</button></span>
+            </label>
+            <button class="btn btn-primary auth-submit" type="submit">Guardar nueva contraseña</button>
+          </form>
+        </div>
+
+        <div class="auth-status" id="authStatus" role="status" aria-live="polite"></div>
+        <small class="auth-privacy">Tu progreso académico se guarda en USIC. NEXUS permanece separado.</small>
+      </main>
+    </div>
+  </section>
+
+  <section class="onboarding-modal" id="onboardingModal" aria-hidden="true" hidden>
+    <div class="onboarding-card">
+      <span class="eyebrow">Configura tu USIC</span>
+      <h2>¿Qué quieres aprender primero?</h2>
+      <p>No bloquearemos ninguna lección. Esto solo personaliza tu dashboard y te ayuda a definir una meta de estudio realista.</p>
+      <form id="onboardingForm" class="auth-form">
+        <label>Nombre visible<input name="display_name" maxlength="60" required autocomplete="name"></label>
+        <label>Área principal
+          <select name="focus_area">
+            <option value="">Todavía no lo sé</option>
+            <option value="demoscene">Demoscene</option><option value="cybersecurity">Ciberseguridad</option><option value="computers">Cómo funcionan realmente los ordenadores</option><option value="gamedev">Desarrollo de videojuegos</option><option value="godot">Godot</option><option value="pixelart">Pixel art y arte técnico</option><option value="electronics">Electrónica</option><option value="ai">Inteligencia artificial</option><option value="os">Sistemas operativos</option><option value="networks">Redes e Internet</option>
+          </select>
+        </label>
+        <label>Meta semanal<input name="weekly_goal_minutes" type="number" min="30" max="3000" value="180"><small>Minutos por semana. Puedes cambiarla cuando quieras.</small></label>
+        <div class="onboarding-actions"><button type="button" class="btn btn-secondary" id="skipOnboarding">Ahora no</button><button class="btn btn-primary">Guardar y empezar</button></div>
+        <div id="onboardingStatus" class="auth-status" role="status"></div>
+      </form>
+    </div>
+  </section>
+
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="#inicio" data-route="inicio" aria-label="Ir al inicio">
@@ -88,122 +203,63 @@
         <button class="nav-item" data-route="repasar"><span>↻</span>Repasar <b class="nav-badge" id="reviewBadge">0</b></button>
         <button class="nav-item" data-route="biblioteca"><span>▤</span>Biblioteca</button>
         <button class="nav-item" data-route="progreso"><span>⌁</span>Progreso</button>
+        <button class="nav-item" data-route="objetivos"><span>◎</span>Objetivos</button>
       </nav>
       <div class="sidebar-bottom">
         <button class="nav-item" data-route="errores"><span>⚠</span>Mis errores</button>
-        <div class="profile-mini"><div class="avatar">A</div><div><strong>Estudiante</strong><small>Nivel: curiosidad peligrosa</small></div></div>
+        <button class="profile-mini profile-button" data-route="cuenta"><div class="avatar" data-user-avatar>U</div><div><strong data-user-name>Estudiante</strong><small><span id="syncIndicator">Conectando…</span></small></div></button>
       </div>
     </aside>
+    <button class="sidebar-backdrop" id="sidebarBackdrop" aria-label="Cerrar navegación" tabindex="-1"></button>
 
     <main class="main-area">
       <header class="topbar">
-        <button class="mobile-menu" id="mobileMenu" aria-label="Abrir menú">☰</button>
+        <button class="mobile-menu" id="mobileMenu" aria-label="Abrir navegación" aria-controls="sidebar" aria-expanded="false">☰</button>
         <button class="search-trigger" id="searchTrigger"><span>⌕</span><span>¿Qué quieres aprender?</span><kbd>Ctrl K</kbd></button>
-        <div class="top-actions"><span class="streak" title="La racha es secundaria; lo importante es recordar lo aprendido.">7 días · sin dramas</span><button class="icon-btn" aria-label="Notificaciones">◌</button></div>
+        <div class="top-actions"><span class="streak" title="La racha es secundaria; lo importante es recordar lo aprendido.">7 días · sin dramas</span><button class="icon-btn account-shortcut" data-route="cuenta" aria-label="Abrir mi cuenta" title="Mi cuenta"><span aria-hidden="true">U</span></button></div>
       </header>
       <div id="view" class="view"></div>
     </main>
   </div>
 
   <div class="search-overlay" id="searchOverlay" aria-hidden="true">
-    <div class="search-modal">
-      <div class="search-input-wrap"><span>⌕</span><input id="globalSearch" autocomplete="off" placeholder="Prueba “derivadas”, “TLS”, “caché”..."><button id="closeSearch">Esc</button></div>
+    <div class="search-modal" role="dialog" aria-modal="true" aria-labelledby="searchDialogTitle">
+      <div class="search-dialog-label" id="searchDialogTitle">Buscar en USIC</div><div class="search-input-wrap"><span aria-hidden="true">⌕</span><label class="sr-only" for="globalSearch">Buscar lecciones, cursos y conceptos</label><input id="globalSearch" autocomplete="off" placeholder="Prueba “derivadas”, “TLS”, “caché”…"><button id="closeSearch" aria-label="Cerrar búsqueda">Esc</button></div>
       <div class="search-results" id="searchResults"></div>
     </div>
   </div>
 
   <button class="tutor-fab" id="tutorFab">🤖 <span>Preguntar al tutor</span></button>
-  <div class="tutor-panel" id="tutorPanel" aria-hidden="true">
-    <div class="tutor-head"><div><b>Tu tutor socrático</b><small>Pistas primero. Spoilers, solo si los pides.</small></div><button id="closeTutor">×</button></div>
+  <div class="tutor-panel" id="tutorPanel" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="tutorTitle">
+    <div class="tutor-head"><div><b id="tutorTitle">Tu tutor socrático</b><small>Pistas primero. Spoilers, solo si los pides.</small></div><button id="closeTutor" aria-label="Cerrar tutor">×</button></div>
     <div class="tutor-messages" id="tutorMessages"><div class="msg ai">¿Dónde se ha atascado la neurona? Cuéntame qué paso no te convence.</div></div>
-    <form id="tutorForm"><input id="tutorInput" placeholder="Ej.: ¿por qué -log₂(p)?" autocomplete="off"><button>Enviar</button></form>
+    <form id="tutorForm"><label class="sr-only" for="tutorInput">Pregunta para el tutor</label><input id="tutorInput" placeholder="Ej.: ¿por qué -log₂(p)?" autocomplete="off"><button aria-label="Enviar pregunta">Enviar</button></form>
   </div>
 
   <!-- Datos y contenido -->
-  <script src="data.js"></script>
-  <script src="content/block-001.js"></script>
-  <script src="content/block-002.js"></script>
-  <script src="content/block-003.js"></script>
-  <script src="content/block-004.js"></script>
-  <script src="content/block-005.js"></script>
-  <script src="content/block-006.js"></script>
-  <script src="content/block-007.js"></script>
-  <script src="content/block-008.js"></script>
-  <script src="content/block-009.js"></script>
-  <script src="content/block-010.js"></script>
-  <script src="content/block-011.js"></script>
-  <script src="content/block-012.js"></script>
-  <script src="content/block-013.js"></script>
-  <script src="content/block-014.js"></script>
-  <script src="content/block-015.js"></script>
-  <script src="content/block-016.js"></script>
-  <script src="content/block-017.js"></script>
-  <script src="content/block-018.js"></script>
-  <script src="content/block-019.js"></script>
-  <script src="content/block-020.js"></script>
-  <script src="content/block-021.js"></script>
-  <script src="content/block-022.js"></script>
-  <script src="content/block-023.js"></script>
-  <script src="content/block-024.js"></script>
-  <script src="content/block-025.js"></script>
-  <script src="content/block-026.js"></script>
-  <script src="content/block-027.js"></script>
-  <script src="content/block-028.js"></script>
-  <script src="content/block-029.js"></script>
-  <script src="content/block-030.js"></script>
-  <script src="content/block-031.js"></script>
-  <script src="content/block-032.js"></script>
-  <script src="content/block-033.js"></script>
-  <script src="content/block-034.js"></script>
-  <script src="content/block-035.js"></script>
-  <script src="content/block-036.js"></script>
-  <script src="content/block-037.js"></script>
-  <script src="content/block-038.js"></script>
-  <script src="content/block-039.js"></script>
-  <script src="content/block-040.js"></script>
-  <script src="content/block-041.js"></script>
-  <script src="content/block-042.js"></script>
-  <script src="content/block-043.js"></script>
-  <script src="content/block-044.js"></script>
-  <script src="content/block-045.js"></script>
-  <script src="content/block-046.js"></script>
-  <script src="content/block-047.js"></script>
-  <script src="content/block-048.js"></script>
-  <script src="content/block-049.js"></script>
-  <script src="content/block-050.js"></script>
-  <script src="content/block-051.js"></script>
-    <script src="content/block-052.js"></script>
-    <script src="content/block-053.js"></script>
-    <script src="content/block-054.js"></script>
-    <script src="content/block-055.js"></script>
-    <script src="content/block-056.js"></script>
-    <script src="content/block-057.js"></script>
-    <script src="content/block-058.js"></script>
-  <script src="content/block-059.js"></script>
-  <script src="content/block-060.js"></script>
-  <script src="content/block-061.js"></script>
-  <script src="content/block-062.js"></script>
-  <script src="content/block-063.js"></script>
-  <script src="content/block-064.js"></script>
-  <script src="content/block-065.js"></script>
-  <script src="content/block-066.js"></script>
-  <script src="content/block-067.js"></script>
-  <script src="content/block-068.js"></script>
-  <script src="content/block-069.js"></script>
-  <script src="content/block-070.js"></script>
-  <script src="content/block-071.js"></script>
-  <script src="content/block-072.js"></script>
-  <script src="content/block-073.js"></script>
-  <script src="content/block-074.js"></script>
-  <script src="content/block-075.js"></script>
-  <script src="content/block-076.js"></script>
-  <script src="content/block-077.js"></script>
-  <script src="content/block-078.js"></script>
-  <script src="content/challenges.js"></script>
 
-  <!-- Estado y aplicación -->
+  <dialog class="confirm-dialog" id="confirmDialog" aria-labelledby="confirmDialogTitle" aria-describedby="confirmDialogMessage">
+    <form method="dialog" class="confirm-dialog-card">
+      <span class="eyebrow">Confirmación</span>
+      <h2 id="confirmDialogTitle">¿Quieres continuar?</h2>
+      <p id="confirmDialogMessage"></p>
+      <div class="confirm-dialog-actions">
+        <button class="btn btn-secondary" value="cancel" type="submit">Cancelar</button>
+        <button class="btn btn-danger" id="confirmDialogAccept" value="confirm" type="submit">Confirmar</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="data.js"></script>
+  <script src="content/course-content.bundle.js"></script>
+
+  <!-- Estado, nube y aplicación -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="resources.js"></script>
   <script src="labs.js"></script>
   <script src="state.js"></script>
   <script src="app.js"></script>
+  <script src="auth.js"></script>
+  <script src="ui-p34.js"></script>
 </body>
 </html>

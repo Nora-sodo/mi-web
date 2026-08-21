@@ -8,69 +8,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<script>
-/*
-                                                     .--'''''''''--.
-                                                  .'      .---.      '.
-                                                 /    .-----------.    \
-                                                /        .-----.        \
-                                                |       .-.   .-.       |
-                                                |      /   \ /   \      |
-                                                \     | .-. | .-. |    /
-                                                  '-._| | | | | | |_.-'
-                                                       | '-' | '-' |
-                                                         \___/ \___/
-                                                      _.-'  /   \  `-._
-                                                    .' _.--|     |--._ '.
-                                                    ' _...-|     |-..._ '
-                                                           |     |
-                                                           '.___.'
-                                                              | |
-                                                             _| |_
-                                                           /\( )/\
-                                                          /  ` '  \
-                                                         | |     | |
-                                                         '-'     '-'
-                                                           | |     | |
-                                                           | |     | |
-                                                           | |-----| |
-                                                        .`/  |     | |/`.
-                                                        |    |     |    |
-                                                        '._.'| .-. |'._.'
-                                                             \ | /
-                                                             | | |
-                                                             | | |
-                                                             | | |
-                                                            /| | |\
-                                                          .'_| | |_`.
-                                                          `. | | | .'
-                                                      .     /  |  \     .
-                                                     /o`.-'  / \  `-.`o\
-                                                    /o  o\ .'   `. /o  o\
 
-       .--..--..--..--..--..--.                    `.___.'       `.___.'
-    .' \  (`._   (_)     _   \
-  .'    |  '._)         (_)  |
-  \ _.')\      .----..---.   /
-  |(_.'  |    /    .-\-.  \  |
-  \     0|    |   ( O| O) | o|
-   |  _  |  .--.____.'._.-.  |
-   \ (_) | o         -` .-`  |
-    |    \   |`-._ _ _ _ _\ /
-    \    |   |  `. |_||_|   |
-    | o  |    \_      \     |
-    |.-.  \     `--..-'   O |
-  _.'  .' |      `-.-'      /-.__
-.' `-.` '.|='=.='=.='=.='=|._/_ `-.
-`-._  `.  |________/\_____|    `-.'
-   .'   ).| '=' '='\/ '=' |
-   `._.`  '---------------'
-            //___\   //___\
-              ||       ||
-              ||_.-.   ||_.-.
-             (_.--__) (_.--__)                                  /s3cr3t-cas3/
-*/
-</script>
   <div class="scanlines" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
   <main class="shell">
@@ -120,7 +58,7 @@
       </div>
       <article class="panel security-global">
         <div class="warning-icon">!</div>
-        <div><b>POLÍTICA DE VALIDACIÓN</b><p>Las validaciones críticas usan protección anti-fuerza-bruta. Un resultado incorrecto bloquea ese nodo durante <strong>05:00</strong>. Los errores de formato no penalizan.</p></div>
+        <div><b>POLÍTICA DE VALIDACIÓN</b><p>Las validaciones críticas usan protección anti-fuerza-bruta. Un resultado incorrecto bloquea ese nodo durante <strong>02:00</strong>. Los errores de formato no penalizan.</p></div>
       </article>
       <div id="module-grid" class="module-grid"></div>
       <div id="unlock-toast" class="toast hidden"><b>ÍNDICE ACTUALIZADO</b><span id="toast-copy"></span></div>
@@ -131,9 +69,9 @@
       <div class="heading"><div><div class="eyebrow">ARCHIVO 01</div><h2>AUDITORÍA DE REGISTROS</h2></div><span class="badge warn">VALIDACIÓN CRÍTICA</span></div>
       <article class="panel security-warning" data-lock-warning="records">
         <b>ADVERTENCIA DEL SISTEMA</b>
-        <p>Cada intento incorrecto activa un bloqueo temporal de seguridad de <strong>5 minutos</strong>. Durante ese periodo no podrán enviarse nuevas respuestas.</p>
+        <p>Cada respuesta incorrecta activa un bloqueo temporal de seguridad de <strong>2 minutos</strong>. Una respuesta correcta siempre se acepta aunque no haya realizado previamente las acciones auxiliares de la interfaz.</p>
         <small>Revise sus conclusiones antes de validar. Errores de formato no activan el bloqueo.</small>
-        <div class="lock-status">Intentos incorrectos → bloqueo de <b>05:00</b> <span id="records-lock"></span></div>
+        <div class="lock-status">Intentos incorrectos → bloqueo de <b>02:00</b> <span id="records-lock"></span></div>
       </article>
       <article class="panel">
         <div class="audit-rules">
@@ -165,7 +103,7 @@
       <div class="heading"><div><div class="eyebrow">ARCHIVO 02</div><h2>RECONSTRUCCIÓN DE MENSAJES</h2></div><span class="badge warn">VALIDACIÓN CRÍTICA</span></div>
       <article class="panel security-warning" data-lock-warning="messages">
         <b>ADVERTENCIA DEL SISTEMA</b>
-        <p>Una reconstrucción incorrecta activa un bloqueo de <strong>5 minutos</strong>.</p>
+        <p>Una respuesta incorrecta activa un bloqueo de <strong>2 minutos</strong>. Si conoce la solución correcta, puede validarla directamente aunque no haya reordenado los mensajes en pantalla.</p>
         <div class="lock-status">Nuevo intento → <b id="messages-lock">DISPONIBLE</b></div>
       </article>
       <article class="panel">
@@ -188,18 +126,32 @@
       <div class="heading"><div><div class="eyebrow">ARCHIVO 03</div><h2>CATÁLOGO CRUZADO</h2></div><span class="badge warn">VALIDACIÓN CRÍTICA</span></div>
       <article class="panel security-warning" data-lock-warning="catalog">
         <b>ADVERTENCIA DEL SISTEMA</b>
-        <p>Un código de catálogo incorrecto activa un bloqueo de <strong>5 minutos</strong>.</p>
+        <p>Un código de catálogo incorrecto activa un bloqueo de <strong>2 minutos</strong>.</p>
         <div class="lock-status">Nuevo intento → <b id="catalog-lock">DISPONIBLE</b></div>
       </article>
       <article class="panel">
-        <div class="catalog-note">
-          <small>NOTA DE CORRELACIÓN // R7-D2</small>
-          <p>La ficha vinculada cumple todas las condiciones: su <b>índice = suma de sus dígitos − incidencias abiertas</b>; fue abierta <b>después de Mora y antes de Varela</b>; y su estado no figura como estable.</p>
-          <p>Últimos accesos de referencia: MORA <b>22:19</b> · VARELA <b>22:27</b>.</p>
+        <div class="catalog-briefing">
+          <div class="panel-title">QUÉ ESTÁS VIENDO</div>
+          <p>Este archivo contiene varias <b>fichas ECO</b>. Solo una corresponde al registro anómalo <b>R7-D2</b> que recuperaste en el Archivo 01. Tu trabajo es identificar esa ficha comprobando tres condiciones.</p>
+          <ol class="catalog-steps">
+            <li><b>Comprueba el índice.</b> Suma los dígitos del número ECO y resta sus incidencias abiertas. El resultado debe coincidir con el campo <b>ÍNDICE</b>.</li>
+            <li><b>Comprueba la hora.</b> La ficha correcta fue abierta después de MORA (<b>22:19</b>) y antes de VARELA (<b>22:27</b>).</li>
+            <li><b>Comprueba el estado.</b> La ficha correcta <b>no</b> puede figurar como ESTABLE. Que una ficha tenga otro estado no la convierte automáticamente en válida: todavía debe superar índice y hora.</li>
+          </ol>
+          <div class="catalog-example">
+            <strong>EJEMPLO DE CÓMO LEER UNA FILA — NO ES LA SOLUCIÓN</strong>
+            <p><b>ECO 025</b>: 0 + 2 + 5 = 7; 7 − 2 incidencias = <b>5</b>, así que su índice sí cuadra. Se abrió a las 22:25, dentro de la ventana. Pero su estado es <b>ESTABLE</b>, por lo que queda descartada. Otras filas pueden tener estados anómalos y aun así fallar por índice u hora.</p>
+          </div>
+          <p class="catalog-goal"><b>Objetivo final:</b> cuando encuentres la única fila que cumple las tres condiciones, escribe <code>NÚMERO-ÍNDICE-CLASE</code>. Los tres datos deben pertenecer a <b>la misma fila ECO</b>. Formato: <code>NÚMERO-ÍNDICE-CLASE</code>.</p>
         </div>
+        <div class="catalog-note">
+          <small>REFERENCIAS TEMPORALES // R7-D2</small>
+          <p>MORA <b>22:19</b> → la ficha debe abrirse después · VARELA <b>22:27</b> → la ficha debe abrirse antes.</p>
+        </div>
+        <div class="catalog-columns" aria-hidden="true"><b>FICHA</b><b>CLASE</b><b>ÍNDICE</b><b>INCIDENCIAS</b><b>APERTURA</b><b>ESTADO</b></div>
         <div id="eco-list" class="eco-list catalog-table"></div>
-        <p class="lead">Construya el código con <b>NÚMERO + ÍNDICE + CLASE</b>.</p>
-        <form id="catalog-form" class="inline-form"><input id="catalog-input" placeholder="EJ. 025-4-VOLTAICA" spellcheck="false" required><button class="primary" data-lock-button="catalog">VALIDAR CÓDIGO</button></form>
+        <p class="lead catalog-submit-help">Cuando hayas encontrado la única ficha válida, introduce su <b>NÚMERO + ÍNDICE + CLASE</b>.</p>
+        <form id="catalog-form" class="inline-form"><input id="catalog-input" placeholder="NÚMERO-ÍNDICE-CLASE" spellcheck="false" required><button class="primary" data-lock-button="catalog">VALIDAR CÓDIGO</button></form>
         <p id="catalog-feedback" class="feedback"></p>
         <div id="catalog-result" class="result hidden">REFERENCIA CRUZADA: <b>063-8-ESPECTRAL</b></div>
       </article>
@@ -210,6 +162,7 @@
       <button class="back" data-back>← PANEL</button>
       <div class="heading"><div><div class="eyebrow">ARCHIVO 04</div><h2>CIFRADO DE DESPLAZAMIENTO</h2></div><span class="badge">CÉSAR</span></div>
       <article class="panel cipher-panel">
+        <div class="puzzle-briefing"><b>OBJETIVO</b><p>Has recuperado una cadena cifrada. Usa como desplazamiento el <strong>índice</strong> obtenido en el Archivo 03 y desplaza cada letra hacia atrás en el alfabeto. La vista previa te permite comprobar el resultado antes de validarlo.</p><small>TERMINAS CUANDO // obtienes una palabra legible y la introduces exactamente como texto.</small></div>
         <div class="cipher-block"><small>REGISTRO RECUPERADO</small><strong>IZKPQDMZW</strong></div>
         <blockquote>“El desplazamiento coincide con el índice interno de la anomalía.”</blockquote>
         <div class="shift-tool"><label>DESPLAZAMIENTO<input id="shift-input" type="number" min="0" max="25" value="0"></label><div><small>VISTA PREVIA</small><strong id="shift-preview">IZKPQDMZW</strong></div></div>
@@ -222,7 +175,7 @@
     <section id="screen-sequence" class="screen module">
       <button class="back" data-back>← PANEL</button>
       <div class="heading"><div><div class="eyebrow">ARCHIVO 05</div><h2>SECUENCIA NUMÉRICA</h2></div><span class="badge">ANÁLISIS</span></div>
-      <article class="panel puzzle-center"><div class="big-sequence">2, 6, 12, 20, 30, 42, <em>?</em></div><p>Determine el siguiente valor de la serie.</p>
+      <article class="panel puzzle-center"><div class="puzzle-briefing left"><b>OBJETIVO</b><p>Busca una regla que explique <strong>todos</strong> los términos de la serie, no solo la última diferencia. Puedes estudiar diferencias sucesivas o intentar expresar cada término a partir de su posición.</p><small>TERMINAS CUANDO // puedes justificar la regla y calcular el siguiente valor.</small></div><div class="big-sequence">2, 6, 12, 20, 30, 42, <em>?</em></div><p>Determine el siguiente valor de la serie.</p>
         <form id="sequence-form" class="inline-form compact"><input id="sequence-input" inputmode="numeric" placeholder="?" required><button class="primary">VALIDAR</button></form>
         <p id="sequence-feedback" class="feedback"></p><div id="sequence-result" class="result hidden">VALOR RECUPERADO: <b>56</b></div>
       </article>
@@ -232,7 +185,7 @@
     <section id="screen-matrix" class="screen module">
       <button class="back" data-back>← PANEL</button>
       <div class="heading"><div><div class="eyebrow">ARCHIVO 06</div><h2>MATRIZ DE VERIFICACIÓN</h2></div><span class="badge">PATRÓN</span></div>
-      <article class="panel puzzle-center"><div class="number-matrix"><div>2</div><div>3</div><b>13</b><div>4</div><div>5</div><b>41</b><div>6</div><div>7</div><b>?</b></div><p>Determine el valor que completa la tercera fila.</p>
+      <article class="panel puzzle-center"><div class="puzzle-briefing left"><b>OBJETIVO</b><p>Cada fila transforma los <strong>dos números de la izquierda</strong> en el valor de la derecha usando la misma operación. Encuentra una relación que funcione para las dos filas completas antes de aplicarla a 6 y 7.</p><small>TERMINAS CUANDO // una única regla reproduce 13 y 41 y predice el tercer resultado.</small></div><div class="number-matrix"><div>2</div><div>3</div><b>13</b><div>4</div><div>5</div><b>41</b><div>6</div><div>7</div><b>?</b></div><p>Determine el valor que completa la tercera fila.</p>
         <form id="matrix-form" class="inline-form compact"><input id="matrix-input" inputmode="numeric" placeholder="?" required><button class="primary">VALIDAR</button></form>
         <p id="matrix-feedback" class="feedback"></p><div id="matrix-result" class="result hidden">VALOR RECUPERADO: <b>85</b></div>
       </article>
@@ -242,6 +195,11 @@
     <section id="screen-logic" class="screen module">
       <button class="back" data-back>← PANEL</button>
       <div class="heading"><div><div class="eyebrow">ARCHIVO 07</div><h2>LÓGICA DE PERSONAL</h2></div><span class="badge">AUTORIZACIONES</span></div>
+      <div class="puzzle-briefing"><b>OBJETIVO</b><p>Asigna los niveles 1, 2, 3 y 4 <strong>una sola vez cada uno</strong>. Aplica todas las restricciones hasta que solo quede una distribución posible; después responde únicamente quién ocupa el nivel 3.</p><small>TERMINAS CUANDO // tu asignación satisface simultáneamente las cinco pistas.</small></div>
+      <article class="panel security-warning" data-lock-warning="logic">
+        <div><b>VALIDACIÓN CON PENALIZACIÓN</b><p>En este archivo hay solo cuatro candidatos: elegir al azar convertiría el reto en fuerza bruta. Cada empleado incorrecto bloquea el Archivo 07 durante <strong>2 minutos</strong>. Si eliges al correcto, se acepta de inmediato.</p></div>
+        <div class="lock-status">Nuevo intento → <b id="logic-lock">DISPONIBLE</b></div>
+      </article>
       <article class="panel logic-layout"><div><p>Cuatro empleados ocupan exactamente un nivel distinto entre 1 y 4.</p><ul class="clues"><li>Varela tiene más acceso que Serrano.</li><li>Mora no tiene nivel 1 ni 4.</li><li>Ibarra tiene menos acceso que Mora.</li><li>Serrano no tiene nivel 1.</li><li>Varela no tiene nivel 3.</li></ul></div><div class="logic-question"><p>¿Quién tiene nivel de acceso <b>3</b>?</p><div id="logic-options" class="option-grid"></div></div></article>
       <p id="logic-feedback" class="feedback"></p><div id="logic-result" class="result hidden">RESPONSABLE RECUPERADO: <b>MORA</b></div>
       <div class="hint-area" data-hints="logic"></div>
@@ -250,6 +208,7 @@
     <section id="screen-grid" class="screen module">
       <button class="back" data-back>← PANEL</button>
       <div class="heading"><div><div class="eyebrow">ARCHIVO 08</div><h2>COORDENADAS DE ARCHIVO</h2></div><span class="badge">MATRIZ 5×5</span></div>
+      <div class="puzzle-briefing"><b>OBJETIVO</b><p>La cuadrícula funciona como una tabla de coordenadas: <strong>primero fila (letra), después columna (número)</strong>. Lee las cinco coordenadas en el orden dado y concatena los caracteres obtenidos.</p><small>TERMINAS CUANDO // las cinco posiciones forman una palabra de 5 letras.</small></div>
       <article class="panel grid-layout">
         <div class="coord-grid-wrap"><div class="coord-head"><i></i><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b></div><div id="coord-grid" class="coord-grid"></div></div>
         <div><p>Las coordenadas se leen como <b>fila-columna</b>.</p><div class="coordinates">B2 – C3 – E4 – A5 – D1</div><form id="grid-form" class="inline-form vertical"><input id="grid-input" maxlength="5" placeholder="RESULTADO" spellcheck="false" required><button class="primary">VALIDAR</button></form><p id="grid-feedback" class="feedback"></p><div id="grid-result" class="result hidden">MÉTODO RECUPERADO: <b>LOCAL</b></div></div>
@@ -262,10 +221,11 @@
       <div class="heading"><div><div class="eyebrow">ÍNDICE 151</div><h2>CONSTRUCCIÓN DE CLAVE MAESTRA</h2></div><span class="badge warn">ACCESO RESTRINGIDO</span></div>
       <article class="panel security-warning" data-lock-warning="master">
         <b>ADVERTENCIA DEL SISTEMA</b>
-        <p>La validación de la clave maestra es crítica. Una combinación incorrecta bloquea el nodo durante <strong>5 minutos</strong>.</p>
+        <p>La validación de la clave maestra es crítica. Una combinación incorrecta bloquea el nodo durante <strong>2 minutos</strong>.</p>
         <div class="lock-status">Nuevo intento → <b id="master-lock">DISPONIBLE</b></div>
       </article>
       <article class="panel">
+        <div class="puzzle-briefing"><b>OBJETIVO FINAL</b><p>No debes resolver nada nuevo: debes <strong>reutilizar cuatro evidencias ya recuperadas</strong>. Arrástralas/selecciónalas siguiendo exactamente los cuatro rótulos de orden que aparecen debajo.</p><small>TERMINAS CUANDO // los cuatro slots representan anomalía → naturaleza → responsable → método.</small></div>
         <p class="lead">Los datos recuperados contienen la ruta de acceso. Seleccione los cuatro fragmentos en el orden solicitado.</p>
         <div class="master-order"><span>1. CÓDIGO DE ANOMALÍA</span><span>2. NATURALEZA REAL</span><span>3. RESPONSABLE NIVEL 3</span><span>4. MÉTODO DE EJECUCIÓN</span></div>
         <div id="master-slots" class="master-slots"></div>
@@ -292,14 +252,30 @@
 
     <section id="screen-download" class="screen">
       <div class="heading"><div><div class="eyebrow ok">ARCHIVO 151 RECUPERADO</div><h2>TRANSFERENCIA LOCAL</h2></div><span class="badge ok">COMPLETO</span></div>
-      <article class="panel download-panel"><p>Seleccione el paquete correspondiente al sistema donde se ejecutará la siguiente fase.</p><div class="downloads">
+      <article class="panel download-panel"><p>Seleccione el paquete correspondiente al sistema donde se ejecutará la siguiente fase.</p>
+        <div class="archive-password" role="note" aria-label="Contraseña de los archivos descargables">
+          <span>CONTRASEÑA DEL ARCHIVO</span>
+          <strong>vivafourier2006</strong>
+          <small>Use esta contraseña al abrir cualquiera de los dos paquetes descargados.</small>
+        </div>
+        <div class="downloads">
         <button id="download-windows" class="download-card"><b>WINDOWS</b><span>ARCHIVO_151_WINDOWS.zip</span><em>DESCARGAR</em></button>
         <button id="download-linux" class="download-card"><b>LINUX</b><span>ARCHIVO_151_LINUX.zip</span><em>DESCARGAR</em></button>
-      </div><div id="after-download" class="after-download hidden"><h3>TRANSFERENCIA FINALIZADA</h3><p>NEXUS ya no se hace responsable de lo que ocurra a continuación.</p><small>Esto es una cláusula legal completamente inventada.</small></div></article>
+      </div><div id="after-download" class="after-download hidden"><h3>TRANSFERENCIA FINALIZADA</h3><p>Contraseña del paquete: <strong>vivafourier2006</strong></p><p>NEXUS ya no se hace responsable de lo que ocurra a continuación.</p><small>Esto es una cláusula legal completamente inventada.</small></div></article>
     </section>
 
     <footer><button id="reset-progress" class="footer-btn">REINICIAR PROGRESO LOCAL</button><span>NEXUS // NODO 03 // ARCHIVO INTERNO</span></footer>
   </main>
+  <dialog id="reset-dialog" class="nexus-dialog" aria-labelledby="reset-dialog-title">
+    <form method="dialog" class="nexus-dialog-card">
+      <h2 id="reset-dialog-title">REINICIAR PROGRESO</h2>
+      <p>Se borrará todo el progreso local de PROYECTO NEXUS en este dispositivo. Esta acción no se puede deshacer.</p>
+      <div class="nexus-dialog-actions">
+        <button value="cancel">CANCELAR</button>
+        <button value="reset" class="danger">REINICIAR</button>
+      </div>
+    </form>
+  </dialog>
   <script src="script.js"></script>
 </body>
 </html>

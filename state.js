@@ -11,15 +11,20 @@
   const defaultState = {
     completed: [],
     errors: [],
-    minutes: 82,
-    streak: 7,
-    lastLesson: "informacion"
+    minutes: 0,
+    streak: 0,
+    lastLesson: "informacion",
+    lessonActivity: {}
   };
 
   function load() {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      return { ...defaultState, ...(saved || {}) };
+      const merged = { ...defaultState, ...(saved || {}) };
+      if (!merged.lessonActivity || typeof merged.lessonActivity !== "object" || Array.isArray(merged.lessonActivity)) {
+        merged.lessonActivity = {};
+      }
+      return merged;
     } catch (error) {
       console.warn("No se pudo leer el progreso guardado. Se usarán valores iniciales.", error);
       return { ...defaultState };
@@ -27,16 +32,80 @@
   }
 
   const state = load();
+  const listeners = new Set();
+
+  function notify() {
+    listeners.forEach(listener => {
+      try { listener(state); } catch (error) { console.warn("Listener de progreso falló", error); }
+    });
+  }
+
+  let storageWarningShown = false;
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      storageWarningShown = false;
+      return true;
+    } catch (error) {
+      // La aplicación sigue funcionando en memoria aunque el navegador bloquee
+      // localStorage (modo privado restrictivo, cuota agotada o políticas del sitio).
+      if (!storageWarningShown) {
+        console.warn("No se pudo guardar el progreso localmente; se mantendrá solo durante esta sesión.", error);
+        storageWarningShown = true;
+        window.dispatchEvent(new CustomEvent("usic-storage-warning", { detail: { message: error?.message || String(error) } }));
+      }
+      return false;
+    }
+  }
 
   function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const persisted = persist();
+    notify();
+    return persisted;
+  }
+
+  function replaceState(nextState) {
+    Object.keys(state).forEach(key => delete state[key]);
+    Object.assign(state, { ...defaultState, ...(nextState || {}) });
+    if (!state.lessonActivity || typeof state.lessonActivity !== "object" || Array.isArray(state.lessonActivity)) state.lessonActivity = {};
+    if (!Array.isArray(state.completed)) state.completed = [];
+    if (!Array.isArray(state.errors)) state.errors = [];
+    const persisted = persist();
+    notify();
+    return persisted;
+  }
+
+  function snapshot() {
+    return JSON.parse(JSON.stringify(state));
+  }
+
+  function subscribe(listener) {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }
+
+  function touchLesson(lessonId) {
+    const now = Date.now();
+    const current = state.lessonActivity[lessonId] || { firstOpenedAt: now, visits: 0 };
+    state.lessonActivity[lessonId] = {
+      ...current,
+      firstOpenedAt: current.firstOpenedAt || now,
+      lastOpenedAt: now,
+      visits: (current.visits || 0) + 1
+    };
+    state.lastLesson = lessonId;
+    save();
   }
 
   function completeLesson(lessonId, minutes) {
+    const now = Date.now();
     if (!state.completed.includes(lessonId)) {
       state.completed.push(lessonId);
       state.minutes += minutes;
     }
+    const current = state.lessonActivity[lessonId] || { firstOpenedAt: now, visits: 1 };
+    state.lessonActivity[lessonId] = { ...current, completedAt: current.completedAt || now, lastOpenedAt: now };
     state.lastLesson = lessonId;
     save();
   }
@@ -64,6 +133,10 @@
     save,
     completeLesson,
     registerError,
-    setLastLesson
+    setLastLesson,
+    touchLesson,
+    replaceState,
+    snapshot,
+    subscribe
   };
 })();

@@ -855,3 +855,219 @@ Criterio editorial: se evita la teleología y la frase “X inventó el ordenado
 - Karl Popper, *The Logic of Scientific Discovery* — falsabilidad como criterio metodológico para distinguir predicciones arriesgadas de explicaciones inmunes a evidencia contraria; se usa aquí como herramienta práctica, no como teoría total de ingeniería.
 
 Criterio editorial: el bloque separa observación, hipótesis, modelo y decisión; exige declarar alcance y supuestos; y trata estándares, papers, benchmarks y código fuente como evidencias con dominios de validez, no como autoridades universales fuera de contexto.
+
+---
+
+# Recursos visuales y bibliografía (capa de estudio)
+
+Las imágenes didácticas de la interfaz se sirven desde Wikimedia Commons y cada tarjeta enlaza a su ficha de fuente/licencia. Entre los recursos iniciales están: capturas de *Second Reality* (Future Crew, dominio público), diagrama de CPU (CC BY-SA), interfaz de Godot (software/captura libre según ficha Commons), ejemplo de pixel art (CC BY-SA), breadboard (dominio público), red neuronal (CC BY-SA), estructura simplificada del kernel Linux (CC BY-SA/GFDL), HTTP request/response (dominio público) y comparación OSI/TCP-IP (CC0).
+
+La bibliografía guiada incluye, entre otros, *FREAX*, *Computer Systems: A Programmer's Perspective*, *Security Engineering*, *Practical Malware Analysis*, *Game Engine Architecture*, *Real-Time Rendering*, *Pixel Logic*, *The Art of Electronics*, *Deep Learning*, *Operating Systems: Three Easy Pieces* y *Computer Networking: A Top-Down Approach*. Los enlaces concretos y notas de uso están definidos en `resources.js`.
+
+## Apoyos visuales específicos — pasada 2
+
+- Wikimedia Commons — `5 Stage Pipeline.svg` — Inductiveload — dominio público.
+- Wikimedia Commons — `Cache Hierarchy.png` — Kbbuch — CC BY-SA 4.0.
+- Wikimedia Commons — `Paging graphic.svg` — FranchuFranchu — CC0 1.0.
+- Wikimedia Commons — `MOSFET Structure.svg` — Brews ohare / BentSm — CC BY-SA 3.0.
+- Wikimedia Commons — `AS-BGP.png` — MelVic — CC BY-SA 3.0.
+- Wikimedia Commons — `Transformer, full architecture.png` — dvgodoy — CC BY 4.0.
+- Wikimedia Commons — `WebGL Shader Pipeline.svg` — Scriptor universalis — CC BY-SA 4.0.
+- Wikimedia Commons — `Ray trace diagram.svg` — Henrik — CC BY-SA 4.0.
+- Godot Engine stable documentation — `Nodes and Scenes` illustration — Juan Linietsky, Ariel Manzur y comunidad Godot — CC BY 3.0.
+- Wikimedia Commons — capturas de `Second Reality` (plasma y cubo) — Future Crew — dominio público según las fichas de Commons.
+
+
+## Apoyos visuales añadidos — tercera pasada
+
+- Wikimedia Commons: `Pipeline Data Hazard.svg` — Inductiveload — dominio público.
+- Wikimedia Commons: `Cache,associative-fill-both.png` — Hellisp — CC BY-SA 3.0.
+- Wikimedia Commons: `TLB.svg` — Arilou — CC BY-SA 4.0.
+- Wikimedia Commons: `Process of a Single Attention Head in a Transformer Model.jpg` — Shuang Zhang et al. — CC BY 4.0.
+- Wikimedia Commons: `Raytrace trace diagram.png` — Timrb — CC BY-SA 3.0 / GFDL.
+- Wikimedia Commons: `Tcp-handshake.svg` — Snubcube y autores previos — CC BY-SA 3.0 / GFDL.
+- Wikimedia Commons: `Diffie-Hellman Key Exchange.svg` — A. J. Vinck / Flugaal — dominio público.
+- Wikimedia Commons: `ELF Executable and Linkable Format diagram by Ange Albertini.png` — Ange Albertini — CC BY 1.0.
+- Wikimedia Commons: `B-tree.svg` — CyHawk — CC BY-SA 3.0 / GFDL.
+- Wikimedia Commons: `Convolutional neural network, convolution worked example.png` — Daniel Voigt Godoy — CC BY 4.0.
+- Wikimedia Commons: `Convolutional Neural Network.png` — Irisbox — CC BY 4.0.
+- Wikimedia Commons: `Second-Reality-Moire-patterns.png` — Future Crew — dominio público.
+
+Lecturas específicas añadidas: *Serious Cryptography, 2nd Edition*; *Linkers and Loaders*; *Designing Data-Intensive Applications, 2nd Edition*; capítulos CNN de *Dive into Deep Learning*; y lecturas dirigidas adicionales de Patterson & Hennessy, OSTEP y Kurose & Ross.
+
+## Apoyos visuales añadidos — cuarta pasada
+
+- Wikimedia Commons — `Process state.svg` (MrDrBob, CC BY-SA 3.0 / GFDL).
+- Wikimedia Commons — `Example of an iterative DNS resolver.svg` (Lion Kimbro, dominio público).
+- Wikimedia Commons — `Full TLS 1.3 Handshake.svg` (Fleshgrinder/Tango!, dominio público).
+- Wikimedia Commons — `Memory.svg` (NVIDIA, CC BY 3.0), jerarquía de memoria CUDA/GPU.
+- Wikimedia Commons — `Op-amp open-loop 1.svg` (Ong saluri, CC BY-SA 3.0 / GFDL).
+- Wikimedia Commons — `Computer Memory Hierarchy.svg` (Danlash y colaboradores; licencia indicada en la ficha de Commons).
+- OSTEP, Kurose & Ross, RFC 8446, CUDA C++ Programming Guide, The Art of Electronics y Designing Data-Intensive Applications se añaden como lecturas dirigidas en lecciones concretas.
+
+## Recursos añadidos — pasada visual P5
+
+- Wikimedia Commons — `Ext filesystem.ru.svg`: visualización de inodes y estructuras Ext; licencia indicada en la ficha de Commons.
+- Wikimedia Commons — `Fourier transform time and frequency domains.gif`: Lucas V. Barbosa, dominio público.
+- Wikimedia Commons — `HTTP-2 vs. HTTP-3 Protocol Stack.svg`: Sedrubal, CC BY-SA 4.0.
+- Wikimedia Commons — `Visualization of SDF ray marching algorithm.png`: Teadrinker, CC BY-SA 4.0.
+- Wikimedia Commons — `PixelArtDitherings.gif`: GFDL 1.2+.
+- Wikimedia Commons — `RAFT.png`: Bruintje71, dominio público.
+- Linux kernel documentation — ext4 High Level Design.
+- Steven W. Smith — *The Scientist and Engineer’s Guide to Digital Signal Processing*.
+- Daniel Stenberg — *HTTP/3 Explained*.
+- Inigo Quilez — Distance Functions.
+- Michael Azzi — *Pixel Logic*.
+- Ongaro & Ousterhout — *In Search of an Understandable Consensus Algorithm (Raft)*.
+
+
+## Recursos añadidos — pasada visual P6
+
+- Wikimedia Commons — `STM32F103VGT6-HD.jpg`: ZeptoBars, CC BY 3.0.
+- Wikimedia Commons — `SPI timing diagram.svg`: Cburnett, CC BY-SA 3.0 / GFDL.
+- Wikimedia Commons — `FPGA MPU STM32.png`: SergeMoutou, CC BY-SA 4.0.
+- Wikimedia Commons — `NAND FGMOS.png`: David Gianluigi Refaldi, CC BY-SA 4.0.
+- Wikimedia Commons — `DHCPDORA.png`: Endaargaanweweer, CC0 1.0.
+- Wikimedia Commons — `OAuth2.0Flow.png`: Jannik Oehme, CC BY-SA 4.0.
+- O'Reilly — Elecia White, *Making Embedded Systems*.
+- Wiley — Pong P. Chu, *FPGA Prototyping by SystemVerilog Examples*.
+- Linux kernel documentation — UBI/UBIFS.
+- IETF — RFC 6749 (OAuth 2.0), RFC 9700 (OAuth 2.0 Security BCP) y RFC 7519 (JWT).
+- OSTEP — capítulos de concurrencia y sincronización.
+
+
+## Visuales y lecturas añadidos en P7
+
+- UART timing diagram — Wikimedia Commons — IngenieroLoco — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:UART_timing_diagram.svg
+- I2C data transfer — Wikimedia Commons — Marcin Floryan — dominio público — https://commons.wikimedia.org/wiki/File:I2C_data_transfer.svg
+- Example PCI Express Topology — Wikimedia Commons — Mliu92 — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Example_PCI_Express_Topology.svg
+- NAT Concept-en — Wikimedia Commons — Michel Bakni — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:NAT_Concept-en.svg
+- Two-level branch prediction — Wikimedia Commons — Orwa diraneyya — CC BY-SA 3.0/GFDL — https://commons.wikimedia.org/wiki/File:Two-level_branch_prediction.svg
+- Generative Adversarial Network illustration — Wikimedia Commons — Mtanti — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Generative_Adversarial_Network_illustration.svg
+- Example of Forward Diffusion Models — Wikimedia Commons — MrAlanKoh — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Example_of_Forward_Diffusion_Models.png
+- NXP UM10204 I²C-bus specification and user manual — https://www.nxp.com/docs/en/user-guide/UM10204.pdf
+- PCI Express Technology — MindShare — https://www.mindshare.com/files/ebooks/PCI%20Express%20Technology%203.0.pdf
+- TCP/IP Illustrated, Volume 1, 2nd Edition — Fall & Stevens — https://www.informit.com/store/tcp-ip-illustrated-volume-1-the-protocols-9780321336316
+- Computer Architecture: A Quantitative Approach, 7th Edition — Hennessy, Patterson & Kozyrakis — https://shop.elsevier.com/books/computer-architecture/hennessy/978-0-443-15406-5
+- Deep Learning — Goodfellow, Bengio & Courville — https://www.deeplearningbook.org/
+- Understanding Deep Learning — Simon J. D. Prince — MIT Press — https://mitpress.mit.edu/9780262377102/understanding-deep-learning/
+
+
+## P8 — Interrupciones, DMA y comunicación bidireccional
+Se añadieron apoyos específicos para DMA, interrupciones/IRQ, WebSocket, Doppler y la separación entre conector físico USB y su protocolo. La pista secreta se mantiene únicamente en el `index.html` principal; la página NEXUS ya no contiene el comentario que revela su propia ruta.
+
+## P12 — Recursos visuales y lecturas añadidas
+
+- Wikimedia Commons — `Quantized.signal.svg` (dominio público): cuantización de señal.
+- Wikimedia Commons — `Skeletal animation using Blender software.png` (contenido no-UI en dominio público; UI Blender GPL): rigging/skeletal animation.
+- Wikimedia Commons — `Example of bounding volume hierarchy.JPG` (dominio público): BVH con AABB.
+- Wikimedia Commons — `Agent-environment-diagram-rl.svg` (CC0): interfaz agente-entorno en reinforcement learning.
+- Wikimedia Commons — `Same Origin Policy.png` (CC BY-SA 4.0): frontera Same-Origin Policy.
+- Wikimedia Commons — `IPv6 Header.svg` (CC BY-SA 3.0): formato de cabecera IPv6.
+- Christer Ericson — *Real-Time Collision Detection*.
+- Richard S. Sutton & Andrew G. Barto — *Reinforcement Learning: An Introduction, 2nd Edition*.
+- PortSwigger Web Security Academy — Same-Origin Policy.
+- IETF / RFC Editor — RFC 8200, IPv6.
+
+## Recursos añadidos en P15
+
+- Wikimedia Commons — MESI protocol activity diagram (CC0/dominio público según ficha).
+- Wikimedia Commons — NUMA.svg (dominio público).
+- Wikimedia Commons — NVMe Scalable Queuing Interface (CC BY-SA 4.0).
+- Wikimedia Commons — ECS Simple Layout (CC0 1.0).
+- Wikimedia Commons — Loadbalancing.png (CC BY-SA 3.0).
+- Wikimedia Commons — Fork-join-queue.svg (CC BY-SA 3.0 / GFDL).
+- Linux kernel documentation — NUMA Memory Policy.
+- NVM Express — specifications.
+- Game Programming Patterns — Component.
+- Google SRE — Load Balancing at the Frontend.
+
+## P16 — recursos visuales y lecturas
+
+- Wikimedia Commons — `Ethernet frame.svg` (dominio público).
+- Wikimedia Commons — `Protocol ARP.svg` (CC BY-SA 4.0).
+- Wikimedia Commons — `TCP Slow-Start and Congestion Avoidance.svg` (GPLv3 según ficha Commons).
+- Wikimedia Commons — `Anycast.svg` (dominio público).
+- Wikimedia Commons — `Content Distribution Network diagram.svg` (CC BY-SA 4.0).
+- Wikimedia Commons — `ICMP header - General-en.svg` (CC BY-SA 4.0).
+- RFC 5681 — TCP Congestion Control.
+- RFC 4786 — Operation of Anycast Services.
+- Kurose & Ross — Computer Networking: A Top-Down Approach.
+- Fall & Stevens — TCP/IP Illustrated, Volume 1.
+- Ilya Grigorik — High Performance Browser Networking.
+
+## P18 — nuevas fuentes visuales y lecturas
+
+- Wikimedia Commons — *Linux kernel System Call Interface and glibc.svg* — CC BY-SA 3.0 / GFDL.
+- Wikimedia Commons — *Rasterisation-triangle example.svg* — licencia indicada en la ficha Commons.
+- Wikimedia Commons — *Z-buffer.svg* — dominio público.
+- Wikimedia Commons — *Z buffer-Z fighting.png* — licencia indicada en la ficha Commons.
+- Wikimedia Commons — *Normal map example with scene and result.png* — CC BY 4.0 / GFDL.
+- Wikimedia Commons — *Projected Shadow.png* — licencia indicada en la ficha Commons.
+- Michael Kerrisk — *The Linux Programming Interface* / man7.org.
+- Akenine-Möller et al. — *Real-Time Rendering, 4th Edition*.
+- Joey de Vries — LearnOpenGL: Depth testing, Normal Mapping y Shadow Mapping.
+
+
+## Visuales añadidos — P19
+
+- Wikimedia Commons — `Direct Mapped Cache.svg` — Ferry24.Milan — CC BY-SA/GFDL según ficha Commons.
+- Wikimedia Commons — `Back Propagation Example.svg` — Andreas Maier et al. — CC BY 4.0.
+- Wikimedia Commons — `Finite State Machine diagram.jpg` — Curranlee — CC BY-SA 4.0.
+- Wikimedia Commons — `Musika audio espektrograma.jpg` — Naroa Martínez Cerezo — CC0 1.0.
+
+Lecturas nuevas: Deep Learning (Goodfellow et al.), Game Programming Patterns — State, DSP Guide y CS:APP.
+
+## Visuales P21
+
+- Vector Clock.svg — Wikimedia Commons — CC BY-SA 3.0 / GFDL: https://commons.wikimedia.org/wiki/File:Vector_Clock.svg
+- Hyperviseur.svg — Wikimedia Commons — CC0 1.0: https://commons.wikimedia.org/wiki/File:Hyperviseur.svg
+- B tree insertion example.png — Wikimedia Commons — dominio público: https://commons.wikimedia.org/wiki/File:B_tree_insertion_example.png
+- CAP theorem diagram.png — Wikimedia Commons — CC BY-SA 4.0: https://commons.wikimedia.org/wiki/File:CAP_theorem_diagram.png
+
+### Fuentes añadidas en P22
+
+- Wikimedia Commons — `IEEE 754 Single Floating Point Format.svg` (Codekaizen, CC BY 3.0).
+- Wikimedia Commons — `Codificación UTF-8.svg` (Marco Regueira, dominio público).
+- Wikimedia Commons — `View frustum culling.svg` (Wojciech Muła, CC BY-SA/GFDL).
+- Wikimedia Commons — `Inverse-kinematics-multiple-solutions.svg` (Jan Boddez, dominio público).
+- Wikimedia Commons — `PostgreSQL mvcc.svg` (Kelti, CC BY-SA 4.0).
+- Wikimedia Commons — `Git branches merge.svg` (Bunyk, CC BY-SA 4.0).
+- RFC 3629 — definición de UTF-8 moderno (1–4 bytes por valor escalar válido).
+- PostgreSQL Documentation — capítulo de Concurrency Control / MVCC.
+- Pro Git — branching y merging.
+
+### Fuentes añadidas en P23
+
+- Wikimedia Commons — `Abstract syntax tree for Euclidean algorithm.svg` (CC0 1.0).
+- Wikimedia Commons — `Public key encryption.svg` (dominio público).
+- Wikimedia Commons — `Process scheduler - Round Robin queue.ru.svg` (Free Art License / GFDL).
+- Wikimedia Commons — `C-memlayout.svg` (CC BY-SA 4.0).
+- Wikimedia Commons — `Heap-as-array.svg` (CC BY-SA 4.0).
+- Wikimedia Commons — `Memory Pool.svg` (CC0 1.0).
+- RFC 8017 — PKCS #1 v2.2.
+- Crafting Interpreters — Representing Code.
+- OSTEP — Scheduling.
+- CS:APP / Malloc Lab.
+- Algorithms, 4th Edition companion site — Priority Queues.
+
+## Fuentes visuales y lecturas añadidas en P24
+
+- Wikimedia Commons — `Vulkan simplified pipeline.svg` (Alexander Overvoorde, CC BY-SA 4.0).
+- Wikimedia Commons — `The LSTM Cell.svg` (Guillaume Chevalier, Creative Commons según ficha Commons).
+- Wikimedia Commons — `Dsa binary search tree.svg` (Pat Hawks, CC BY 4.0).
+- Wikimedia Commons — `Dsa hash table.svg` (Amit6, dominio público).
+- Vulkan Tutorial — Alexander Overvoorde.
+- Dive into Deep Learning — capítulo de LSTM.
+- Algorithms, 4th Edition — Binary Search Trees y Hash Tables.
+
+
+## P26 — fuentes visuales y lecturas
+
+- Wikimedia Commons — `Pcblayout.png`, Ulfbastel: PCB de dos capas tras routing; GFDL / CC BY-SA 3.0.
+- Wikimedia Commons — `Metal049C 8K-PNG Roughness.png`, ambientCG / Lennart Demes: roughness map PBR; CC0 1.0.
+- Wikimedia Commons — `D-type flip-flop impulse diagram.png`, Jordan Mussi: diagrama temporal de flip-flop D; CC0 1.0.
+- Wikimedia Commons — `FF Tsetup Thold Toutput.svg`, Michagal: setup, hold y clock-to-output; GFDL 1.2+.
+- KiCad 9 Documentation — PCB Editor: placement, routing, DRC y differential pairs.
+- LearnOpenGL — PBR Theory: microfacets, energy conservation, BRDF, metalness y roughness.
+- AMD UG906 — Vivado Design Analysis and Closure Techniques: análisis de setup/hold, path requirements y slack.

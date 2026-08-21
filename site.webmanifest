@@ -1,0 +1,9 @@
+{
+  "name": "USIC — Universidad de Sistemas e Ingeniería Computacional",
+  "short_name": "USIC",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#111126",
+  "theme_color": "#111126",
+  "icons": [{"src":"favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}

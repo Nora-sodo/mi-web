@@ -7,7 +7,7 @@ const CONFIG={
   clave:'NEXUS',
   windows:'ARCHIVO_151_WINDOWS.zip',
   linux:'ARCHIVO_151_LINUX.zip',
-  bloqueoMs:5*60*1000
+  bloqueoMs:2*60*1000
 };
 
 const KEY='nexus_v5_progress';
@@ -335,7 +335,7 @@ function renderMessages(){
     const m=messageData.find(x=>x.id===id);
     const card=document.createElement('div');
     card.className='message-card';
-    card.innerHTML=`<div class="message-meta"><b>${m.who}</b><span>${m.time}</span><em>FRAG ${m.frag}</em></div><p>${m.text}</p><div class="message-move"><button type="button" data-dir="-1" ${index===0?'disabled':''}>↑</button><button type="button" data-dir="1" ${index===messageOrder.length-1?'disabled':''}>↓</button></div>`;
+    card.innerHTML=`<div class="message-meta"><b>${m.who}</b><span>${m.time}</span><em class="fragment-label"><strong>Fragmento:</strong><span class="fragment-code">${m.frag}</span></em></div><p>${m.text}</p><div class="message-move"><button type="button" data-dir="-1" ${index===0?'disabled':''}>↑</button><button type="button" data-dir="1" ${index===messageOrder.length-1?'disabled':''}>↓</button></div>`;
     card.querySelectorAll('[data-dir]').forEach(btn=>btn.onclick=()=>{
       const ni=index+Number(btn.dataset.dir);
       [messageOrder[index],messageOrder[ni]]=[messageOrder[ni],messageOrder[index]];
@@ -354,21 +354,23 @@ $('#messages-form').addEventListener('submit',e=>{
     feedback('#messages-feedback','FORMATO NO VÁLIDO // Introduzca una palabra alfabética reconstruida. Este aviso no penaliza.');
     return;
   }
-  const correctOrder=messageOrder.join('|')===messageData.map(x=>x.id).join('|');
-  if(correctOrder&&answer==='CONTENEDOR'){
+  if(answer==='CONTENEDOR'){
     complete('messages');
-    feedback('#messages-feedback','Orden temporal y extracción confirmados.',true);
+    const correctOrder=messageOrder.join('|')===messageData.map(x=>x.id).join('|');
+    feedback('#messages-feedback',correctOrder
+      ? 'Respuesta correcta. Orden temporal y extracción confirmados.'
+      : 'Respuesta correcta. Archivo validado aunque no haya reordenado manualmente los mensajes.',true);
     $('#messages-result').classList.remove('hidden');
   }else activateLock('messages','#messages-feedback');
 });
 
 /* PUZZLE 3 — catálogo */
 const ecos=[
-  ['004','TÉRMICA','4','0','22:16','ESTABLE'],
-  ['017','MENTAL','7','1','22:21','ESTABLE'],
+  ['004','TÉRMICA','4','0','22:16','ARCHIVADA'],
+  ['017','MENTAL','6','1','22:21','REVISIÓN'],
   ['025','VOLTAICA','5','2','22:25','ESTABLE'],
   ['063','ESPECTRAL','8','1','22:23','INCONSISTENTE'],
-  ['092','RESONANTE','9','2','22:30','ESTABLE'],
+  ['092','RESONANTE','9','2','22:30','OBSERVACIÓN'],
   ['114','VECTORIAL','4','1','22:24','CUARENTENA']
 ];
 ecos.forEach(([n,c,i,inc,opened,status])=>{
@@ -390,7 +392,13 @@ $('#catalog-form').addEventListener('submit',e=>{
     complete('catalog');
     feedback('#catalog-feedback','Correlación triple confirmada. Índice interno recuperado: 8.',true);
     $('#catalog-result').classList.remove('hidden');
-  }else activateLock('catalog','#catalog-feedback');
+  }else{
+    const knownClassMismatch = /^0638[A-Z]+$/.test(value);
+    if(knownClassMismatch){
+      feedback('#catalog-feedback','RESPUESTA RECHAZADA // El número y el índice apuntan a una fila, pero la CLASE escrita no pertenece a esa misma ficha ECO. Revise la columna CLASE de la fila seleccionada.');
+    }
+    activateLock('catalog','#catalog-feedback');
+  }
 });
 
 /* PUZZLE 4 — César */
@@ -426,10 +434,13 @@ $('#matrix-form').addEventListener('submit',e=>{
 ['VARELA','MORA','SERRANO','IBARRA'].forEach(n=>{
   const b=document.createElement('button');
   b.textContent=n;
+  b.dataset.lockButton='logic';
+  b.dataset.originalText=n;
   b.onclick=()=>{
+    if(isLocked('logic'))return updateLockUI();
     if(n==='MORA'){
       complete('logic');feedback('#logic-feedback','Distribución de permisos consistente.',true);$('#logic-result').classList.remove('hidden');
-    }else feedback('#logic-feedback','Ese empleado no puede ocupar el nivel 3 con todas las pistas.');
+    }else activateLock('logic','#logic-feedback');
   };
   $('#logic-options').appendChild(b);
 });
@@ -556,11 +567,17 @@ $('#download-windows').onclick=()=>download('WINDOWS',CONFIG.windows,$('#downloa
 $('#download-linux').onclick=()=>download('LINUX',CONFIG.linux,$('#download-linux'));
 
 $('#reset-progress').onclick=()=>{
-  if(confirm('¿Reiniciar todo el progreso local de PROYECTO NEXUS?')){
-    localStorage.removeItem(KEY);
-    location.reload();
-  }
+  const dialog=$('#reset-dialog');
+  if(!dialog||typeof dialog.showModal!=='function') return;
+  dialog.returnValue='cancel';
+  dialog.showModal();
 };
+
+$('#reset-dialog')?.addEventListener('close',event=>{
+  if(event.currentTarget.returnValue!=='reset') return;
+  localStorage.removeItem(KEY);
+  location.reload();
+});
 
 function hydrate(){
   puzzleIds.forEach(id=>{
