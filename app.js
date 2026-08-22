@@ -44,12 +44,24 @@ function formatCourseNumber(courseId) {
   return String(courseId).padStart(3, "0");
 }
 
-function toast(message) {
+function toast(message, kind = "info") {
+  let region = document.getElementById("toastRegion");
+  if (!region) {
+    region = document.createElement("div");
+    region.id = "toastRegion";
+    region.className = "toast-region";
+    region.setAttribute("aria-label", "Notificaciones");
+    document.body.append(region);
+  }
   const element = document.createElement("div");
-  element.className = "toast";
+  element.className = `toast toast-${kind}`;
   element.textContent = message;
-  document.body.append(element);
-  setTimeout(() => element.remove(), 2600);
+  element.setAttribute("role", kind === "error" ? "alert" : "status");
+  element.setAttribute("aria-live", kind === "error" ? "assertive" : "polite");
+  element.setAttribute("aria-atomic", "true");
+  region.append(element);
+  while (region.children.length > 4) region.firstElementChild?.remove();
+  setTimeout(() => element.remove(), kind === "error" ? 5200 : kind === "warning" ? 4200 : 3200);
 }
 
 
@@ -165,7 +177,7 @@ function renderCourseOrientation(courseId, targetLessonId) {
       <p class="orientation-lead">Estos bloques son apoyo, no puertas cerradas. Entra en el tema que te interese y vuelve a uno de estos repasos solo cuando notes que te falta esa base.</p>
       <div class="orientation-list compact">
         ${items.map(item => `
-          <button class="orientation-item ${item.done ? "done" : ""}" onclick="${item.suggested ? `route('tema', '${item.suggested.id}')` : `route('curso', ${item.baseId})`}">
+          <button class="orientation-item ${item.done ? "done" : ""}" data-nav="${item.suggested ? 'tema' : 'curso'}" data-nav-arg="${item.suggested ? escapeHtml(item.suggested.id) : item.baseId}">
             <span class="orientation-status" aria-hidden="true">${item.done ? "✓" : "→"}</span>
             <span>
               <small>${item.done ? "Base ya cubierta" : "Base recomendada"}</small>
@@ -192,7 +204,8 @@ function renderLessonOrientation(lesson) {
       kind: "Previo directo",
       title: previous.title,
       detail: "Es el paso inmediatamente anterior de este módulo.",
-      action: `route('tema', '${previous.id}')`,
+      nav: 'tema',
+      navArg: previous.id,
       done: state.completed.includes(previous.id)
     });
   } else if (moduleIndex > 0) {
@@ -203,7 +216,8 @@ function renderLessonOrientation(lesson) {
       kind: "Puente recomendado",
       title: bridge.title,
       detail: `Cierra el módulo «${previousModule.title}» y prepara este salto.`,
-      action: `route('tema', '${bridge.id}')`,
+      nav: 'tema',
+      navArg: bridge.id,
       done: state.completed.includes(bridge.id)
     });
   }
@@ -221,7 +235,8 @@ function renderLessonOrientation(lesson) {
       detail: target
         ? `Repaso corto sugerido: «${target.title}». Si necesitas más contexto, desde ahí puedes abrir el bloque completo.`
         : "No necesitas memorizarlo entero: úsalo como repaso si aquí aparece un concepto que no reconoces.",
-      action: target ? `route('tema', '${target.id}')` : `route('curso', ${courseId})`,
+      nav: target ? 'tema' : 'curso',
+      navArg: target ? target.id : courseId,
       done: courseDone
     });
   });
@@ -246,7 +261,7 @@ function renderLessonOrientation(lesson) {
       ${priorItems.length ? `
         <div class="orientation-list">
           ${priorItems.map(item => `
-            <button class="orientation-item ${item.done ? "done" : ""}" onclick="${item.action}">
+            <button class="orientation-item ${item.done ? "done" : ""}" data-nav="${item.nav}" data-nav-arg="${escapeHtml(item.navArg)}">
               <span class="orientation-status" aria-hidden="true">${item.done ? "✓" : "→"}</span>
               <span>
                 <small>${escapeHtml(item.kind)}${item.done ? " · ya dominado" : ""}</small>
@@ -259,7 +274,7 @@ function renderLessonOrientation(lesson) {
       ` : `<div class="orientation-ready">✓ No hay prerrequisitos obligatorios para entrar en este bloque.</div>`}
 
       <div class="orientation-actions">
-        ${lessonIndex > 0 && moduleStart ? `<button class="btn btn-secondary" onclick="route('tema', '${moduleStart.id}')">Empezar este módulo desde el principio</button>` : ""}
+        ${lessonIndex > 0 && moduleStart ? `<button class="btn btn-secondary" data-nav="tema" data-nav-arg="${escapeHtml(moduleStart.id)}">Empezar este módulo desde el principio</button>` : ""}
         ${foundationIds.length ? `<span>${completedPrereqs}/${priorItems.length} previos orientativos ya cubiertos.</span>` : `<span>Ruta de entrada autónoma.</span>`}
       </div>
       <p class="orientation-note"><b>Cómo usar esta guía:</b> “base recomendada” no significa bloqueo. Empieza el tema; si aparece una palabra, fórmula o mecanismo que no entiendes, usa el enlace de repaso y regresa. Así no tienes que completar otra rama entera antes de estudiar lo que te interesa.</p>
@@ -277,20 +292,24 @@ function route(name, argument) {
 
 function setActiveNavigation(routeName) {
   $$(".nav-item[data-route]").forEach(button => {
-    button.classList.toggle("active", button.dataset.route === routeName);
+    const active = button.dataset.route === routeName;
+    button.classList.toggle("active", active);
+    if (active) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
   });
 }
 
 function updateNavBadges() {
   const badge = document.getElementById("reviewBadge");
   if (!badge) return;
-  const count = state.errors.length ? Math.min(state.errors.length, 99) : 0;
+  const count = Math.min(reviewQueue().length, 99);
   badge.textContent = String(count);
   badge.hidden = count === 0;
 }
 
 function renderRoute() {
   updateNavBadges();
+  updateTopbarStreak();
   const rawRoute = location.hash.slice(1) || "inicio";
   const [routeName, argument] = rawRoute.split("/");
 
@@ -329,7 +348,15 @@ function renderRoute() {
     laboratorio: renderLabHub
   };
 
-  (pages[routeName] || renderHome)();
+  const page = pages[routeName];
+  if (!page) {
+    history.replaceState(null, '', `${location.pathname}${location.search}#inicio`);
+    setActiveNavigation('inicio');
+    renderHome();
+    toast('Esa sección no existe. Te hemos llevado al inicio.', 'error');
+    return;
+  }
+  page();
 }
 
 // -----------------------------------------------------------------------------
@@ -391,7 +418,7 @@ function courseCard(course) {
   const extra = developed ? `${developed} lecciones desarrolladas` : `${course.topics.length} conceptos mapeados`;
 
   return `
-    <article class="course-card" onclick="route('curso', ${course.id})">
+    <article class="course-card" data-nav="curso" data-nav-arg="${course.id}">
       <span class="course-num">BLOQUE ${formatCourseNumber(course.id)}</span>
       <h3>${escapeHtml(course.name)}</h3>
       <p>${escapeHtml(course.title || course.topics.slice(0, 3).join(" · "))}</p>
@@ -404,9 +431,10 @@ function courseCard(course) {
 }
 
 function progressBar(value) {
+  const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
   return `
-    <div class="progress-track" aria-label="${value}% completado">
-      <i style="width:${value}%"></i>
+    <div class="progress-track" role="progressbar" aria-label="Progreso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${safeValue}">
+      <i style="width:${safeValue}%"></i>
     </div>
   `;
 }
@@ -447,11 +475,70 @@ function areaLessonStats(area) {
 // Inicio
 // -----------------------------------------------------------------------------
 
+function localStudyStreak() {
+  const activity = state.lessonActivity || {};
+  const days = new Set(Object.values(activity).map(item => Number(item?.lastOpenedAt || item?.completedAt || 0)).filter(Boolean).map(ts => {
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }));
+  if (!days.size) return 0;
+  const oneDay = 86400000;
+  const today = new Date(); today.setHours(12,0,0,0);
+  let cursor = new Date(today);
+  const key = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  if (!days.has(key(cursor))) cursor = new Date(cursor.getTime() - oneDay);
+  let streak = 0;
+  while (days.has(key(cursor))) {
+    streak += 1;
+    cursor = new Date(cursor.getTime() - oneDay);
+  }
+  return streak;
+}
+
+function reviewQueue() {
+  const activity = state.lessonActivity || {};
+  const now = Date.now();
+  const recentCutoff = now - 30 * 86400000;
+  const latestErrorByLesson = new Map();
+  [...(state.errors || [])].reverse().forEach(item => {
+    if (!item?.lessonId || !LESSONS[item.lessonId] || latestErrorByLesson.has(item.lessonId)) return;
+    const errorAt = Number(item.date || 0);
+    const completedAt = Number(activity[item.lessonId]?.completedAt || 0);
+    if (errorAt < recentCutoff || (completedAt && completedAt >= errorAt)) return;
+    latestErrorByLesson.set(item.lessonId, item);
+  });
+  const recentErrors = [...latestErrorByLesson.values()].slice(0,5);
+  if (recentErrors.length) return recentErrors;
+
+  const staleCutoff = now - 7 * 86400000;
+  return (state.completed || [])
+    .filter(id => LESSONS[id])
+    .map(id => ({
+      lessonId:id,
+      topic:LESSONS[id].shortTitle || LESSONS[id].title,
+      lastOpenedAt:Number(activity[id]?.lastOpenedAt || activity[id]?.completedAt || 0)
+    }))
+    .filter(item => item.lastOpenedAt > 0 && item.lastOpenedAt <= staleCutoff)
+    .sort((a,b) => a.lastOpenedAt - b.lastOpenedAt)
+    .slice(0,3)
+    .map(item => ({...item, problem:'Recuerdo espaciado: intenta explicar la idea sin mirar antes de abrirla.'}));
+}
+
+function updateTopbarStreak() {
+  const current = localStudyStreak();
+  const topbar = document.querySelector('.streak');
+  if (!topbar) return;
+  topbar.textContent = `${current} día${current === 1 ? '' : 's'} · racha`;
+  topbar.title = current ? 'Racha basada en días en los que has abierto o completado alguna lección en este navegador.' : 'Todavía no hay actividad suficiente para formar una racha.';
+}
+
 function renderHome() {
   const lesson = LESSONS[nextLesson()];
   const course = COURSES.find(item => item.id === lesson.courseId);
   const blockProgress = courseProgress(lesson.courseId);
   const areaStats = GOAL_AREAS.map(area => ({ area, stats: areaLessonStats(area) }));
+  const streak = localStudyStreak();
+  const reviewItems = reviewQueue();
 
   view.innerHTML = `
     <section class="hero-grid">
@@ -460,10 +547,10 @@ function renderHome() {
         <h1>${escapeHtml(lesson.title)}</h1>
         <p>${escapeHtml(lesson.objective)}</p>
         <div class="continue-row">
-          <button class="btn btn-primary" onclick="route('tema', '${lesson.id}')">
+          <button class="btn btn-primary" data-nav="tema" data-nav-arg="${escapeHtml(lesson.id)}">
             ${state.completed.includes(lesson.id) ? "Repasar" : "Continuar donde lo dejaste"} →
           </button>
-          <button class="btn btn-secondary" onclick="route('curso', ${lesson.courseId})">Ver curso</button>
+          <button class="btn btn-secondary" data-nav="curso" data-nav-arg="${lesson.courseId}">Ver curso</button>
         </div>
       </article>
 
@@ -477,7 +564,7 @@ function renderHome() {
         <div class="metric-card">
           <span class="eyebrow">Tiempo de estudio</span>
           <strong>${state.minutes} min</strong>
-          <p>${state.streak} días de racha. Útil como contexto; insuficiente como religión.</p>
+          <p>${streak} día${streak === 1 ? '' : 's'} de racha. Útil como contexto; insuficiente como religión.</p>
         </div>
       </aside>
     </section>
@@ -487,7 +574,7 @@ function renderHome() {
         <span class="eyebrow">Tus 10 áreas</span>
         <h2>Elige qué quieres estudiar hoy</h2>
       </div>
-      <button onclick="route('aprender')">Ver todas las áreas →</button>
+      <button data-nav="aprender">Ver todas las áreas →</button>
     </div>
 
     <div class="goal-grid home-areas">
@@ -499,16 +586,16 @@ function renderHome() {
         <span class="eyebrow">Recomendación</span>
         <h3>${escapeHtml(lesson.shortTitle)}</h3>
         <p>Es la siguiente pieza no dominada de la ruta. La plataforma intenta evitar el método académico tradicional de “abrir 14 pestañas y esperar iluminación”.</p>
-        <button class="btn btn-primary" onclick="route('tema', '${lesson.id}')">
+        <button class="btn btn-primary" data-nav="tema" data-nav-arg="${escapeHtml(lesson.id)}">
           Estudiar · ~${lesson.duration} min
         </button>
       </article>
 
       <article class="panel">
         <span class="eyebrow">Repasos pendientes</span>
-        <h3>${Math.min(5, Math.max(1, state.errors.length || 3))} elementos prioritarios</h3>
-        <p>Fallos recientes y conceptos clave vuelven a aparecer mediante recuperación activa.</p>
-        <button class="btn btn-secondary" onclick="route('repasar')">Abrir repaso</button>
+        <h3>${reviewItems.length ? `${reviewItems.length} ${reviewItems.length === 1 ? 'elemento prioritario' : 'elementos prioritarios'}` : 'Nada urgente por repasar'}</h3>
+        <p>${reviewItems.length ? 'Fallos recientes y conceptos clave vuelven a aparecer mediante recuperación activa.' : 'Cuando haya errores o temas dominados que lleven tiempo sin abrirse, aparecerán aquí.'}</p>
+        <button class="btn btn-secondary" data-nav="${reviewItems.length ? 'repasar' : 'aprender'}">${reviewItems.length ? 'Abrir repaso' : 'Seguir aprendiendo'}</button>
       </article>
     </div>
   `;
@@ -612,7 +699,7 @@ function renderLessonBooks(lesson) {
       <h2>Libros y referencias para continuar</h2>
       <p class="section-intro">No necesitas leerlos todos. Elige uno según tu nivel y vuelve a la lección para comprobar que puedes conectar el libro con mecanismos concretos.</p>
       <div class="book-grid">${books.map(renderBookCard).join('')}</div>
-      ${area ? `<button class="text-link-button" onclick="route('objetivo', '${area.id}')">Volver al área ${escapeHtml(area.name)} →</button>` : ''}
+      ${area ? `<button class="text-link-button" data-nav="objetivo" data-nav-arg="${escapeHtml(area.id)}">Volver al área ${escapeHtml(area.name)} →</button>` : ''}
     </section>
   `;
 }
@@ -654,7 +741,7 @@ function goalAreaCard(area) {
   const progress = goalAreaProgress(area);
   const stats = areaLessonStats(area);
   return `
-    <article class="goal-card" onclick="route('objetivo', '${area.id}')">
+    <article class="goal-card" data-nav="objetivo" data-nav-arg="${escapeHtml(area.id)}">
       <span class="eyebrow">${escapeHtml(area.subtitle)}</span>
       <h3>${escapeHtml(area.name)}</h3>
       <p>${escapeHtml(area.description)}</p>
@@ -733,7 +820,7 @@ function renderAreaLessonCards(area, lessons) {
     const activity = state.lessonActivity && state.lessonActivity[lesson.id];
     const visits = activity && activity.visits ? `${activity.visits} visita${activity.visits === 1 ? "" : "s"}` : "No abierta";
     return `
-      <button class="area-lesson-card ${statusClass}" data-status="${statusClass}" data-search="${escapeHtml(normalizeAnswer(`${lesson.title} ${lesson.shortTitle} ${course ? course.name : ""}`))}" onclick="route('tema', '${lesson.id}')">
+      <button class="area-lesson-card ${statusClass}" data-status="${statusClass}" data-search="${escapeHtml(normalizeAnswer(`${lesson.title} ${lesson.shortTitle} ${course ? course.name : ""}`))}" data-nav="tema" data-nav-arg="${escapeHtml(lesson.id)}">
         <span class="area-lesson-top">
           <span class="eyebrow">${isFocus ? "NÚCLEO · " : ""}BLOQUE ${formatCourseNumber(lesson.courseId)}</span>
           <span class="lesson-state ${statusClass}">${status}</span>
@@ -851,7 +938,7 @@ function renderCourse(courseId) {
         <span class="eyebrow">BLOQUE ${formatCourseNumber(course.id)}</span>
         <h1>${escapeHtml(course.name)}</h1>
         <p>${escapeHtml(path.description)}</p>
-        <button class="btn btn-primary" onclick="route('tema', '${firstPending}')">
+        <button class="btn btn-primary" data-nav="tema" data-nav-arg="${escapeHtml(firstPending)}">
           ${progress ? "Continuar" : "Empezar"} →
         </button>
       </div>
@@ -903,7 +990,7 @@ function renderModule(module) {
         ${module.lessons.map((lessonId, index) => {
           const lesson = LESSONS[lessonId];
           return `
-            <button class="lesson-row" onclick="route('tema', '${lesson.id}')">
+            <button class="lesson-row" data-nav="tema" data-nav-arg="${escapeHtml(lesson.id)}">
               <span class="lesson-index">${index + 1}</span>
               <span>
                 <b>${escapeHtml(lesson.title)}</b>
@@ -952,7 +1039,7 @@ function renderLesson(lessonId) {
     <div class="lesson-layout">
       <article class="lesson-main">
         <header class="lesson-head">
-          <button class="back-link" onclick="route('curso', ${lesson.courseId})">← Volver al bloque</button>
+          <button class="back-link" data-nav="curso" data-nav-arg="${lesson.courseId}">← Volver al bloque</button>
           <span class="eyebrow">Lección · ${lesson.duration} min</span>
           <h1>${escapeHtml(lesson.title)}</h1>
           <div class="objective-box">
@@ -1005,16 +1092,16 @@ function renderLesson(lessonId) {
       <aside class="lesson-nav">
         <div class="panel">
           <span class="eyebrow">En este tema</span>
-          <button onclick="goSection('orientacion')">Orientación y previos</button>
-          <button onclick="goSection('rapida')">Explicación rápida</button>
-          <button onclick="goSection('profundidad')">En profundidad</button>
-          ${visualsForLesson(lesson).length ? `<button onclick="goSection('visuales')">Apoyo visual</button>` : ""}
-          <button onclick="goSection('ejemplo')">Ejemplo resuelto</button>
-          <button onclick="goSection('check')">Comprueba</button>
-          <button onclick="goSection('practica')">Práctica</button>
-          ${booksForLesson(lesson).length ? `<button onclick="goSection('libros-leccion')">Libros</button>` : ""}
-          ${getLabsForLesson(lesson).length ? `<button onclick="goSection('laboratorio-leccion')">Laboratorio</button>` : ""}
-          <button onclick="goSection('cierre')">Cierre</button>
+          <button data-section="orientacion">Orientación y previos</button>
+          <button data-section="rapida">Explicación rápida</button>
+          <button data-section="profundidad">En profundidad</button>
+          ${visualsForLesson(lesson).length ? `<button data-section="visuales">Apoyo visual</button>` : ""}
+          <button data-section="ejemplo">Ejemplo resuelto</button>
+          <button data-section="check">Comprueba</button>
+          <button data-section="practica">Práctica</button>
+          ${booksForLesson(lesson).length ? `<button data-section="libros-leccion">Libros</button>` : ""}
+          ${getLabsForLesson(lesson).length ? `<button data-section="laboratorio-leccion">Laboratorio</button>` : ""}
+          <button data-section="cierre">Cierre</button>
         </div>
       </aside>
     </div>
@@ -1107,34 +1194,56 @@ function renderQuickCheck(lesson) {
   `;
 }
 
+function practiceNeedsSelfAssessment(item) {
+  const answer = String(item?.answer || '').trim();
+  const prompt = normalizeAnswer(item?.prompt || '');
+  return answer.length > 42 || /explica|describe|justifica|diseña|disena|compara|razona|propone|analiza|por que|por qué/.test(prompt);
+}
+
+function practiceStrategy(level) {
+  if (Number(level) === 1) return 'Recuerda la definición o relación esencial antes de mirar apuntes.';
+  if (Number(level) === 2) return 'Identifica datos, regla aplicable y unidades o invariantes antes de operar.';
+  if (Number(level) === 3) return 'Explica primero qué cambia respecto al caso visto y qué supuesto reutilizas.';
+  return 'Plantea una hipótesis, explicita restricciones y define qué evidencia aceptaría o refutaría tu solución.';
+}
+
 function renderPractice(lesson) {
   return `
     <section class="lesson-section" id="practica">
       <span class="eyebrow">E · Práctica progresiva</span>
-      <h2>Recupera, calcula, transfiere</h2>
-      <p>La dificultad sube por tipo de razonamiento, no porque el ejercicio use números absurdamente grandes para parecer importante.</p>
+      <h2>Recupera, aplica, transfiere y verifica</h2>
+      <p>Responde primero sin mirar. Después usa pista o solución solo para corregir tu modelo mental. En respuestas abiertas, compárate con una solución modelo en vez de perseguir una frase exacta.</p>
 
       <div class="practice-levels">
-        ${lesson.practice.map(item => `
-          <div class="level-card">
+        ${lesson.practice.map(item => {
+          const key = `${lesson.id}:${item.level}`;
+          const saved = state.practiceAttempts?.[key] || {};
+          const selfCheck = practiceNeedsSelfAssessment(item);
+          const solved = Boolean(saved.correct || saved.selfAssessed === 'understood');
+          return `
+          <article class="level-card ${solved ? 'practice-solved' : ''}" data-practice-level="${item.level}" data-self-check="${selfCheck}">
             <header>
-              <b>Nivel ${item.level} — ${escapeHtml(item.label)}</b>
-              <small>${item.level === 1 ? "Recuperación" : item.level === 2 ? "Aplicación" : item.level === 3 ? "Transferencia" : "Reto abierto"}</small>
+              <div><b>Nivel ${item.level} — ${escapeHtml(item.label)}</b><small>${item.level === 1 ? "Recuperación" : item.level === 2 ? "Aplicación" : item.level === 3 ? "Transferencia" : "Reto abierto"}</small></div>
+              <span class="practice-state">${solved ? '✓ Comprendido' : saved.attempts ? `${saved.attempts} intento${saved.attempts===1?'':'s'}` : 'Sin intentar'}</span>
             </header>
-            <p>${escapeHtml(item.prompt)}</p>
+            <div class="practice-strategy"><b>Estrategia:</b> ${escapeHtml(practiceStrategy(item.level))}</div>
+            <p class="practice-prompt">${escapeHtml(item.prompt)}</p>
             <div class="practice-input">
-              <input
-                data-answer="${escapeHtml(item.answer)}"
-                data-alternatives="${escapeHtml(JSON.stringify(item.alternatives || []))}"
-                data-hint="${escapeHtml(item.hint)}"
-                placeholder="Tu respuesta"
-              >
-              <button class="btn btn-secondary practice-check">Comprobar</button>
+              ${selfCheck
+                ? `<textarea rows="4" data-answer="${escapeHtml(item.answer)}" data-alternatives="${escapeHtml(JSON.stringify(item.alternatives || []))}" data-hint="${escapeHtml(item.hint)}" placeholder="Explica tu razonamiento con tus propias palabras" aria-label="Tu respuesta razonada al ejercicio de nivel ${item.level}"></textarea>`
+                : `<input data-answer="${escapeHtml(item.answer)}" data-alternatives="${escapeHtml(JSON.stringify(item.alternatives || []))}" data-hint="${escapeHtml(item.hint)}" placeholder="Tu respuesta" autocomplete="off" aria-label="Tu respuesta al ejercicio de nivel ${item.level}">`}
+              <button class="btn btn-secondary practice-check">${selfCheck ? 'Comparar respuesta' : 'Comprobar'}</button>
             </div>
-            <div class="feedback"></div>
-          </div>
-        `).join("")}
+            <div class="practice-tools">
+              <button type="button" class="chip practice-hint">Ver pista</button>
+              <button type="button" class="chip practice-solution">Ver solución modelo</button>
+            </div>
+            <div class="practice-reveal" hidden></div>
+            <div class="feedback" aria-live="polite"></div>
+          </article>`;
+        }).join("")}
       </div>
+      <div class="practice-learning-note"><b>Cómo usar esta sección:</b> si fallas, explica por qué falló tu primera idea antes de reintentar. Si aciertas por intuición pero no puedes justificarlo, todavía merece un segundo intento.</div>
     </section>
   `;
 }
@@ -1161,7 +1270,7 @@ function renderLessonLab(lesson) {
       <p>No tienes que salir de la universidad para probarlo. Estos laboratorios se ejecutan en tu navegador; las máquinas didácticas están etiquetadas como simuladores.</p>
       <div class="lesson-lab-grid">
         ${labs.map(lab => `
-          <button class="lab-launch-card" onclick="route('lab', '${lab.id}')">
+          <button class="lab-launch-card" data-nav="lab" data-nav-arg="${escapeHtml(lab.id)}">
             <span class="lab-icon">${lab.mode === "compiler" ? "λ" : lab.mode === "assembly" ? "CPU" : lab.mode === "logic" ? "01" : "▶"}</span>
             <span><b>${escapeHtml(lab.title)}</b><small>${escapeHtml(lab.badge)}</small></span>
             <strong>→</strong>
@@ -1190,6 +1299,26 @@ function bindLessonInteractions(lesson) {
   $$(".practice-check").forEach(button => {
     button.addEventListener("click", () => checkPracticeAnswer(button, lesson));
   });
+  $$(".practice-hint").forEach(button => button.addEventListener("click", () => {
+    const card=button.closest('.level-card');
+    const field=card?.querySelector('input,textarea');
+    const reveal=card?.querySelector('.practice-reveal');
+    if(!field || !reveal) return;
+    reveal.hidden=false;
+    reveal.innerHTML=`<b>Pista:</b> ${escapeHtml(field.dataset.hint || 'Vuelve al concepto y separa datos, regla y supuesto.')}`;
+  }));
+  $$(".practice-solution").forEach(button => button.addEventListener("click", () => {
+    const card=button.closest('.level-card');
+    const field=card?.querySelector('input,textarea');
+    const reveal=card?.querySelector('.practice-reveal');
+    if(!field || !reveal) return;
+    reveal.hidden=false;
+    reveal.innerHTML=`<b>Solución modelo:</b> ${escapeHtml(field.dataset.answer || '')}<small>No la memorices: compara qué paso o supuesto faltaba en tu respuesta.</small>`;
+    STORE.registerPracticeAttempt(lesson.id, Number(card.dataset.practiceLevel), false, {revealed:true,countAttempt:false});
+  }));
+  $$(".practice-input input").forEach(input => input.addEventListener('keydown', event => {
+    if(event.key === 'Enter') { event.preventDefault(); input.closest('.practice-input')?.querySelector('.practice-check')?.click(); }
+  }));
 
   $("#completeLesson").addEventListener("click", () => {
     STORE.completeLesson(lesson.id, lesson.duration);
@@ -1208,40 +1337,84 @@ function checkQuickQuestion(selectedButton, lesson) {
   feedback.className = `feedback show ${isCorrect ? "" : "bad"}`;
   feedback.innerHTML = isCorrect
     ? escapeHtml(lesson.check.success)
-    : `${escapeHtml(lesson.check.failure)} <button class="chip" onclick="goSection('rapida')">Ver esta parte otra vez</button>`;
+    : `${escapeHtml(lesson.check.failure)} <button class="chip" data-section="rapida">Ver esta parte otra vez</button>`;
 
   if (!isCorrect) {
     STORE.registerError(lesson.id, lesson.shortTitle, lesson.check.question);
   }
 }
 
+function practiceAnswersEquivalent(expected, received) {
+  if (expected === received) return true;
+  const numeric = value => {
+    const cleaned=String(value).replace(',', '.').replace(/[^0-9eE+\-.]/g,'');
+    if(!cleaned || !/[0-9]/.test(cleaned)) return null;
+    const number=Number(cleaned);
+    return Number.isFinite(number) ? number : null;
+  };
+  const a=numeric(expected), b=numeric(received);
+  if(a !== null && b !== null) {
+    const tolerance=Math.max(1e-9,Math.abs(a)*1e-3);
+    return Math.abs(a-b) <= tolerance;
+  }
+  return false;
+}
+
 function checkPracticeAnswer(button, lesson) {
   const card = button.closest(".level-card");
-  const input = $("input", card);
-  const feedback = $(".feedback", card);
-
-  const expected = normalizeAnswer(input.dataset.answer);
-  const alternatives = JSON.parse(input.dataset.alternatives || "[]").map(normalizeAnswer);
-  const received = normalizeAnswer(input.value);
-  const acceptedAnswers = [expected, ...alternatives];
-  const isCorrect = acceptedAnswers.includes(received);
-
-  feedback.className = `feedback show ${isCorrect ? "" : "bad"}`;
-
-  if (isCorrect) {
-    feedback.textContent = "Correcto. El concepto sigue vivo y no ha sido reemplazado por memorización ornamental.";
+  const input = card?.querySelector("input,textarea");
+  const feedback = card?.querySelector(".feedback");
+  if(!card || !input || !feedback) return;
+  const level=Number(card.dataset.practiceLevel);
+  const receivedRaw=String(input.value||'').trim();
+  if(!receivedRaw){
+    feedback.className='feedback show bad';
+    feedback.textContent='Escribe primero tu propia respuesta. La recuperación activa ocurre antes de mirar la solución.';
+    input.focus();
     return;
   }
 
-  feedback.innerHTML = `
-    No exactamente. <b>Pista:</b> ${escapeHtml(input.dataset.hint)}
-    <button class="chip ask-tutor-hint">Pedir otra pista</button>
-  `;
+  const selfCheck=card.dataset.selfCheck==='true';
+  const expected = normalizeAnswer(input.dataset.answer);
+  const alternatives = JSON.parse(input.dataset.alternatives || "[]").map(normalizeAnswer);
+  const received = normalizeAnswer(receivedRaw);
 
-  STORE.registerError(lesson.id, lesson.shortTitle, input.closest(".level-card").querySelector("p").textContent);
+  if(selfCheck){
+    feedback.className='feedback show';
+    feedback.innerHTML=`<b>Compárala con la solución modelo:</b><p>${escapeHtml(input.dataset.answer)}</p><p class="muted">¿Tu respuesta contiene la misma idea causal, los supuestos importantes y una conclusión compatible?</p><div class="practice-self-actions"><button class="chip" data-practice-self="understood">Sí, lo puedo explicar</button><button class="chip" data-practice-self="review">Me falta algo</button></div>`;
+    STORE.registerPracticeAttempt(lesson.id, level, false);
+    feedback.querySelectorAll('[data-practice-self]').forEach(choice=>choice.addEventListener('click',()=>{
+      const understood=choice.dataset.practiceSelf==='understood';
+      STORE.registerPracticeAttempt(lesson.id, level, understood, {selfAssessed:understood?'understood':'review',countAttempt:false});
+      card.classList.toggle('practice-solved',understood);
+      card.querySelector('.practice-state').textContent=understood?'✓ Comprendido':'Necesita repaso';
+      feedback.className=`feedback show ${understood?'':'bad'}`;
+      feedback.innerHTML=understood
+        ? 'Bien. Cierra el ciclo intentando resumir la respuesta en una frase sin volver a mirar el modelo.'
+        : `Vuelve al mecanismo central. <b>Pista:</b> ${escapeHtml(input.dataset.hint)} <button class="chip ask-tutor-hint">Pedir otra pista</button>`;
+      feedback.querySelector('.ask-tutor-hint')?.addEventListener('click',()=>openTutor(`Necesito una pista para: ${card.querySelector('.practice-prompt')?.textContent||''}`));
+    }));
+    return;
+  }
 
-  $(".ask-tutor-hint", feedback).addEventListener("click", () => {
-    openTutor(`Necesito una pista para: ${input.closest(".level-card").querySelector("p").textContent}`);
+  const acceptedAnswers = [expected, ...alternatives];
+  const isCorrect = acceptedAnswers.some(answer=>practiceAnswersEquivalent(answer,received));
+  STORE.registerPracticeAttempt(lesson.id, level, isCorrect);
+  feedback.className = `feedback show ${isCorrect ? "" : "bad"}`;
+
+  if (isCorrect) {
+    card.classList.add('practice-solved');
+    card.querySelector('.practice-state').textContent='✓ Comprendido';
+    feedback.innerHTML = '<b>Correcto.</b> Antes de seguir, intenta decir por qué funciona; acertar el resultado sin el mecanismo es una señal para repasar.';
+    return;
+  }
+
+  const attempts=state.practiceAttempts?.[`${lesson.id}:${level}`]?.attempts||1;
+  card.querySelector('.practice-state').textContent=`${attempts} intento${attempts===1?'':'s'}`;
+  feedback.innerHTML = `No exactamente. <b>Pista:</b> ${escapeHtml(input.dataset.hint)} <button class="chip ask-tutor-hint">Pedir otra pista</button>`;
+  STORE.registerError(lesson.id, lesson.shortTitle, card.querySelector(".practice-prompt")?.textContent||'Práctica');
+  feedback.querySelector('.ask-tutor-hint')?.addEventListener('click', () => {
+    openTutor(`Necesito una pista para: ${card.querySelector(".practice-prompt")?.textContent||''}`);
   });
 }
 
@@ -1250,21 +1423,7 @@ function checkPracticeAnswer(button, lesson) {
 // -----------------------------------------------------------------------------
 
 function renderReview() {
-  const recentErrors = state.errors.slice(-5).reverse();
-  const activity = state.lessonActivity || {};
-  const staleCompleted = (state.completed || [])
-    .filter(id => LESSONS[id])
-    .map(id => ({
-      lessonId:id,
-      topic:LESSONS[id].shortTitle || LESSONS[id].title,
-      lastOpenedAt:Number(activity[id]?.lastOpenedAt || activity[id]?.completedAt || 0)
-    }))
-    .filter(item => item.lastOpenedAt > 0)
-    .sort((a,b) => a.lastOpenedAt - b.lastOpenedAt)
-    .slice(0,3)
-    .map(item => ({...item, problem:'Recuerdo espaciado: intenta explicar la idea sin mirar antes de abrirla.'}));
-
-  const items = recentErrors.length ? recentErrors : staleCompleted;
+  const items = reviewQueue();
   const sessionMinutes = Math.max(4, Math.min(12, items.length * 3));
 
   view.innerHTML = `
@@ -1318,7 +1477,7 @@ function renderErrors() {
               <b>${escapeHtml(error.topic)}</b>
               <span>${escapeHtml(error.problem)}</span>
             </div>
-            <button class="chip" onclick="route('tema', '${error.lessonId}')">Practicar</button>
+            <button class="chip" data-nav="tema" data-nav-arg="${escapeHtml(error.lessonId)}">Practicar</button>
           </article>
         `).join("")
       : `<div class="empty-note">Aún no hay errores registrados. Sospechoso, pero legal.</div>`}
@@ -1341,7 +1500,7 @@ function renderLibrary() {
           <article class="library-area-panel panel">
             <div class="section-head">
               <div><span class="eyebrow">${escapeHtml(area.subtitle)}</span><h2>${escapeHtml(area.name)}</h2></div>
-              <button class="chip" onclick="route('objetivo', '${area.id}')">Abrir área</button>
+              <button class="chip" data-nav="objetivo" data-nav-arg="${escapeHtml(area.id)}">Abrir área</button>
             </div>
             <div class="book-grid">${books.map(renderBookCard).join('')}</div>
           </article>`;
@@ -1351,7 +1510,7 @@ function renderLibrary() {
     <div class="section-head"><div><span class="eyebrow">Consulta rápida</span><h2>Lecciones desarrolladas</h2></div></div>
     <div class="library-developed">
       ${Object.values(LESSONS).map(lesson => `
-        <article class="library-item" onclick="route('tema', '${lesson.id}')">
+        <article class="library-item" data-nav="tema" data-nav-arg="${escapeHtml(lesson.id)}">
           <b>${escapeHtml(lesson.title)}</b>
           <small>Bloque ${formatCourseNumber(lesson.courseId)} · explicación completa disponible</small>
         </article>
@@ -1360,7 +1519,7 @@ function renderLibrary() {
 
     <div class="section-head"><h2>Mapa curricular completo</h2></div>
     ${COURSES.map(course => `
-      <article class="library-item" onclick="route('curso', ${course.id})">
+      <article class="library-item" data-nav="curso" data-nav-arg="${course.id}">
         <b>${formatCourseNumber(course.id)} · ${escapeHtml(course.name)}</b>
         <small>${escapeHtml(course.title || course.topics.slice(0, 4).join(" · "))}</small>
       </article>
@@ -1373,6 +1532,9 @@ function renderProgress() {
   const completed = state.completed.filter(id => LESSONS[id]).length;
   const startedIds = Object.keys(state.lessonActivity || {}).filter(id => LESSONS[id]);
   const inProgress = startedIds.filter(id => !state.completed.includes(id)).length;
+  const practiceEntries=Object.values(state.practiceAttempts||{});
+  const practiceSolved=practiceEntries.filter(item=>item?.correct || item?.selfAssessed==='understood').length;
+  const practiceAttempts=practiceEntries.reduce((sum,item)=>sum+(Number(item?.attempts)||0),0);
 
   view.innerHTML = `
     <div class="page-title">
@@ -1386,6 +1548,8 @@ function renderProgress() {
       <div class="big-stat"><strong>${inProgress}</strong><small>lecciones en curso</small></div>
       <div class="big-stat"><strong>${state.errors.length}</strong><small>errores registrados</small></div>
       <div class="big-stat"><strong>${state.minutes}</strong><small>minutos estudiados</small></div>
+      <div class="big-stat"><strong>${practiceSolved}</strong><small>prácticas comprendidas</small></div>
+      <div class="big-stat"><strong>${practiceAttempts}</strong><small>intentos de práctica</small></div>
     </div>
 
     <article class="panel">
@@ -1400,7 +1564,7 @@ function renderProgress() {
       <div class="area-progress-list">
         ${GOAL_AREAS.map(area => {
           const stats = areaLessonStats(area);
-          return `<button class="area-progress-row" onclick="route('objetivo', '${area.id}')"><span><b>${escapeHtml(area.name)}</b><small>${stats.completed}/${stats.total} dominadas · ${stats.started} en curso</small></span><strong>${goalAreaProgress(area)}%</strong></button>`;
+          return `<button class="area-progress-row" data-nav="objetivo" data-nav-arg="${escapeHtml(area.id)}"><span><b>${escapeHtml(area.name)}</b><small>${stats.completed}/${stats.total} dominadas · ${stats.started} en curso</small></span><strong>${goalAreaProgress(area)}%</strong></button>`;
         }).join("")}
       </div>
     </article>
@@ -1410,9 +1574,9 @@ function renderProgress() {
       <h2>Cloud + copia de seguridad</h2>
       <p>El progreso se guarda localmente para responder al instante y se sincroniza con Supabase cuando inicias sesión. El JSON sigue disponible como copia portátil.</p>
       <div class="continue-row">
-        <button class="btn btn-secondary" onclick="exportProgress()">Exportar progreso</button>
-        <button class="btn btn-secondary" onclick="importProgress()">Importar progreso</button>
-        <button class="btn btn-secondary" onclick="resetProgress()">Reiniciar progreso</button>
+        <button class="btn btn-secondary" data-action="export-progress">Exportar progreso</button>
+        <button class="btn btn-secondary" data-action="import-progress">Importar progreso</button>
+        <button class="btn btn-secondary" data-action="reset-progress">Reiniciar progreso</button>
       </div>
     </article>
 
@@ -1436,8 +1600,8 @@ async function loadCloudProgressStats() {
   if (!box || !window.USIC_AUTH) return;
   try {
     const [sessions, goals] = await Promise.all([
-      USIC_AUTH.studyStats(90),
-      USIC_AUTH.listGoals().catch(()=>[])
+      window.USIC_AUTH.studyStats(90),
+      window.USIC_AUTH.listGoals().catch(()=>[])
     ]);
     const now=Date.now();
     const day=86400000;
@@ -1454,7 +1618,7 @@ async function loadCloudProgressStats() {
     monday.setDate(monday.getDate()-((monday.getDay()+6)%7));
     const weekStart=monday.getTime();
     const weekSeconds=sumSince(weekStart);
-    const weeklyTarget=Number(USIC_AUTH.profile?.weekly_goal_minutes)||180;
+    const weeklyTarget=Number(window.USIC_AUTH.profile?.weekly_goal_minutes)||180;
     const weeklyMinutes=Math.round(weekSeconds/60);
     const weeklyPct=Math.min(100,Math.round((weeklyMinutes/weeklyTarget)*100));
     const weeklyRemaining=Math.max(0,weeklyTarget-weeklyMinutes);
@@ -1520,7 +1684,7 @@ function renderLearningMomentum(sessions=[]){
   const previous=weeks.slice(0,4).reduce((n,w)=>n+w.minutes,0);
   const delta=previous>0?Math.round((recent-previous)/previous*100):(recent>0?100:0);
   const avg=Math.round(recent/4);
-  const target=Number(USIC_AUTH?.profile?.weekly_goal_minutes)||180;
+  const target=Number(window.USIC_AUTH?.profile?.weekly_goal_minutes)||180;
   const targetWeeks=weeks.slice(-4).filter(w=>w.minutes>=target).length;
   const completedRecent=Object.values(state.lessonActivity||{}).filter(x=>x?.completedAt&&x.completedAt>=now-28*day).length;
   return `<section class="analytics-card momentum-card"><div class="section-head compact"><div><span class="eyebrow">Tendencia · 8 semanas</span><h3>Ritmo a medio plazo</h3></div><span class="trend-pill ${delta>=0?'up':'down'}">${delta>=0?'+':''}${delta}% · últimas 4 vs previas</span></div><div class="weekly-bars">${weeks.map((w,i)=>`<div class="week-bar" title="${w.minutes} min · ${w.activeDays} días activos"><i style="height:${Math.max(5,Math.round(w.minutes/max*100))}%"></i><span>-W${7-i}</span><b>${w.minutes}</b></div>`).join('')}</div><div class="pattern-grid"><div><strong>${avg}</strong><small>min/semana · últimas 4</small></div><div><strong>${targetWeeks}/4</strong><small>semanas alcanzando tu meta</small></div><div><strong>${completedRecent}</strong><small>lecciones dominadas · 28 d</small></div></div><small class="muted">La tendencia sirve para detectar cambios de ritmo, no para premiar volumen por encima de comprensión. Una semana de descanso no borra lo aprendido.</small></section>`;
@@ -1547,9 +1711,9 @@ function renderLearningMaintenance(){
       <div><strong>${errorIds.length}</strong><small>temas con errores guardados</small></div>
     </div>
     <div class="session-history compact">
-      ${oldest?`<div><span><b>Retoma: ${escapeHtml(LESSONS[oldest].title)}</b><small>Última apertura hace ${daysAgo(activity[oldest]?.lastOpenedAt)} días.</small></span><button class="chip" onclick="route('tema','${oldest}')">Abrir</button></div>`:''}
-      ${review?`<div><span><b>Repasa: ${escapeHtml(LESSONS[review].title)}</b><small>Dominada, pero lleva ${daysAgo(activity[review]?.lastOpenedAt)} días sin abrirse.</small></span><button class="chip" onclick="route('tema','${review}')">Repasar</button></div>`:''}
-      ${err?`<div><span><b>Error pendiente: ${escapeHtml(LESSONS[err].title)}</b><small>Hay al menos un error registrado que merece una segunda pasada.</small></span><button class="chip" onclick="route('tema','${err}')">Practicar</button></div>`:''}
+      ${oldest?`<div><span><b>Retoma: ${escapeHtml(LESSONS[oldest].title)}</b><small>Última apertura hace ${daysAgo(activity[oldest]?.lastOpenedAt)} días.</small></span><button class="chip" data-nav="tema" data-nav-arg="${escapeHtml(oldest)}">Abrir</button></div>`:''}
+      ${review?`<div><span><b>Repasa: ${escapeHtml(LESSONS[review].title)}</b><small>Dominada, pero lleva ${daysAgo(activity[review]?.lastOpenedAt)} días sin abrirse.</small></span><button class="chip" data-nav="tema" data-nav-arg="${escapeHtml(review)}">Repasar</button></div>`:''}
+      ${err?`<div><span><b>Error pendiente: ${escapeHtml(LESSONS[err].title)}</b><small>Hay al menos un error registrado que merece una segunda pasada.</small></span><button class="chip" data-nav="tema" data-nav-arg="${escapeHtml(err)}">Practicar</button></div>`:''}
       ${!oldest&&!review&&!err?'<div class="empty-note compact">No hay señales de mantenimiento pendientes. Explora cualquier tema que te interese.</div>':''}
     </div>
   </section>`;
@@ -1603,7 +1767,7 @@ function renderApproxAreaTime(sessions=[]){
   const rows=GOAL_AREAS.map(a=>({a,sec:totals[a.id]||0})).filter(x=>x.sec>0).sort((a,b)=>b.sec-a.sec).slice(0,6);
   if(!rows.length) return `<section class="analytics-card"><span class="eyebrow">Tiempo por área</span><h3>Distribución aproximada</h3><div class="empty-note compact">Todavía no hay sesiones atribuibles a una lección.</div></section>`;
   const max=Math.max(...rows.map(r=>r.sec));
-  return `<section class="analytics-card"><span class="eyebrow">Tiempo por área</span><h3>Distribución aproximada · 90 días</h3><div class="area-time-list">${rows.map(r=>`<button onclick="route('objetivo','${r.a.id}')"><span><b>${escapeHtml(r.a.name)}</b><small>${Math.round(r.sec/60)} min</small></span><i><u style="width:${Math.round(r.sec/max*100)}%"></u></i></button>`).join('')}</div>${unattributed?`<small class="muted">${Math.round(unattributed/60)} min no se pudieron atribuir a un área.</small>`:''}<small class="muted">Estimación basada en la última lección registrada en cada sesión; no es un cronómetro por tema.</small></section>`;
+  return `<section class="analytics-card"><span class="eyebrow">Tiempo por área</span><h3>Distribución aproximada · 90 días</h3><div class="area-time-list">${rows.map(r=>`<button data-nav="objetivo" data-nav-arg="${escapeHtml(r.a.id)}"><span><b>${escapeHtml(r.a.name)}</b><small>${Math.round(r.sec/60)} min</small></span><i><u style="width:${Math.round(r.sec/max*100)}%"></u></i></button>`).join('')}</div>${unattributed?`<small class="muted">${Math.round(unattributed/60)} min no se pudieron atribuir a un área.</small>`:''}<small class="muted">Estimación basada en la última lección registrada en cada sesión; no es un cronómetro por tema.</small></section>`;
 }
 
 function renderSessionHistory(sessions=[],limit=8){
@@ -1618,7 +1782,7 @@ function renderRecentCompletions(limit=5){
     .sort((a,b)=>(b[1].completedAt||0)-(a[1].completedAt||0))
     .slice(0,limit);
   if(!rows.length) return `<div class="empty-note compact">Aún no hay lecciones dominadas recientemente.</div>`;
-  return `<div class="recent-completions"><span class="eyebrow">Dominadas recientemente</span>${rows.map(([id,a])=>`<button onclick="route('tema','${id}')"><span>${escapeHtml(LESSONS[id].title)}</span><small>${new Date(a.completedAt).toLocaleDateString('es-ES')}</small></button>`).join('')}</div>`;
+  return `<div class="recent-completions"><span class="eyebrow">Dominadas recientemente</span>${rows.map(([id,a])=>`<button data-nav="tema" data-nav-arg="${escapeHtml(id)}"><span>${escapeHtml(LESSONS[id].title)}</span><small>${new Date(a.completedAt).toLocaleDateString('es-ES')}</small></button>`).join('')}</div>`;
 }
 
 function renderActivityBars(sessions) {
@@ -1647,7 +1811,7 @@ function renderAreaEvolution(days=30){
     const recent=Object.entries(state.lessonActivity||{}).filter(([id,a])=>ids.has(id)&&a?.completedAt>=since).length;
     return {area,completed,total,recent,pct:Math.round(completed/total*100)};
   }).sort((a,b)=>b.recent-a.recent||b.pct-a.pct).slice(0,6);
-  return `<section class="analytics-card"><span class="eyebrow">Evolución por área</span><h3>Donde estás avanzando</h3><div class="area-evolution">${rows.map(r=>`<button onclick="route('objetivo','${r.area.id}')"><span><b>${escapeHtml(r.area.name)}</b><small>${r.recent?`+${r.recent} dominadas en ${days} días`:'sin dominadas recientes'}</small></span><strong>${r.pct}%</strong><i><u style="width:${r.pct}%"></u></i></button>`).join('')}</div></section>`;
+  return `<section class="analytics-card"><span class="eyebrow">Evolución por área</span><h3>Donde estás avanzando</h3><div class="area-evolution">${rows.map(r=>`<button data-nav="objetivo" data-nav-arg="${escapeHtml(r.area.id)}"><span><b>${escapeHtml(r.area.name)}</b><small>${r.recent?`+${r.recent} dominadas en ${days} días`:'sin dominadas recientes'}</small></span><strong>${r.pct}%</strong><i><u style="width:${r.pct}%"></u></i></button>`).join('')}</div></section>`;
 }
 
 function renderGoalPulse(goals=[]){
@@ -1667,7 +1831,7 @@ function renderGoalPulse(goals=[]){
     }
     return {...g,cur,pct,days,pace};
   }).sort((a,b)=>(a.days??99999)-(b.days??99999)).slice(0,4);
-  return `<section class="analytics-card"><span class="eyebrow">Goals</span><h3>Próximos objetivos</h3>${rows.length?`<div class="goal-pulse">${rows.map(g=>`<div class="${g.days!==null&&g.days<0?'overdue':''}"><span><b>${escapeHtml(g.title)}</b><small>${g.days===null?'sin fecha':g.days<0?`vencido hace ${Math.abs(g.days)} d`:g.days===0?'vence hoy':`faltan ${g.days} d`}${g.pace||''}</small></span><strong>${g.pct}%</strong></div>`).join('')}</div><button class="text-action" onclick="route('objetivos')">Gestionar objetivos →</button>`:`<div class="empty-note compact">No tienes objetivos activos.</div><button class="text-action" onclick="route('objetivos')">Crear un objetivo →</button>`}</section>`;
+  return `<section class="analytics-card"><span class="eyebrow">Goals</span><h3>Próximos objetivos</h3>${rows.length?`<div class="goal-pulse">${rows.map(g=>`<div class="${g.days!==null&&g.days<0?'overdue':''}"><span><b>${escapeHtml(g.title)}</b><small>${g.days===null?'sin fecha':g.days<0?`vencido hace ${Math.abs(g.days)} d`:g.days===0?'vence hoy':`faltan ${g.days} d`}${g.pace||''}</small></span><strong>${g.pct}%</strong></div>`).join('')}</div><button class="text-action" data-nav="objetivos">Gestionar objetivos →</button>`:`<div class="empty-note compact">No tienes objetivos activos.</div><button class="text-action" data-nav="objetivos">Crear un objetivo →</button>`}</section>`;
 }
 
 function renderStudyRecommendations(limit=4){
@@ -1683,13 +1847,13 @@ function renderStudyRecommendations(limit=4){
     if(a?.visits) push(id,age>7?`La empezaste hace ${Math.round(age)} días; puede ser buen momento para cerrarla.`:'La tienes en curso.',75+Math.min(15,age));
   });
   // 3) Área principal elegida en onboarding.
-  const focus=GOAL_AREAS.find(a=>a.id===USIC_AUTH?.profile?.focus_area);
+  const focus=GOAL_AREAS.find(a=>a.id===window.USIC_AUTH?.profile?.focus_area);
   if(focus){lessonsForArea(focus).forEach((l,i)=>push(l.id,`Pertenece a tu área principal: ${focus.name}.`,60-i/100));}
   // 4) Área con menor dominio para mantener amplitud.
   const weakest=GOAL_AREAS.map(a=>({a,p:goalAreaProgress(a)})).sort((x,y)=>x.p-y.p)[0]?.a;
   if(weakest){lessonsForArea(weakest).forEach((l,i)=>push(l.id,`Refuerza ${weakest.name}, una de tus áreas menos avanzadas.`,40-i/100));}
   recs.sort((a,b)=>b.score-a.score);
-  return `<section class="study-recommendations"><div class="section-head compact"><div><span class="eyebrow">Siguiente paso sugerido</span><h3>Qué estudiar ahora</h3></div><small>Basado en errores, temas en curso y preferencias. Nunca bloquea otras lecciones.</small></div><div class="recommendation-grid">${recs.slice(0,limit).map(r=>`<button onclick="route('tema','${r.id}')"><b>${escapeHtml(LESSONS[r.id].title)}</b><small>${escapeHtml(r.reason)}</small><span>Estudiar →</span></button>`).join('')||'<div class="empty-note">Explora cualquier área: cuando haya historial aparecerán recomendaciones aquí.</div>'}</div></section>`;
+  return `<section class="study-recommendations"><div class="section-head compact"><div><span class="eyebrow">Siguiente paso sugerido</span><h3>Qué estudiar ahora</h3></div><small>Basado en errores, temas en curso y preferencias. Nunca bloquea otras lecciones.</small></div><div class="recommendation-grid">${recs.slice(0,limit).map(r=>`<button data-nav="tema" data-nav-arg="${escapeHtml(r.id)}"><b>${escapeHtml(LESSONS[r.id].title)}</b><small>${escapeHtml(r.reason)}</small><span>Estudiar →</span></button>`).join('')||'<div class="empty-note">Explora cualquier área: cuando haya historial aparecerán recomendaciones aquí.</div>'}</div></section>`;
 }
 
 function exportProgress() {
@@ -1722,7 +1886,7 @@ function importProgress() {
           : {}
       };
       STORE.replaceState(sanitized); renderProgress(); toast("Progreso importado correctamente.");
-    } catch (error) { toast(`No se pudo importar: ${error.message}`); }
+    } catch (error) { toast(`No se pudo importar: ${error.message}`, "error"); }
   });
   input.click();
 }
@@ -1754,7 +1918,7 @@ async function resetProgress() {
     confirmLabel: 'Reiniciar progreso'
   });
   if (!accepted) return;
-  state.completed = []; state.errors = []; state.minutes = 0; state.streak = 0; state.lastLesson = orderedDevelopedLessonIds()[0] || null; state.lessonActivity = {};
+  state.completed = []; state.errors = []; state.minutes = 0; state.streak = 0; state.lastLesson = null; state.lessonActivity = {}; state.practiceAttempts = {};
   STORE.save(); renderProgress(); updateNavBadges(); toast("Progreso reiniciado.");
 }
 
@@ -1790,11 +1954,13 @@ function renderGoals() {
           <button type="button" class="chip" data-goal-preset="area25">25% de un área</button>
         </div>
         <form id="goalForm" class="goal-form">
+          <input type="hidden" name="goal_id" value="">
           <label>Nombre<input name="title" required maxlength="120" placeholder="Ej. Dominar fundamentos de redes"></label>
           <div class="goal-form-row"><label>Métrica<select name="metric"><option value="lessons">Lecciones dominadas</option><option value="minutes">Minutos estudiados</option><option value="area_percent">% de un área</option></select></label><label>Meta<input name="target" type="number" min="1" required value="10"></label></div>
           <label>Área (opcional)<select name="area_id"><option value="">Toda la universidad</option>${GOAL_AREAS.map(a=>`<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('')}</select></label>
           <label>Fecha objetivo (opcional)<input name="deadline" type="date"></label>
-          <button class="btn btn-primary">Crear objetivo</button>
+          <div class="goal-form-actions"><button class="btn btn-primary" type="submit">Crear objetivo</button><button class="btn btn-secondary" type="button" id="cancelGoalEdit" hidden>Cancelar edición</button></div>
+          <small class="field-hint">Consejo: una meta útil tiene una medida que USIC pueda observar y una fecha que puedas revisar sin convertirla en presión artificial.</small>
         </form>
       </article>
       <article class="panel"><span class="eyebrow">Activos</span><h2>Tus metas</h2><div id="goalList"><p class="muted">Cargando…</p></div></article>
@@ -1814,39 +1980,146 @@ function bindGoalPresets(){
   }));
 }
 
+function resetGoalForm(form){
+  if(!form) return;
+  form.reset();
+  form.elements.goal_id.value='';
+  const submit=form.querySelector('[type="submit"]');
+  if(submit) submit.textContent='Crear objetivo';
+  const cancel=document.getElementById('cancelGoalEdit');
+  if(cancel) cancel.hidden=true;
+}
+
+function editUserGoal(goal){
+  const form=document.getElementById('goalForm');
+  if(!form || !goal) return;
+  form.elements.goal_id.value=goal.id||'';
+  form.elements.title.value=goal.title||'';
+  form.elements.metric.value=goal.metric||'lessons';
+  form.elements.target.value=goal.target||1;
+  form.elements.area_id.value=goal.area_id||'';
+  form.elements.deadline.value=goal.deadline||'';
+  const submit=form.querySelector('[type="submit"]');
+  if(submit) submit.textContent='Guardar cambios';
+  const cancel=document.getElementById('cancelGoalEdit');
+  if(cancel) cancel.hidden=false;
+  form.scrollIntoView({behavior:'smooth',block:'center'});
+  form.elements.title.focus();
+}
+
 function bindGoalForm(){
-  document.getElementById('goalForm')?.addEventListener('submit',async e=>{
-    e.preventDefault(); if(!window.USIC_AUTH) return toast('Todavía conectando con tu cuenta.');
-    const fd=new FormData(e.currentTarget); const metric=String(fd.get('metric')); let area=String(fd.get('area_id')||'')||null;
-    if(metric==='area_percent' && !area){ toast('Para una meta porcentual elige un área.'); return; }
-    try { await USIC_AUTH.createGoal({title:String(fd.get('title')).trim(),metric,target:Number(fd.get('target')),area_id:area,deadline:String(fd.get('deadline')||'')||null}); e.currentTarget.reset(); toast('Objetivo creado.'); loadGoals(); }
-    catch(err){ toast(`No se pudo crear: ${err.message}`); }
+  const form=document.getElementById('goalForm');
+  document.getElementById('cancelGoalEdit')?.addEventListener('click',()=>resetGoalForm(form));
+  form?.addEventListener('submit',async e=>{
+    e.preventDefault(); if(!window.USIC_AUTH) return toast('Todavía conectando con tu cuenta.', 'error');
+    const fd=new FormData(form); const metric=String(fd.get('metric')); let area=String(fd.get('area_id')||'')||null;
+    const goalId=String(fd.get('goal_id')||'').trim();
+    const title=String(fd.get('title')||'').trim(); const target=Number(fd.get('target')); const deadline=String(fd.get('deadline')||'')||null;
+    if(!title) return toast('Pon un nombre al objetivo.','error');
+    if(title.length>120) return toast('El nombre del objetivo no puede superar 120 caracteres.','error');
+    if(!['lessons','minutes','area_percent'].includes(metric)) return toast('El tipo de objetivo no es válido.','error');
+    if(!Number.isFinite(target) || target<=0) return toast('La meta debe ser un número mayor que cero.','error');
+    if(metric==='area_percent' && (target>100 || !area)){ return toast(target>100?'El porcentaje no puede superar el 100%.':'Para una meta porcentual elige un área.','error'); }
+    if(deadline){ const d=new Date(`${deadline}T00:00:00`); if(Number.isNaN(d.getTime())) return toast('La fecha límite no es válida.','error'); }
+    const submit=form.querySelector('[type="submit"]'); if(submit){submit.disabled=true;submit.textContent=goalId?'Guardando…':'Creando…';}
+    try {
+      const patch={title,metric,target,area_id:area,deadline};
+      if(goalId) await window.USIC_AUTH.updateGoal(goalId,patch); else await window.USIC_AUTH.createGoal(patch);
+      resetGoalForm(form);
+      toast(goalId?'Objetivo actualizado.':'Objetivo creado.');
+      await loadGoals();
+    }
+    catch(err){ toast(`No se pudo ${goalId?'actualizar':'crear'}: ${err.message||'error desconocido'}`, "error"); }
+    finally{if(submit && submit.isConnected && !goalId){submit.disabled=false;submit.textContent='Crear objetivo';} else if(submit?.isConnected){submit.disabled=false;}}
   });
 }
 
 async function loadGoals(){
   const box=document.getElementById('goalList'); if(!box || !window.USIC_AUTH) return;
-  try { const goals=await USIC_AUTH.listGoals(); const active=goals.filter(g=>g.status!=='archived');
-    box.innerHTML=active.length?active.map(g=>{ const cur=goalCurrentValue(g), pct=Math.min(100,Math.round(cur/Number(g.target)*100)); const done=pct>=100||g.status==='completed'; const today=new Date();today.setHours(0,0,0,0);const due=g.deadline?new Date(`${g.deadline}T00:00:00`):null;const days=due?Math.ceil((due-today)/86400000):null;const timing=days===null?'sin fecha':days<0?`vencido hace ${Math.abs(days)} días`:days===0?'vence hoy':days<=7?`faltan ${days} días`:`hasta ${g.deadline}`; return `<article class="user-goal ${done?'goal-done':''} ${!done&&days!==null&&days<0?'goal-overdue':''}"><div><b>${escapeHtml(g.title)}</b><small>${cur} / ${g.target}${g.metric==='area_percent'?'%':''} · ${timing}</small></div>${progressBar(pct)}${!done&&days!==null&&days<0?`<p class="goal-warning">La fecha pasó, pero el objetivo sigue activo. Puedes completarlo, editar tu estrategia o eliminarlo.</p>`:''}<div class="goal-actions">${!done?`<button class="chip" data-goal-action="complete" data-goal-id="${g.id}">Marcar completado</button>`:''}<button class="chip" data-goal-action="remove" data-goal-id="${g.id}">Eliminar</button></div></article>`; }).join(''):`<div class="empty-note">Todavía no tienes objetivos. Crea uno que te ayude a decidir qué estudiar, no uno que te castigue.</div>`;
-  } catch(err){ box.innerHTML=`<div class="empty-note">Objetivos cloud no disponibles. Ejecuta SUPABASE_SETUP.sql.</div>`; }
-  box.onclick = event => { const btn=event.target.closest('[data-goal-action]'); if(!btn)return; const id=btn.dataset.goalId; if(btn.dataset.goalAction==='complete') completeUserGoal(id); if(btn.dataset.goalAction==='remove') removeUserGoal(id); };
+  try {
+    const goals=await window.USIC_AUTH.listGoals();
+    const active=goals.filter(g=>g.status!=='archived');
+    window.USIC_ACTIVE_GOALS=active;
+    box.innerHTML=active.length?active.map(g=>{
+      const cur=goalCurrentValue(g), pct=Math.min(100,Math.round(cur/Number(g.target)*100));
+      const done=pct>=100||g.status==='completed';
+      const today=new Date();today.setHours(0,0,0,0);
+      const due=g.deadline?new Date(`${g.deadline}T00:00:00`):null;
+      const days=due?Math.ceil((due-today)/86400000):null;
+      const timing=days===null?'sin fecha':days<0?`vencido hace ${Math.abs(days)} días`:days===0?'vence hoy':days<=7?`faltan ${days} días`:`hasta ${g.deadline}`;
+      const metricLabel=g.metric==='minutes'?'minutos':g.metric==='area_percent'?'% del área':'lecciones';
+      return `<article class="user-goal ${done?'goal-done':''} ${!done&&days!==null&&days<0?'goal-overdue':''}" data-goal-card="${escapeHtml(g.id)}"><div><b>${escapeHtml(g.title)}</b><small>${cur} / ${g.target} ${metricLabel} · ${timing}</small></div>${progressBar(pct)}${!done&&days!==null&&days<0?`<p class="goal-warning">La fecha pasó, pero el objetivo sigue activo. Ajustar una meta es parte de planificar, no un fracaso.</p>`:''}<div class="goal-actions"><button class="chip" data-goal-action="edit" data-goal-id="${g.id}">Editar</button>${!done?`<button class="chip" data-goal-action="complete" data-goal-id="${g.id}">Marcar completado</button>`:''}<button class="chip" data-goal-action="remove" data-goal-id="${g.id}">Eliminar</button></div></article>`;
+    }).join(''):`<div class="empty-note">Todavía no tienes objetivos. Empieza con una meta pequeña y observable; puedes editarla cuando cambie tu situación.</div>`;
+  } catch(err){
+    const setup=/schema cache|could not find the table|does not exist|goals/i.test(String(err?.message||''));
+    box.innerHTML=`<div class="empty-note">${setup?'La tabla de objetivos todavía no está disponible. Ejecuta SUPABASE_SETUP.sql.':'No pudimos cargar tus objetivos ahora mismo. Tu progreso no se ha perdido; vuelve a intentarlo en unos segundos.'}</div>`;
+  }
 }
-async function completeUserGoal(id){ try{await USIC_AUTH.updateGoal(id,{status:'completed'});loadGoals();}catch(e){toast(e.message);} }
-async function removeUserGoal(id){ const accepted=await askConfirmation({title:'Eliminar objetivo',message:'El objetivo se eliminará de tu cuenta. Esta acción no se puede deshacer.',confirmLabel:'Eliminar objetivo'}); if(!accepted)return; try{await USIC_AUTH.deleteGoal(id);loadGoals();}catch(e){toast(e.message);} }
+
+async function completeUserGoal(id){ if(!window.USIC_AUTH) return toast('La cuenta todavía se está inicializando.','error'); try{await window.USIC_AUTH.updateGoal(id,{status:'completed'});loadGoals();}catch(e){toast(e.message || 'No se pudo completar el objetivo.','error');} }
+async function removeUserGoal(id){ if(!window.USIC_AUTH) return toast('La cuenta todavía se está inicializando.','error'); const accepted=await askConfirmation({title:'Eliminar objetivo',message:'El objetivo se eliminará de tu cuenta. Esta acción no se puede deshacer.',confirmLabel:'Eliminar objetivo'}); if(!accepted)return; try{await window.USIC_AUTH.deleteGoal(id);loadGoals();}catch(e){toast(e.message || 'No se pudo eliminar el objetivo.','error');} }
+
+function accountLearningSnapshot(){
+  const practice=Object.values(state.practiceAttempts||{});
+  const practiceSolved=practice.filter(item=>item?.correct || item?.selfAssessed==='understood').length;
+  const attempts=practice.reduce((sum,item)=>sum+(Number(item?.attempts)||0),0);
+  const pendingReview=reviewQueue().length;
+  const recentErrors=(state.errors||[]).filter(error=>Date.now()-Number(error.date||0)<30*86400000).length;
+  const last=state.lastLesson && LESSONS[state.lastLesson] ? LESSONS[state.lastLesson] : null;
+  return {practiceSolved,attempts,pendingReview,recentErrors,last};
+}
+
+function formatAccountDate(value){
+  if(!value) return 'No disponible';
+  const date=new Date(value);
+  return Number.isNaN(date.getTime())?'No disponible':date.toLocaleString('es-ES',{dateStyle:'medium',timeStyle:'short'});
+}
 
 function renderAccount(){
   const user=window.USIC_AUTH?.session?.user, profile=window.USIC_AUTH?.profile;
-  view.innerHTML=`<div class="page-title"><span class="eyebrow">Cuenta USIC</span><h1>Tu perfil</h1><p>La cuenta sincroniza progreso, objetivos y estadísticas entre navegadores y dispositivos.</p></div>
-    <div id="cloudWarning" class="cloud-warning" hidden></div>
-    <section class="account-grid"><article class="panel"><div class="account-avatar" data-user-avatar>${escapeHtml((profile?.display_name||'U')[0])}</div><h2 data-user-name>${escapeHtml(profile?.display_name||'Estudiante')}</h2><p data-user-email>${escapeHtml(user?.email||'')}</p><p><span class="sync-pill" id="accountSync">● Cloud activo</span></p></article>
-    <article class="panel"><span class="eyebrow">Perfil</span><h2>Nombre visible</h2><form id="profileForm" class="auth-form"><label>Nombre<input name="display_name" maxlength="60" value="${escapeHtml(profile?.display_name||'')}"></label><label>Meta semanal de estudio<input name="weekly_goal_minutes" type="number" min="30" max="3000" value="${Number(profile?.weekly_goal_minutes)||180}"><small>Minutos por semana</small></label><button class="btn btn-primary">Guardar perfil</button></form></article>
-    <article class="panel"><span class="eyebrow">Preferencias</span><h2>Tu dirección actual</h2><p>${profile?.focus_area?`Área principal: <b>${escapeHtml(GOAL_AREAS.find(a=>a.id===profile.focus_area)?.name||profile.focus_area)}</b>`:'Aún no has elegido un área principal.'}</p><button class="btn btn-secondary" id="reopenOnboarding">Cambiar área y meta</button></article>
-    <article class="panel account-security"><span class="eyebrow">Seguridad</span><h2>Contraseña y sesión</h2><p class="muted">Actualiza tu contraseña sin salir de tu cuenta.</p><form id="passwordForm" class="auth-form compact-form"><label>Nueva contraseña<span class="password-field"><input type="password" name="password" minlength="8" required autocomplete="new-password" placeholder="Mínimo 8 caracteres"><button class="password-toggle" type="button" data-password-inline-toggle aria-label="Mostrar contraseña">Ver</button></span></label><label>Repite la contraseña<span class="password-field"><input type="password" name="password_confirm" minlength="8" required autocomplete="new-password" placeholder="Repite la contraseña"><button class="password-toggle" type="button" data-password-inline-toggle aria-label="Mostrar contraseña">Ver</button></span></label><small class="field-hint">Usa 8 o más caracteres. Mejor si combinas varias palabras, números y símbolos.</small><button class="btn btn-primary" type="submit">Actualizar contraseña</button></form><hr class="panel-divider"><button class="btn btn-secondary" id="signOutBtn">Cerrar sesión</button></article></section>`;
-  document.getElementById('profileForm')?.addEventListener('submit',async e=>{e.preventDefault();try{const fd=new FormData(e.currentTarget);await USIC_AUTH.updateProfile({display_name:String(fd.get('display_name')).trim(),weekly_goal_minutes:Math.max(30,Math.min(3000,Number(fd.get('weekly_goal_minutes'))||180))});toast('Perfil actualizado.');renderAccount();}catch(err){toast(err.message);}});
-  document.getElementById('reopenOnboarding')?.addEventListener('click',()=>USIC_AUTH.showOnboarding());
-  document.getElementById('signOutBtn')?.addEventListener('click',()=>USIC_AUTH.signOut());
+  const cloudIssue=window.USIC_CLOUD_WARNING;
+  const cloudIssues=window.USIC_CLOUD_STATE?.issues||[];
+  const cloudNeedsSetup=cloudIssues.some(i=>i.needsSetup);
+  const cloudLabel=!cloudIssue?'● Cloud activo':cloudNeedsSetup?'● Solo local':'● Reintento pendiente';
+  const snapshot=accountLearningSnapshot();
+  const total=Object.keys(LESSONS).length;
+  const completed=state.completed.filter(id=>LESSONS[id]).length;
+  const completionPct=total?Math.round(completed/total*100):0;
+  const provider=user?.app_metadata?.provider||'email';
+  const focusName=profile?.focus_area ? (GOAL_AREAS.find(a=>a.id===profile.focus_area)?.name||profile.focus_area) : 'Sin área prioritaria';
+
+  view.innerHTML=`<div class="page-title"><span class="eyebrow">Centro personal USIC</span><h1>Tu cuenta y aprendizaje</h1><p>Gestiona identidad, dirección de estudio, seguridad, sincronización y señales reales de aprendizaje desde un único lugar.</p></div>
+    <div id="cloudWarning" class="cloud-warning" ${cloudIssue?'':'hidden'}>${cloudIssue?`<strong>${cloudNeedsSetup?'Configuración cloud incompleta.':'Sincronización temporalmente degradada.'}</strong><span>La aplicación mantiene una copia local. ${escapeHtml(cloudIssue)}.</span><small>${cloudNeedsSetup?'Administrador: ejecuta SUPABASE_SETUP.sql en Supabase.':'No necesitas hacer nada: volveremos a intentarlo automáticamente.'}</small>`:''}</div>
+
+    <section class="account-overview-grid">
+      <article class="panel account-identity"><div class="account-avatar" data-user-avatar>${escapeHtml((profile?.display_name||'U')[0])}</div><div><span class="eyebrow">Identidad</span><h2 data-user-name>${escapeHtml(profile?.display_name||'Estudiante')}</h2><p data-user-email>${escapeHtml(user?.email||'')}</p><p><span class="sync-pill ${cloudIssue?'local':''}" id="accountSync">${cloudLabel}</span></p></div></article>
+      <article class="panel account-learning-summary"><span class="eyebrow">Tu aprendizaje</span><h2>${completionPct}% del contenido dominado</h2>${progressBar(completionPct)}<div class="account-mini-stats"><span><b>${completed}</b><small>lecciones</small></span><span><b>${snapshot.practiceSolved}</b><small>prácticas comprendidas</small></span><span><b>${snapshot.pendingReview}</b><small>repasos pendientes</small></span><span><b>${snapshot.recentErrors}</b><small>errores recientes</small></span></div></article>
+    </section>
+
+    <section class="account-grid">
+      <article class="panel"><span class="eyebrow">Perfil de estudio</span><h2>Identidad y dirección</h2><form id="profileForm" class="auth-form"><label>Nombre visible<input name="display_name" maxlength="60" value="${escapeHtml(profile?.display_name||'')}"></label><label>Área principal<select name="focus_area"><option value="">Sin prioridad fija</option>${GOAL_AREAS.map(area=>`<option value="${escapeHtml(area.id)}" ${profile?.focus_area===area.id?'selected':''}>${escapeHtml(area.name)}</option>`).join('')}</select></label><label>Meta semanal de estudio<input name="weekly_goal_minutes" type="number" min="30" max="3000" value="${Number(profile?.weekly_goal_minutes)||180}"><small>Minutos por semana. Es una referencia, no una obligación.</small></label><button class="btn btn-primary">Guardar perfil</button></form></article>
+
+      <article class="panel"><span class="eyebrow">Continuidad</span><h2>Qué hacer a continuación</h2><div class="account-next-list"><div><b>Área principal</b><span>${escapeHtml(focusName)}</span></div><div><b>Última lección</b><span>${snapshot.last?escapeHtml(snapshot.last.title):'Todavía no has abierto ninguna'}</span></div><div><b>Intentos de práctica</b><span>${snapshot.attempts}</span></div></div><div class="account-actions">${snapshot.last?`<button class="btn btn-secondary" data-nav="tema" data-nav-arg="${escapeHtml(snapshot.last.id)}">Continuar última lección</button>`:''}<button class="btn btn-secondary" data-nav="repasar">Abrir repaso</button><button class="btn btn-secondary" data-nav="objetivos">Gestionar objetivos</button></div></article>
+
+      <article class="panel"><span class="eyebrow">Cuenta</span><h2>Información de acceso</h2><dl class="account-details"><div><dt>Email</dt><dd>${escapeHtml(user?.email||'No disponible')}</dd></div><div><dt>Proveedor</dt><dd>${escapeHtml(provider)}</dd></div><div><dt>Cuenta creada</dt><dd>${escapeHtml(formatAccountDate(user?.created_at))}</dd></div><div><dt>Último acceso</dt><dd>${escapeHtml(formatAccountDate(user?.last_sign_in_at))}</dd></div></dl><p class="muted">El email se gestiona desde el proveedor de autenticación. El progreso académico y los objetivos pueden seguir funcionando localmente si la nube está temporalmente caída.</p></article>
+
+      <article class="panel"><span class="eyebrow">Tus datos</span><h2>Progreso y portabilidad</h2><p>Consulta estadísticas detalladas, exporta una copia o revisa tus errores sin mezclar estas acciones con la seguridad de la cuenta.</p><div class="account-actions"><button class="btn btn-secondary" data-nav="progreso">Ver progreso completo</button><button class="btn btn-secondary" data-nav="errores">Revisar errores</button><button class="btn btn-secondary" data-action="export-progress">Exportar progreso</button></div></article>
+
+      <article class="panel account-security"><span class="eyebrow">Seguridad</span><h2>Contraseña y sesión</h2><p class="muted">Actualiza tu contraseña sin salir de tu cuenta. USIC nunca muestra ni almacena tu contraseña actual.</p><form id="passwordForm" class="auth-form compact-form"><label>Nueva contraseña<span class="password-field"><input type="password" name="password" minlength="8" required autocomplete="new-password" placeholder="Mínimo 8 caracteres"><button class="password-toggle" type="button" data-password-inline-toggle aria-label="Mostrar contraseña">Ver</button></span></label><label>Repite la contraseña<span class="password-field"><input type="password" name="password_confirm" minlength="8" required autocomplete="new-password" placeholder="Repite la contraseña"><button class="password-toggle" type="button" data-password-inline-toggle aria-label="Mostrar contraseña">Ver</button></span></label><small class="field-hint">Mejor una frase larga y única que una contraseña corta con sustituciones previsibles.</small><button class="btn btn-primary" type="submit">Actualizar contraseña</button></form><hr class="panel-divider"><button class="btn btn-secondary" id="signOutBtn">Cerrar sesión</button></article>
+
+      <article class="panel"><span class="eyebrow">Configuración guiada</span><h2>Rehacer orientación inicial</h2><p>Si tu objetivo ha cambiado, puedes volver a elegir área principal y meta semanal sin borrar ningún progreso.</p><button class="btn btn-secondary" id="reopenOnboarding">Abrir orientación</button></article>
+    </section>`;
+
+  document.getElementById('profileForm')?.addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget;const fd=new FormData(form);const name=String(fd.get('display_name')||'').trim();const weekly=Number(fd.get('weekly_goal_minutes'));const focus=String(fd.get('focus_area')||'')||null;if(name.length<2)return toast('El nombre visible debe tener al menos 2 caracteres.','error');if(name.length>60)return toast('El nombre visible no puede superar 60 caracteres.','error');if(!Number.isFinite(weekly)||weekly<30||weekly>3000)return toast('La meta semanal debe estar entre 30 y 3000 minutos.','error');if(focus&&!GOAL_AREAS.some(area=>area.id===focus))return toast('El área principal seleccionada no es válida.','error');const submit=form.querySelector('[type="submit"]');if(submit){submit.disabled=true;submit.textContent='Guardando…';}try{await window.USIC_AUTH.updateProfile({display_name:name,weekly_goal_minutes:weekly,focus_area:focus});toast('Perfil actualizado.');renderAccount();}catch(err){toast(err.message || 'No se pudo actualizar el perfil.','error');}finally{if(submit?.isConnected){submit.disabled=false;submit.textContent='Guardar perfil';}}});
+  document.getElementById('reopenOnboarding')?.addEventListener('click',()=>window.USIC_AUTH?.showOnboarding());
+  document.getElementById('signOutBtn')?.addEventListener('click',async e=>{
+    const button=e.currentTarget; button.disabled=true; const label=button.textContent; button.textContent='Cerrando sesión…';
+    try{const result=await window.USIC_AUTH?.signOut();if(result?.error) toast('Se cerró la sesión local, pero no pudimos confirmar el cierre remoto.','warning');}
+    catch(error){toast(error?.message || 'No se pudo cerrar la sesión correctamente.','error');}
+    finally{if(button.isConnected){button.disabled=false;button.textContent=label;}}
+  });
   document.querySelectorAll('[data-password-inline-toggle]').forEach(btn=>btn.addEventListener('click',()=>{const input=btn.closest('.password-field')?.querySelector('input');if(!input)return;const show=input.type==='password';input.type=show?'text':'password';btn.textContent=show?'Ocultar':'Ver';btn.setAttribute('aria-label',show?'Ocultar contraseña':'Mostrar contraseña');}));
-  document.getElementById('passwordForm')?.addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget;const fd=new FormData(form);const p=String(fd.get('password')||'');const p2=String(fd.get('password_confirm')||'');if(p.length<8)return toast('Usa al menos 8 caracteres.');if(p!==p2)return toast('Las contraseñas no coinciden.');const submit=form.querySelector('button[type=submit]');submit.disabled=true;submit.textContent='Actualizando…';try{const {error}=await USIC_AUTH.updatePassword(p);if(error)throw error;form.reset();toast('Contraseña actualizada.');}catch(err){toast(err.message||'No se pudo actualizar la contraseña.');}finally{submit.disabled=false;submit.textContent='Actualizar contraseña';}});
+  document.getElementById('passwordForm')?.addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget;const fd=new FormData(form);const p=String(fd.get('password')||'');const p2=String(fd.get('password_confirm')||'');if(p.length<8)return toast('Usa al menos 8 caracteres.','error');if(p!==p2)return toast('Las contraseñas no coinciden.','error');const submit=form.querySelector('button[type=submit]');submit.disabled=true;submit.textContent='Actualizando…';try{const {error}=await window.USIC_AUTH.updatePassword(p);if(error)throw error;form.reset();toast('Contraseña actualizada.');}catch(err){toast(err.message||'No se pudo actualizar la contraseña.','error');}finally{submit.disabled=false;submit.textContent='Actualizar contraseña';}});
 }
 
 // -----------------------------------------------------------------------------
@@ -1862,6 +2135,7 @@ function openSearch() {
   if (!searchOverlay.classList.contains("open")) searchReturnFocus = document.activeElement;
   searchOverlay.classList.add("open");
   searchOverlay.setAttribute("aria-hidden", "false");
+  $("#searchTrigger")?.setAttribute("aria-expanded", "true");
   document.body.classList.add("overlay-open");
   searchInput.focus();
   performSearch("");
@@ -1871,6 +2145,7 @@ function closeSearch({ restoreFocus = true } = {}) {
   if (!searchOverlay.classList.contains("open")) return;
   searchOverlay.classList.remove("open");
   searchOverlay.setAttribute("aria-hidden", "true");
+  $("#searchTrigger")?.setAttribute("aria-expanded", "false");
   document.body.classList.remove("overlay-open");
   if (restoreFocus && searchReturnFocus && typeof searchReturnFocus.focus === "function") {
     const target = searchReturnFocus;
@@ -1937,6 +2212,7 @@ function openTutor(prefill = "") {
   if (!tutorPanel.classList.contains("open")) tutorReturnFocus = document.activeElement;
   tutorPanel.classList.add("open");
   tutorPanel.setAttribute("aria-hidden", "false");
+  $("#tutorFab")?.setAttribute("aria-expanded", "true");
 
   if (prefill) {
     $("#tutorInput").value = prefill;
@@ -1949,6 +2225,7 @@ function closeTutor({ restoreFocus = true } = {}) {
   if (!tutorPanel.classList.contains("open")) return;
   tutorPanel.classList.remove("open");
   tutorPanel.setAttribute("aria-hidden", "true");
+  $("#tutorFab")?.setAttribute("aria-expanded", "false");
   if (restoreFocus && tutorReturnFocus && typeof tutorReturnFocus.focus === "function") {
     const target = tutorReturnFocus;
     tutorReturnFocus = null;
@@ -4396,7 +4673,7 @@ function renderLabHub() {
     </div>
     <div class="lab-catalog">
       ${labs.map(lab => `
-        <article class="lab-card" onclick="route('lab', '${lab.id}')">
+        <article class="lab-card" data-nav="lab" data-nav-arg="${escapeHtml(lab.id)}">
           <div class="lab-card-top"><span class="lab-mode">${escapeHtml(lab.badge)}</span><span>→</span></div>
           <h2>${escapeHtml(lab.title)}</h2>
           <p>${escapeHtml(lab.description)}</p>
@@ -4419,7 +4696,7 @@ function renderLab(labId) {
   view.innerHTML = `
     <div class="lab-shell">
       <header class="lab-header">
-        <button class="back-link" onclick="route('laboratorio')">← Todos los laboratorios</button>
+        <button class="back-link" data-nav="laboratorio">← Todos los laboratorios</button>
         <span class="eyebrow">${escapeHtml(lab.badge)}</span>
         <h1>${escapeHtml(lab.title)}</h1>
         <p>${escapeHtml(lab.description)}</p>
@@ -4840,10 +5117,37 @@ function renderNotFound(message) {
     <div class="empty-note">
       <h2>No encontrado</h2>
       <p>${escapeHtml(message)}</p>
-      <button class="btn btn-primary" onclick="route('inicio')">Volver al inicio</button>
+      <button class="btn btn-primary" data-nav="inicio">Volver al inicio</button>
     </div>
   `;
 }
+
+view?.addEventListener("click", event => {
+  const nav = event.target.closest("[data-nav]");
+  if (nav && view.contains(nav)) {
+    const name = nav.dataset.nav;
+    const arg = nav.dataset.navArg;
+    route(name, arg === undefined || arg === "" ? undefined : arg);
+    return;
+  }
+  const section = event.target.closest("[data-section]");
+  if (section && view.contains(section)) {
+    goSection(section.dataset.section);
+    return;
+  }
+  const goalAction = event.target.closest("[data-goal-action][data-goal-id]");
+  if (goalAction && view.contains(goalAction)) {
+    if (goalAction.dataset.goalAction === "edit") editUserGoal((window.USIC_ACTIVE_GOALS||[]).find(goal=>String(goal.id)===String(goalAction.dataset.goalId)));
+    if (goalAction.dataset.goalAction === "complete") completeUserGoal(goalAction.dataset.goalId);
+    if (goalAction.dataset.goalAction === "remove") removeUserGoal(goalAction.dataset.goalId);
+    return;
+  }
+  const action = event.target.closest("[data-action]");
+  if (!action || !view.contains(action)) return;
+  if (action.dataset.action === "export-progress") exportProgress();
+  if (action.dataset.action === "import-progress") importProgress();
+  if (action.dataset.action === "reset-progress") resetProgress();
+});
 
 $$("[data-route]").forEach(button => {
   button.addEventListener("click", event => {
@@ -4862,6 +5166,28 @@ searchResults.addEventListener("click", event => {
   const rawId = result.dataset.searchId;
   closeSearch({ restoreFocus: false });
   route(targetRoute, targetRoute === "curso" ? Number(rawId) : rawId);
+});
+
+searchInput.addEventListener("keydown", event => {
+  if (!["ArrowDown", "ArrowUp"].includes(event.key)) return;
+  const items = [...searchResults.querySelectorAll("[data-search-route][data-search-id]")];
+  if (!items.length) return;
+  event.preventDefault();
+  (event.key === "ArrowDown" ? items[0] : items[items.length - 1]).focus();
+});
+
+searchResults.addEventListener("keydown", event => {
+  if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+  const items = [...searchResults.querySelectorAll("[data-search-route][data-search-id]")];
+  const index = items.indexOf(document.activeElement);
+  if (index < 0 || !items.length) return;
+  event.preventDefault();
+  let next = index;
+  if (event.key === "ArrowDown") next = (index + 1) % items.length;
+  if (event.key === "ArrowUp") next = (index - 1 + items.length) % items.length;
+  if (event.key === "Home") next = 0;
+  if (event.key === "End") next = items.length - 1;
+  items[next].focus();
 });
 
 searchOverlay.addEventListener("click", event => {
@@ -4906,21 +5232,24 @@ $("#tutorForm").addEventListener("submit", event => {
 });
 
 
+let unexpectedErrorNoticeShown = false;
+function reportUnexpectedUiError(error) {
+  console.error("Error inesperado de interfaz:", error);
+  if (unexpectedErrorNoticeShown) return;
+  unexpectedErrorNoticeShown = true;
+  toast("Algo no salió bien en esta vista. Prueba a recargarla; tu progreso guardado no se ha borrado.", "error");
+  setTimeout(() => { unexpectedErrorNoticeShown = false; }, 8000);
+}
+window.addEventListener("error", event => reportUnexpectedUiError(event.error || event.message));
+window.addEventListener("unhandledrejection", event => reportUnexpectedUiError(event.reason));
+
 window.addEventListener("usic-storage-warning", () => {
   toast("El navegador no permite guardar el progreso local. Los cambios pueden perderse al cerrar esta pestaña.");
 });
 
 window.addEventListener("hashchange", renderRoute);
 
-// Exponemos solo las funciones que se usan desde atributos onclick del HTML generado.
-Object.assign(window, {
-  route,
-  renderRoute,
-  goSection,
-  closeSearch,
-  closeTutor,
-  completeUserGoal,
-  removeUserGoal
-});
+// Auth necesita poder pedir un rerender cuando cambia la sesión o el perfil.
+Object.assign(window, { renderRoute, toast });
 
 renderRoute();

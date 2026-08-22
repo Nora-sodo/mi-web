@@ -8,6 +8,8 @@
   const backdrop = document.getElementById('sidebarBackdrop');
   const searchOverlay = document.getElementById('searchOverlay');
   const tutorPanel = document.getElementById('tutorPanel');
+  const authGate = document.getElementById('authGate');
+  const onboardingModal = document.getElementById('onboardingModal');
 
 
   const focusableSelector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -25,6 +27,7 @@
     sidebar.classList.toggle('open', open);
     document.body.classList.toggle('nav-open', open);
     menu.setAttribute('aria-expanded', String(open));
+    menu.setAttribute('aria-label', open ? 'Cerrar navegación' : 'Abrir navegación');
     if (backdrop) {
       backdrop.classList.toggle('open', open);
       backdrop.tabIndex = open ? 0 : -1;
@@ -44,6 +47,9 @@
   document.addEventListener('keydown', event => {
     if (searchOverlay?.classList.contains('open')) trapFocus(searchOverlay, event);
     if (tutorPanel?.classList.contains('open')) trapFocus(tutorPanel, event);
+    if (sidebar?.classList.contains('open')) trapFocus(sidebar, event);
+    if (authGate && !authGate.hidden && authGate.getAttribute('aria-hidden') !== 'true') trapFocus(authGate, event);
+    if (onboardingModal && !onboardingModal.hidden) trapFocus(onboardingModal, event);
     if (event.key !== 'Escape') return;
     if (sidebar?.classList.contains('open')) {
       setSidebar(false);
@@ -52,7 +58,7 @@
   });
 
   window.addEventListener('resize', () => {
-    if (window.innerWidth > 760) setSidebar(false);
+    if (window.innerWidth > 980) setSidebar(false);
   });
 
   // Make dynamically-rendered clickable cards keyboard reachable when possible.

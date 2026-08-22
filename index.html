@@ -98,7 +98,7 @@
           <p>Lecciones, laboratorios y progreso real en un único espacio de estudio.</p>
         </div>
         <div class="auth-proof" aria-label="Características de la plataforma">
-          <span><b>78</b> bloques</span><span><b>1.000+</b> lecciones</span><span><b>Cloud</b> sincronizado</span>
+          <span><b>78</b> bloques</span><span><b>1.000+</b> lecciones</span><span><b>Local + cloud</b> cuando está disponible</span>
         </div>
       </aside>
 
@@ -171,10 +171,10 @@
     </div>
   </section>
 
-  <section class="onboarding-modal" id="onboardingModal" aria-hidden="true" hidden>
+  <section class="onboarding-modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" aria-hidden="true" hidden>
     <div class="onboarding-card">
       <span class="eyebrow">Configura tu USIC</span>
-      <h2>¿Qué quieres aprender primero?</h2>
+      <h2 id="onboardingTitle">¿Qué quieres aprender primero?</h2>
       <p>No bloquearemos ninguna lección. Esto solo personaliza tu dashboard y te ayuda a definir una meta de estudio realista.</p>
       <form id="onboardingForm" class="auth-form">
         <label>Nombre visible<input name="display_name" maxlength="60" required autocomplete="name"></label>
@@ -215,8 +215,8 @@
     <main class="main-area">
       <header class="topbar">
         <button class="mobile-menu" id="mobileMenu" aria-label="Abrir navegación" aria-controls="sidebar" aria-expanded="false">☰</button>
-        <button class="search-trigger" id="searchTrigger"><span>⌕</span><span>¿Qué quieres aprender?</span><kbd>Ctrl K</kbd></button>
-        <div class="top-actions"><span class="streak" title="La racha es secundaria; lo importante es recordar lo aprendido.">7 días · sin dramas</span><button class="icon-btn account-shortcut" data-route="cuenta" aria-label="Abrir mi cuenta" title="Mi cuenta"><span aria-hidden="true">U</span></button></div>
+        <button class="search-trigger" id="searchTrigger" aria-haspopup="dialog" aria-controls="searchOverlay" aria-expanded="false"><span>⌕</span><span>¿Qué quieres aprender?</span><kbd>Ctrl K</kbd></button>
+        <div class="top-actions"><span class="streak" title="La racha es secundaria; lo importante es recordar lo aprendido.">0 días · racha</span><button class="icon-btn account-shortcut" data-route="cuenta" aria-label="Abrir mi cuenta" title="Mi cuenta"><span aria-hidden="true">U</span></button></div>
       </header>
       <div id="view" class="view"></div>
     </main>
@@ -229,7 +229,7 @@
     </div>
   </div>
 
-  <button class="tutor-fab" id="tutorFab">🤖 <span>Preguntar al tutor</span></button>
+  <button class="tutor-fab" id="tutorFab" aria-controls="tutorPanel" aria-expanded="false">🤖 <span>Preguntar al tutor</span></button>
   <div class="tutor-panel" id="tutorPanel" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="tutorTitle">
     <div class="tutor-head"><div><b id="tutorTitle">Tu tutor socrático</b><small>Pistas primero. Spoilers, solo si los pides.</small></div><button id="closeTutor" aria-label="Cerrar tutor">×</button></div>
     <div class="tutor-messages" id="tutorMessages"><div class="msg ai">¿Dónde se ha atascado la neurona? Cuéntame qué paso no te convence.</div></div>

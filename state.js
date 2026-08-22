@@ -13,8 +13,9 @@
     errors: [],
     minutes: 0,
     streak: 0,
-    lastLesson: "informacion",
-    lessonActivity: {}
+    lastLesson: null,
+    lessonActivity: {},
+    practiceAttempts: {}
   };
 
   function load() {
@@ -23,6 +24,9 @@
       const merged = { ...defaultState, ...(saved || {}) };
       if (!merged.lessonActivity || typeof merged.lessonActivity !== "object" || Array.isArray(merged.lessonActivity)) {
         merged.lessonActivity = {};
+      }
+      if (!merged.practiceAttempts || typeof merged.practiceAttempts !== "object" || Array.isArray(merged.practiceAttempts)) {
+        merged.practiceAttempts = {};
       }
       return merged;
     } catch (error) {
@@ -69,6 +73,7 @@
     Object.keys(state).forEach(key => delete state[key]);
     Object.assign(state, { ...defaultState, ...(nextState || {}) });
     if (!state.lessonActivity || typeof state.lessonActivity !== "object" || Array.isArray(state.lessonActivity)) state.lessonActivity = {};
+    if (!state.practiceAttempts || typeof state.practiceAttempts !== "object" || Array.isArray(state.practiceAttempts)) state.practiceAttempts = {};
     if (!Array.isArray(state.completed)) state.completed = [];
     if (!Array.isArray(state.errors)) state.errors = [];
     const persisted = persist();
@@ -123,6 +128,20 @@
     save();
   }
 
+
+  function registerPracticeAttempt(lessonId, level, correct, options = {}) {
+    const key = `${lessonId}:${level}`;
+    const current = state.practiceAttempts[key] || { attempts: 0, correct: false, revealed: false };
+    state.practiceAttempts[key] = {
+      attempts: (Number(current.attempts) || 0) + (options.countAttempt === false ? 0 : 1),
+      correct: Boolean(current.correct || correct),
+      revealed: Boolean(current.revealed || options.revealed),
+      selfAssessed: options.selfAssessed || current.selfAssessed || null,
+      lastAttemptAt: Date.now()
+    };
+    save();
+  }
+
   function setLastLesson(lessonId) {
     state.lastLesson = lessonId;
     save();
@@ -133,6 +152,7 @@
     save,
     completeLesson,
     registerError,
+    registerPracticeAttempt,
     setLastLesson,
     touchLesson,
     replaceState,

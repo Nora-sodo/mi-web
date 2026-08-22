@@ -36,8 +36,13 @@ console.log("factorial(6) =", factorial(6));`,
     starter: `<main class="card">
   <h1>Hola, USIC</h1>
   <p id="out">Pulsa el botón.</p>
-  <button onclick="document.querySelector('#out').textContent='Código ejecutado ✓'">Ejecutar interacción</button>
+  <button id="runDemo" type="button">Ejecutar interacción</button>
 </main>
+<script>
+  document.querySelector('#runDemo').addEventListener('click', () => {
+    document.querySelector('#out').textContent = 'Código ejecutado ✓';
+  });
+<\/script>
 <style>
   body { font-family: system-ui; padding: 2rem; background: #f4f7f5; }
   .card { max-width: 34rem; padding: 2rem; background: white; border-radius: 18px; }
