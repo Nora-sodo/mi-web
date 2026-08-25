@@ -7,7 +7,6 @@
   const menu = document.getElementById('mobileMenu');
   const backdrop = document.getElementById('sidebarBackdrop');
   const searchOverlay = document.getElementById('searchOverlay');
-  const tutorPanel = document.getElementById('tutorPanel');
   const authGate = document.getElementById('authGate');
   const onboardingModal = document.getElementById('onboardingModal');
 
@@ -46,7 +45,6 @@
 
   document.addEventListener('keydown', event => {
     if (searchOverlay?.classList.contains('open')) trapFocus(searchOverlay, event);
-    if (tutorPanel?.classList.contains('open')) trapFocus(tutorPanel, event);
     if (sidebar?.classList.contains('open')) trapFocus(sidebar, event);
     if (authGate && !authGate.hidden && authGate.getAttribute('aria-hidden') !== 'true') trapFocus(authGate, event);
     if (onboardingModal && !onboardingModal.hidden) trapFocus(onboardingModal, event);
