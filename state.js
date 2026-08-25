@@ -21,13 +21,17 @@
   };
 
   function normalizeState(input) {
-    const merged = { ...defaultState, ...(input || {}) };
+    const source = input && typeof input === "object" && !Array.isArray(input) ? input : {};
+    const merged = { ...defaultState, ...source };
     ["lessonActivity","practiceAttempts","quickChecks","mastery","reviewSchedule"].forEach(key => {
       if (!merged[key] || typeof merged[key] !== "object" || Array.isArray(merged[key])) merged[key] = {};
     });
-    if (!Array.isArray(merged.completed)) merged.completed = [];
-    if (!Array.isArray(merged.finished)) merged.finished = [];
-    if (!Array.isArray(merged.errors)) merged.errors = [];
+    merged.completed = Array.isArray(merged.completed) ? [...new Set(merged.completed.filter(id => typeof id === "string"))] : [];
+    merged.finished = Array.isArray(merged.finished) ? [...new Set(merged.finished.filter(id => typeof id === "string"))] : [];
+    merged.errors = Array.isArray(merged.errors) ? merged.errors.filter(item => item && typeof item === "object" && !Array.isArray(item)).slice(-100) : [];
+    merged.minutes = Number.isFinite(Number(merged.minutes)) ? Math.max(0, Number(merged.minutes)) : 0;
+    merged.streak = Number.isFinite(Number(merged.streak)) ? Math.max(0, Number(merged.streak)) : 0;
+    merged.lastLesson = typeof merged.lastLesson === "string" ? merged.lastLesson : null;
 
     // Migración no destructiva: lo que la versión anterior ya marcó como dominado se conserva.
     merged.completed.forEach(id => {

@@ -307,56 +307,59 @@ function updateNavBadges() {
   badge.hidden = count === 0;
 }
 
+function repairRuntimeState() {
+  const objectKeys = ["lessonActivity","practiceAttempts","quickChecks","mastery","reviewSchedule"];
+  objectKeys.forEach(key => {
+    if (!state[key] || typeof state[key] !== "object" || Array.isArray(state[key])) state[key] = {};
+  });
+  state.completed = Array.isArray(state.completed) ? [...new Set(state.completed.filter(id => typeof id === "string" && LESSONS[id]))] : [];
+  state.finished = Array.isArray(state.finished) ? [...new Set(state.finished.filter(id => typeof id === "string" && LESSONS[id]))] : [];
+  state.errors = Array.isArray(state.errors) ? state.errors.filter(item => item && typeof item === "object" && !Array.isArray(item)).slice(-100) : [];
+  state.minutes = Number.isFinite(Number(state.minutes)) ? Math.max(0, Number(state.minutes)) : 0;
+  state.streak = Number.isFinite(Number(state.streak)) ? Math.max(0, Number(state.streak)) : 0;
+  if (state.lastLesson && !LESSONS[state.lastLesson]) state.lastLesson = null;
+}
+
 function renderRoute() {
-  updateNavBadges();
-  updateTopbarStreak();
+  repairRuntimeState();
   const rawRoute = location.hash.slice(1) || "inicio";
   const [routeName, argument] = rawRoute.split("/");
+  try {
+    updateNavBadges();
+    updateTopbarStreak();
+    setActiveNavigation(routeName);
+    window.scrollTo(0, 0);
 
-  setActiveNavigation(routeName);
-  window.scrollTo(0, 0);
+    if (routeName === "curso") return renderCourse(Number(argument));
+    if (routeName === "tema") return renderLesson(argument);
+    if (routeName === "objetivo") return renderGoalArea(argument);
+    if (routeName === "lab") return renderLab(argument);
 
-  if (routeName === "curso") {
-    renderCourse(Number(argument));
-    return;
+    const pages = {
+      inicio: renderHome,
+      aprender: renderCatalog,
+      repasar: renderReview,
+      biblioteca: renderLibrary,
+      progreso: renderProgress,
+      objetivos: renderGoals,
+      cuenta: renderAccount,
+      errores: renderErrors,
+      laboratorio: renderLabHub
+    };
+    const page = pages[routeName];
+    if (!page) {
+      history.replaceState(null, '', `${location.pathname}${location.search}#inicio`);
+      setActiveNavigation('inicio');
+      return renderHome();
+    }
+    return page();
+  } catch (error) {
+    console.error(`[USIC] Error al renderizar #${rawRoute}:`, error);
+    if (view) {
+      view.innerHTML = `<section class="panel route-recovery"><span class="eyebrow">Recuperación de interfaz</span><h1>No pudimos abrir esta sección</h1><p>El resto de la aplicación sigue disponible. Prueba otra sección o recarga la página.</p><button class="btn btn-primary" data-nav="inicio">Volver al inicio</button></section>`;
+    }
+    reportUnexpectedUiError(error, `#${rawRoute}`);
   }
-
-  if (routeName === "tema") {
-    renderLesson(argument);
-    return;
-  }
-
-  if (routeName === "objetivo") {
-    renderGoalArea(argument);
-    return;
-  }
-
-  if (routeName === "lab") {
-    renderLab(argument);
-    return;
-  }
-
-  const pages = {
-    inicio: renderHome,
-    aprender: renderCatalog,
-    repasar: renderReview,
-    biblioteca: renderLibrary,
-    progreso: renderProgress,
-    objetivos: renderGoals,
-    cuenta: renderAccount,
-    errores: renderErrors,
-    laboratorio: renderLabHub
-  };
-
-  const page = pages[routeName];
-  if (!page) {
-    history.replaceState(null, '', `${location.pathname}${location.search}#inicio`);
-    setActiveNavigation('inicio');
-    renderHome();
-    toast('Esa sección no existe. Te hemos llevado al inicio.', 'error');
-    return;
-  }
-  page();
 }
 
 // -----------------------------------------------------------------------------
@@ -2849,14 +2852,22 @@ document.addEventListener("keydown", event => {
 });
 
 let unexpectedErrorNoticeShown = false;
-function reportUnexpectedUiError(error) {
-  console.error("Error inesperado de interfaz:", error);
+function reportUnexpectedUiError(error, context = "") {
+  const message = error?.message || String(error || "Error desconocido");
+  console.error("Error inesperado de interfaz:", context, error);
   if (unexpectedErrorNoticeShown) return;
   unexpectedErrorNoticeShown = true;
-  toast("Algo no salió bien en esta vista. Prueba a recargarla; tu progreso guardado no se ha borrado.", "error");
+  toast(`Error de interfaz${context ? ` ${context}` : ""}: ${message.slice(0, 160)}. Tu progreso no se ha borrado.`, "error");
   setTimeout(() => { unexpectedErrorNoticeShown = false; }, 8000);
 }
-window.addEventListener("error", event => reportUnexpectedUiError(event.error || event.message));
+window.addEventListener("error", event => {
+  // Errores de recursos externos no deben bloquear ni alarmar al usuario como si la UI hubiese fallado.
+  if (!event.error && event.target && event.target !== window) {
+    console.warn("Recurso externo no cargado:", event.target?.src || event.target?.href || event.target);
+    return;
+  }
+  reportUnexpectedUiError(event.error || event.message);
+}, true);
 window.addEventListener("unhandledrejection", event => reportUnexpectedUiError(event.reason));
 
 window.addEventListener("usic-storage-warning", () => {
