@@ -1236,6 +1236,44 @@ function renderMasteryGate(lesson) {
     </div>`;
 }
 
+function previousLessonsForMix(lesson, count = 2) {
+  const ids = orderedDevelopedLessonIds();
+  const index = ids.indexOf(lesson.id);
+  if (index <= 0) return [];
+  return ids.slice(0, index).reverse().map(id => LESSONS[id]).filter(Boolean).slice(0, count);
+}
+
+function correctQuickOption(lesson) {
+  const match = (lesson.check?.options || []).find(option => option[1] === true);
+  return match ? match[0] : '';
+}
+
+function renderMixedPractice(lesson) {
+  const previous = previousLessonsForMix(lesson, 2);
+  if (!previous.length) return '';
+  const sources = [lesson, ...previous];
+  return `
+    <section class="lesson-section" id="mezcla">
+      <span class="eyebrow">F · Práctica acumulativa</span>
+      <h2>Problemas sin etiqueta</h2>
+      <p>No se indica qué tema debes usar. Identifica primero qué conocimiento es relevante y después responde. Esta mezcla evita aprender cada herramienta aislada de su contexto.</p>
+      <div class="mixed-practice-grid">
+        ${sources.map((source, index) => {
+          const key = `${lesson.id}:mix-${source.id}`;
+          const saved = state.practiceAttempts?.[key] || {};
+          return `<article class="mixed-card ${saved.selfAssessed === 'understood' ? 'practice-solved' : ''}" data-mix-source="${escapeHtml(source.id)}">
+            <span class="eyebrow">Caso ${index + 1}</span>
+            <p class="mixed-prompt">${escapeHtml(source.check.question)}</p>
+            <textarea rows="4" placeholder="Responde y justifica qué idea o regla estás usando"></textarea>
+            <div class="mixed-actions"><button class="btn btn-secondary" data-mix-check>Contrastar razonamiento</button></div>
+            <div class="feedback" aria-live="polite"></div>
+          </article>`;
+        }).join('')}
+      </div>
+      <div class="practice-learning-note"><b>Regla:</b> antes de responder, escribe mentalmente “qué tipo de problema es este y por qué”. En problemas reales nadie te dice el nombre del capítulo.</div>
+    </section>`;
+}
+
 function renderPractice(lesson) {
   return `
     <section class="lesson-section" id="practica">
@@ -1275,44 +1313,6 @@ function renderPractice(lesson) {
       <div class="practice-learning-note"><b>Cómo usar esta sección:</b> si fallas, explica por qué falló tu primera idea antes de reintentar. Si aciertas por intuición pero no puedes justificarlo, todavía merece un segundo intento.</div>
     </section>
   `;
-}
-
-function previousLessonsForMix(lesson, count = 2) {
-  const ids = orderedDevelopedLessonIds();
-  const index = ids.indexOf(lesson.id);
-  if (index <= 0) return [];
-  return ids.slice(0, index).reverse().map(id => LESSONS[id]).filter(Boolean).slice(0, count);
-}
-
-function correctQuickOption(lesson) {
-  const match = (lesson.check?.options || []).find(option => option[1] === true);
-  return match ? match[0] : '';
-}
-
-function renderMixedPractice(lesson) {
-  const previous = previousLessonsForMix(lesson, 2);
-  if (!previous.length) return '';
-  const sources = [lesson, ...previous];
-  return `
-    <section class="lesson-section" id="mezcla">
-      <span class="eyebrow">F · Práctica acumulativa</span>
-      <h2>Problemas sin etiqueta</h2>
-      <p>No se indica qué tema debes usar. Identifica primero qué conocimiento es relevante y después responde. Esta mezcla evita aprender cada herramienta aislada de su contexto.</p>
-      <div class="mixed-practice-grid">
-        ${sources.map((source, index) => {
-          const key = `${lesson.id}:mix-${source.id}`;
-          const saved = state.practiceAttempts?.[key] || {};
-          return `<article class="mixed-card ${saved.selfAssessed === 'understood' ? 'practice-solved' : ''}" data-mix-source="${escapeHtml(source.id)}">
-            <span class="eyebrow">Caso ${index + 1}</span>
-            <p class="mixed-prompt">${escapeHtml(source.check.question)}</p>
-            <textarea rows="4" placeholder="Responde y justifica qué idea o regla estás usando"></textarea>
-            <div class="mixed-actions"><button class="btn btn-secondary" data-mix-check>Contrastar razonamiento</button></div>
-            <div class="feedback" aria-live="polite"></div>
-          </article>`;
-        }).join('')}
-      </div>
-      <div class="practice-learning-note"><b>Regla:</b> antes de responder, escribe mentalmente “qué tipo de problema es este y por qué”. En problemas reales nadie te dice el nombre del capítulo.</div>
-    </section>`;
 }
 
 function getLabsForLesson(lesson) {
@@ -2294,8 +2294,466 @@ function performSearch(query) {
 }
 
 // -----------------------------------------------------------------------------
-// Vistas auxiliares
+// Helpers de interfaz y eventos globales
 // -----------------------------------------------------------------------------
+
+function goSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+
+// -----------------------------------------------------------------------------
+// Laboratorios interactivos
+// -----------------------------------------------------------------------------
+
+function renderLabHub() {
+  const labs = Object.values(window.PRACTICAL_LABS || {});
+  view.innerHTML = `
+    <div class="page-title lab-page-title">
+      <span class="eyebrow">Laboratorio USIC · ejecutar > memorizar</span>
+      <h1>Programa, rompe, observa, corrige.</h1>
+      <p>Los runtimes marcados como reales ejecutan código real en el navegador. Las máquinas educativas están etiquetadas explícitamente y existen para hacer visible lo que normalmente ocurre debajo.</p>
+    </div>
+    <div class="lab-catalog">
+      ${labs.map(lab => `
+        <article class="lab-card" data-nav="lab" data-nav-arg="${escapeHtml(lab.id)}">
+          <div class="lab-card-top"><span class="lab-mode">${escapeHtml(lab.badge)}</span><span>→</span></div>
+          <h2>${escapeHtml(lab.title)}</h2>
+          <p>${escapeHtml(lab.description)}</p>
+          <footer>${lab.courseIds.slice(0, 6).map(id => `<span>Bloque ${formatCourseNumber(id)}</span>`).join("")}</footer>
+        </article>
+      `).join("")}
+    </div>
+    <article class="panel lab-honesty">
+      <span class="eyebrow">Qué significa «ejecutable» aquí</span>
+      <h2>Sin humo técnico</h2>
+      <p><b>JavaScript y el playground web</b> usan el motor real del navegador. <b>Assembly USIC</b> y el <b>Compilador USIC</b> son máquinas educativas implementadas por la propia plataforma: puedes ejecutarlas e inspeccionarlas, pero no pretenden ser GCC, Clang, x86-64 ni RISC-V.</p>
+    </article>
+  `;
+}
+
+function renderLab(labId) {
+  const lab = window.PRACTICAL_LABS && window.PRACTICAL_LABS[labId];
+  if (!lab) return renderNotFound("Ese laboratorio no existe.");
+
+  view.innerHTML = `
+    <div class="lab-shell">
+      <header class="lab-header">
+        <button class="back-link" data-nav="laboratorio">← Todos los laboratorios</button>
+        <span class="eyebrow">${escapeHtml(lab.badge)}</span>
+        <h1>${escapeHtml(lab.title)}</h1>
+        <p>${escapeHtml(lab.description)}</p>
+      </header>
+      ${renderLabWorkspace(lab)}
+    </div>
+  `;
+  bindLab(lab);
+}
+
+function renderLabWorkspace(lab) {
+  if (lab.mode === "logic") return renderLogicLab(lab);
+  if (lab.mode === "assembly") return renderAssemblyLab(lab);
+  if (lab.mode === "compiler") return renderCompilerLab(lab);
+  if (lab.mode === "web") return renderWebLab(lab);
+  return renderJavascriptLab(lab);
+}
+
+function labEditor(value, languageLabel) {
+  return `
+    <div class="lab-pane lab-editor-pane">
+      <div class="lab-pane-head"><b>Editor</b><span>${escapeHtml(languageLabel)}</span></div>
+      <textarea id="labEditor" class="code-editor" spellcheck="false">${escapeHtml(value)}</textarea>
+    </div>`;
+}
+
+function labOutput(title = "Salida") {
+  return `
+    <div class="lab-pane lab-output-pane">
+      <div class="lab-pane-head"><b>${escapeHtml(title)}</b><button class="tiny-btn" id="clearLabOutput">Limpiar</button></div>
+      <pre id="labOutput" class="terminal-output" aria-live="polite">Listo.</pre>
+    </div>`;
+}
+
+function renderJavascriptLab(lab) {
+  return `
+    <div class="lab-toolbar">
+      <button class="btn btn-primary" id="runLab">▶ Ejecutar</button>
+      <button class="btn btn-secondary" id="runTests">✓ Ejecutar tests</button>
+      <button class="btn btn-secondary" id="resetLab">↺ Reiniciar</button>
+      <span class="lab-security">Worker aislado · límite 2 s</span>
+    </div>
+    <div class="lab-workspace two-pane">
+      ${labEditor(lab.starter, "JavaScript")}
+      ${labOutput("stdout / tests")}
+    </div>
+    <section class="panel lab-tests-panel">
+      <span class="eyebrow">Tests incluidos</span>
+      ${lab.tests.map(test => `<code>${escapeHtml(test.label)}</code>`).join("")}
+    </section>`;
+}
+
+function renderWebLab(lab) {
+  return `
+    <div class="lab-toolbar">
+      <button class="btn btn-primary" id="runLab">▶ Actualizar preview</button>
+      <button class="btn btn-secondary" id="resetLab">↺ Reiniciar</button>
+      <span class="lab-security">iframe sandboxed</span>
+    </div>
+    <div class="lab-workspace two-pane web-workspace">
+      ${labEditor(lab.starter, "HTML + CSS + JS")}
+      <div class="lab-pane preview-pane">
+        <div class="lab-pane-head"><b>Preview</b><span>documento aislado</span></div>
+        <iframe id="webPreview" sandbox="allow-scripts" title="Vista previa del código"></iframe>
+      </div>
+    </div>`;
+}
+
+function renderLogicLab(lab) {
+  return `
+    <div class="lab-toolbar">
+      <button class="btn btn-primary" id="runLab">Generar tabla</button>
+      <button class="btn btn-secondary" id="resetLab">↺ Reiniciar</button>
+      <span class="lab-security">Variables A–Z · ! && || ^</span>
+    </div>
+    <div class="lab-workspace two-pane">
+      ${labEditor(lab.starter, "Expresión booleana")}
+      <div class="lab-pane lab-output-pane">
+        <div class="lab-pane-head"><b>Tabla de verdad</b><span>0 = falso · 1 = verdadero</span></div>
+        <div id="logicOutput" class="logic-output"></div>
+      </div>
+    </div>`;
+}
+
+function renderAssemblyLab(lab) {
+  return `
+    <div class="lab-toolbar">
+      <button class="btn btn-primary" id="runLab">▶ Ejecutar</button>
+      <button class="btn btn-secondary" id="stepLab">Paso</button>
+      <button class="btn btn-secondary" id="resetLab">↺ Reset CPU</button>
+      <span class="lab-security">ISA educativa · R0–R7 · máximo 10 000 pasos</span>
+    </div>
+    <div class="lab-workspace two-pane">
+      ${labEditor(lab.starter, "Assembly USIC")}
+      <div class="lab-pane cpu-pane">
+        <div class="lab-pane-head"><b>Estado CPU</b><span id="cpuStatus">detenida</span></div>
+        <div class="register-grid" id="registerGrid"></div>
+        <pre id="labOutput" class="terminal-output cpu-output">Listo.</pre>
+      </div>
+    </div>
+    <article class="panel instruction-help">
+      <b>ISA disponible:</b> <code>MOV Rd, x</code> <code>ADD Rd, x</code> <code>SUB Rd, x</code> <code>MUL Rd, x</code> <code>CMP a, b</code> <code>JMP label</code> <code>JZ label</code> <code>JNZ label</code> <code>PRINT x</code> <code>HLT</code>. Los operandos pueden ser registros o enteros.
+    </article>`;
+}
+
+function renderCompilerLab(lab) {
+  return `
+    <div class="lab-toolbar">
+      <button class="btn btn-primary" id="runLab">⚙ Compilar y ejecutar</button>
+      <button class="btn btn-secondary" id="resetLab">↺ Reiniciar</button>
+      <span class="lab-security">Lenguaje USIC · compilador real de juguete</span>
+    </div>
+    <div class="lab-workspace two-pane">
+      ${labEditor(lab.starter, "USIC language")}
+      ${labOutput("Salida de la VM")}
+    </div>
+    <div class="compiler-inspector">
+      <div class="lab-pane"><div class="lab-pane-head"><b>Tokens</b></div><pre id="compilerTokens" class="terminal-output"></pre></div>
+      <div class="lab-pane"><div class="lab-pane-head"><b>AST</b></div><pre id="compilerAst" class="terminal-output"></pre></div>
+      <div class="lab-pane"><div class="lab-pane-head"><b>Bytecode</b></div><pre id="compilerBytecode" class="terminal-output"></pre></div>
+    </div>
+    <article class="panel instruction-help"><b>Gramática:</b> <code>let nombre = expresión;</code> y <code>print expresión;</code>. Operadores: <code>+ - * /</code> y paréntesis.</article>`;
+}
+
+function bindLab(lab) {
+  const editor = $("#labEditor");
+  const reset = $("#resetLab");
+  if (reset) reset.addEventListener("click", () => {
+    editor.value = lab.starter;
+    if (lab.mode === "assembly") resetAssemblyMachine();
+    else if (lab.mode === "web") runWebLab();
+    else if (lab.mode === "logic") runLogicLab();
+    else if ($("#labOutput")) $("#labOutput").textContent = "Listo.";
+  });
+
+  const clear = $("#clearLabOutput");
+  if (clear) clear.addEventListener("click", () => $("#labOutput").textContent = "");
+
+  if (lab.mode === "javascript") {
+    $("#runLab").addEventListener("click", () => runJavascriptWorker(editor.value, []));
+    $("#runTests").addEventListener("click", () => runJavascriptWorker(editor.value, lab.tests));
+  } else if (lab.mode === "web") {
+    $("#runLab").addEventListener("click", runWebLab);
+    runWebLab();
+  } else if (lab.mode === "logic") {
+    $("#runLab").addEventListener("click", runLogicLab);
+    runLogicLab();
+  } else if (lab.mode === "assembly") {
+    window.__usicCpu = null;
+    $("#runLab").addEventListener("click", () => runAssembly(false));
+    $("#stepLab").addEventListener("click", () => runAssembly(true));
+    resetAssemblyMachine();
+  } else if (lab.mode === "compiler") {
+    $("#runLab").addEventListener("click", runCompilerLab);
+  }
+}
+
+function runJavascriptWorker(source, tests) {
+  const output = $("#labOutput");
+  output.textContent = "Ejecutando…";
+  const workerSource = `
+    const lines = [];
+    const fmt = v => typeof v === 'string' ? v : (() => { try { return JSON.stringify(v); } catch { return String(v); } })();
+    console.log = (...args) => lines.push(args.map(fmt).join(' '));
+    console.error = (...args) => lines.push('[error] ' + args.map(fmt).join(' '));
+    self.onmessage = e => {
+      try {
+        const fn = new Function(e.data.source + '\\n' + e.data.tests.map((t,i) => 'globalThis.__t'+i+' = ('+t.expression+');').join('\\n'));
+        fn();
+        const results = e.data.tests.map((t,i) => ({label:t.label, ok:Boolean(globalThis['__t'+i])}));
+        self.postMessage({ok:true, lines, results});
+      } catch (error) { self.postMessage({ok:false, lines, error: error.name + ': ' + error.message}); }
+    };
+  `;
+  const url = URL.createObjectURL(new Blob([workerSource], { type: "text/javascript" }));
+  const worker = new Worker(url);
+  const timer = setTimeout(() => {
+    worker.terminate(); URL.revokeObjectURL(url);
+    output.textContent = "⏱ Ejecución detenida: superó el límite de 2 segundos.";
+  }, 2000);
+  worker.onmessage = event => {
+    clearTimeout(timer); worker.terminate(); URL.revokeObjectURL(url);
+    const { ok, lines, error, results } = event.data;
+    const renderedTests = (results || []).map(t => `${t.ok ? "✓" : "✗"} ${t.label}`).join("\n");
+    output.textContent = [lines.join("\n"), renderedTests, ok ? "" : error].filter(Boolean).join("\n") || "(sin salida)";
+  };
+}
+
+function runWebLab() {
+  const frame = $("#webPreview");
+  if (frame) frame.srcdoc = $("#labEditor").value;
+}
+
+function logicVariables(expression) {
+  return [...new Set((expression.match(/[A-Z]/g) || []))].sort();
+}
+
+function evaluateLogic(expression, env) {
+  if (!/^[A-Z01\s!&|^()]+$/.test(expression)) throw new Error("Solo se admiten A–Z, 0/1, !, &&, ||, ^ y paréntesis.");
+  let js = expression.replace(/\^/g, "!==");
+  for (const [key, value] of Object.entries(env)) js = js.replace(new RegExp(`\\b${key}\\b`, "g"), value ? "true" : "false");
+  return Boolean(Function(`"use strict"; return (${js});`)());
+}
+
+function runLogicLab() {
+  const expression = $("#labEditor").value.trim();
+  const target = $("#logicOutput");
+  try {
+    const vars = logicVariables(expression);
+    if (vars.length > 6) throw new Error("Máximo 6 variables para mantener la tabla legible.");
+    const rows = 2 ** vars.length;
+    let html = `<table class="truth-table"><thead><tr>${vars.map(v => `<th>${v}</th>`).join("")}<th>Resultado</th></tr></thead><tbody>`;
+    for (let n = 0; n < rows; n++) {
+      const env = {};
+      vars.forEach((v, i) => env[v] = Boolean((n >> (vars.length - i - 1)) & 1));
+      const result = evaluateLogic(expression, env);
+      html += `<tr>${vars.map(v => `<td>${env[v] ? 1 : 0}</td>`).join("")}<td class="truth-result">${result ? 1 : 0}</td></tr>`;
+    }
+    target.innerHTML = html + "</tbody></table>";
+  } catch (error) {
+    target.innerHTML = `<div class="feedback show bad">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function parseAssembly(source) {
+  const labels = {};
+  const program = [];
+  source.split(/\r?\n/).forEach((raw, lineIndex) => {
+    const line = raw.replace(/;.*/, "").trim();
+    if (!line) return;
+    if (/^[A-Za-z_]\w*:$/.test(line)) { labels[line.slice(0, -1)] = program.length; return; }
+    const match = line.match(/^([A-Za-z]+)(?:\s+(.*))?$/);
+    if (!match) throw new Error(`Línea ${lineIndex + 1}: sintaxis inválida`);
+    const op = match[1].toUpperCase();
+    const args = match[2] ? match[2].split(",").map(v => v.trim()) : [];
+    program.push({ op, args, sourceLine: lineIndex + 1, text: line });
+  });
+  return { program, labels };
+}
+
+function createCpu(source) {
+  const parsed = parseAssembly(source);
+  return { ...parsed, regs: Array(8).fill(0), pc: 0, z: false, halted: false, output: [], steps: 0 };
+}
+
+function cpuValue(cpu, token) {
+  if (/^R[0-7]$/i.test(token)) return cpu.regs[Number(token.slice(1))];
+  if (/^-?\d+$/.test(token)) return Number(token);
+  throw new Error(`Operando no válido: ${token}`);
+}
+
+function cpuReg(token) {
+  if (!/^R[0-7]$/i.test(token)) throw new Error(`Se esperaba registro R0–R7, recibido: ${token}`);
+  return Number(token.slice(1));
+}
+
+function stepCpu(cpu) {
+  if (cpu.halted) return;
+  if (cpu.pc < 0 || cpu.pc >= cpu.program.length) { cpu.halted = true; return; }
+  if (++cpu.steps > 10000) throw new Error("Límite de 10 000 instrucciones alcanzado. ¿Bucle infinito?");
+  const ins = cpu.program[cpu.pc];
+  const [a, b] = ins.args;
+  let next = cpu.pc + 1;
+  const jump = label => {
+    if (!(label in cpu.labels)) throw new Error(`Etiqueta desconocida: ${label}`);
+    next = cpu.labels[label];
+  };
+  switch (ins.op) {
+    case "MOV": cpu.regs[cpuReg(a)] = cpuValue(cpu, b); break;
+    case "ADD": cpu.regs[cpuReg(a)] += cpuValue(cpu, b); break;
+    case "SUB": cpu.regs[cpuReg(a)] -= cpuValue(cpu, b); break;
+    case "MUL": cpu.regs[cpuReg(a)] *= cpuValue(cpu, b); break;
+    case "CMP": cpu.z = cpuValue(cpu, a) === cpuValue(cpu, b); break;
+    case "JMP": jump(a); break;
+    case "JZ": if (cpu.z) jump(a); break;
+    case "JNZ": if (!cpu.z) jump(a); break;
+    case "PRINT": cpu.output.push(String(cpuValue(cpu, a))); break;
+    case "HLT": cpu.halted = true; break;
+    default: throw new Error(`Instrucción desconocida '${ins.op}' en línea ${ins.sourceLine}`);
+  }
+  cpu.pc = next;
+}
+
+function paintCpu(cpu, error = "") {
+  const grid = $("#registerGrid");
+  if (!grid) return;
+  grid.innerHTML = cpu.regs.map((v, i) => `<div><span>R${i}</span><b>${v}</b></div>`).join("") + `<div><span>PC</span><b>${cpu.pc}</b></div><div><span>Z</span><b>${cpu.z ? 1 : 0}</b></div>`;
+  $("#cpuStatus").textContent = error ? "error" : cpu.halted ? "HLT" : `paso ${cpu.steps}`;
+  $("#labOutput").textContent = error || cpu.output.join("\n") || "(sin salida todavía)";
+}
+
+function resetAssemblyMachine() {
+  try { window.__usicCpu = createCpu($("#labEditor").value); paintCpu(window.__usicCpu); }
+  catch (error) { window.__usicCpu = { regs:Array(8).fill(0), pc:0, z:false, halted:true, output:[] }; paintCpu(window.__usicCpu, error.message); }
+}
+
+function runAssembly(singleStep) {
+  try {
+    if (!window.__usicCpu || window.__usicCpu.halted) window.__usicCpu = createCpu($("#labEditor").value);
+    if (singleStep) stepCpu(window.__usicCpu);
+    else while (!window.__usicCpu.halted) stepCpu(window.__usicCpu);
+    paintCpu(window.__usicCpu);
+  } catch (error) { paintCpu(window.__usicCpu || createCpu("HLT"), error.message); }
+}
+
+function tokenizeUsic(source) {
+  const tokens = [];
+  const re = /\s+|\/\/[^\n]*|\d+(?:\.\d+)?|[A-Za-z_]\w*|[+\-*\/()=;]/gy;
+  let pos = 0;
+  while (pos < source.length) {
+    re.lastIndex = pos;
+    const m = re.exec(source);
+    if (!m || m.index !== pos) throw new Error(`Carácter inesperado en posición ${pos}: '${source[pos]}'`);
+    pos = re.lastIndex;
+    const value = m[0];
+    if (/^\s+$/.test(value) || value.startsWith("//")) continue;
+    let type = "symbol";
+    if (/^\d/.test(value)) type = "number";
+    else if (/^[A-Za-z_]/.test(value)) type = ["let", "print"].includes(value) ? "keyword" : "identifier";
+    tokens.push({ type, value });
+  }
+  tokens.push({ type: "eof", value: "<eof>" });
+  return tokens;
+}
+
+function parseUsic(tokens) {
+  let i = 0;
+  const peek = () => tokens[i];
+  const take = value => {
+    const t = tokens[i];
+    if (value && t.value !== value) throw new Error(`Esperaba '${value}' y encontré '${t.value}'`);
+    i++; return t;
+  };
+  function primary() {
+    const t = peek();
+    if (t.type === "number") { take(); return { type:"Number", value:Number(t.value) }; }
+    if (t.type === "identifier") { take(); return { type:"Variable", name:t.value }; }
+    if (t.value === "(") { take("("); const e = expression(); take(")"); return e; }
+    if (t.value === "-") { take("-"); return { type:"Unary", op:"-", value:primary() }; }
+    throw new Error(`Expresión inesperada cerca de '${t.value}'`);
+  }
+  function term() {
+    let node = primary();
+    while (["*", "/"].includes(peek().value)) { const op = take().value; node = { type:"Binary", op, left:node, right:primary() }; }
+    return node;
+  }
+  function expression() {
+    let node = term();
+    while (["+", "-"].includes(peek().value)) { const op = take().value; node = { type:"Binary", op, left:node, right:term() }; }
+    return node;
+  }
+  const body = [];
+  while (peek().type !== "eof") {
+    if (peek().value === "let") {
+      take("let"); const name = take().value;
+      if (!/^[A-Za-z_]\w*$/.test(name)) throw new Error("Nombre de variable inválido");
+      take("="); const value = expression(); take(";"); body.push({ type:"Let", name, value });
+    } else if (peek().value === "print") {
+      take("print"); const value = expression(); take(";"); body.push({ type:"Print", value });
+    } else throw new Error(`Sentencia desconocida cerca de '${peek().value}'`);
+  }
+  return { type:"Program", body };
+}
+
+function compileUsic(ast) {
+  const code = [];
+  function expr(node) {
+    if (node.type === "Number") code.push(["PUSH", node.value]);
+    else if (node.type === "Variable") code.push(["LOAD", node.name]);
+    else if (node.type === "Unary") { expr(node.value); code.push(["NEG"]); }
+    else if (node.type === "Binary") { expr(node.left); expr(node.right); code.push([{ "+":"ADD", "-":"SUB", "*":"MUL", "/":"DIV" }[node.op]]); }
+  }
+  ast.body.forEach(stmt => {
+    expr(stmt.value);
+    if (stmt.type === "Let") code.push(["STORE", stmt.name]);
+    else code.push(["PRINT"]);
+  });
+  code.push(["HALT"]);
+  return code;
+}
+
+function executeUsic(code) {
+  const stack = [], vars = {}, output = [];
+  for (let pc = 0; pc < code.length; pc++) {
+    const [op, arg] = code[pc];
+    if (op === "PUSH") stack.push(arg);
+    else if (op === "LOAD") { if (!(arg in vars)) throw new Error(`Variable no definida: ${arg}`); stack.push(vars[arg]); }
+    else if (op === "STORE") vars[arg] = stack.pop();
+    else if (op === "NEG") stack.push(-stack.pop());
+    else if (["ADD","SUB","MUL","DIV"].includes(op)) {
+      const b = stack.pop(), a = stack.pop();
+      if (op === "DIV" && b === 0) throw new Error("División por cero");
+      stack.push(op === "ADD" ? a+b : op === "SUB" ? a-b : op === "MUL" ? a*b : a/b);
+    } else if (op === "PRINT") output.push(String(stack.pop()));
+    else if (op === "HALT") break;
+  }
+  return { output, vars };
+}
+
+function runCompilerLab() {
+  const out = $("#labOutput");
+  try {
+    const tokens = tokenizeUsic($("#labEditor").value);
+    const ast = parseUsic(tokens);
+    const code = compileUsic(ast);
+    const result = executeUsic(code);
+    $("#compilerTokens").textContent = tokens.slice(0, -1).map(t => `${t.type.padEnd(10)} ${t.value}`).join("\n");
+    $("#compilerAst").textContent = JSON.stringify(ast, null, 2);
+    $("#compilerBytecode").textContent = code.map((ins, i) => `${String(i).padStart(3,"0")}  ${ins.join(" ")}`).join("\n");
+    out.textContent = result.output.join("\n") || "(sin salida)";
+  } catch (error) {
+    out.textContent = `${error.name}: ${error.message}`;
+  }
+}
 
 function renderNotFound(message) {
   view.innerHTML = `
@@ -2389,7 +2847,6 @@ document.addEventListener("keydown", event => {
     if (searchOverlay.classList.contains("open")) closeSearch();
   }
 });
-
 
 let unexpectedErrorNoticeShown = false;
 function reportUnexpectedUiError(error) {

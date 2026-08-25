@@ -238,11 +238,13 @@
       const a=la[id]||{}, b=ra[id]||{};
       const vals=[a.firstOpenedAt,b.firstOpenedAt].filter(Number.isFinite);
       const completed=[a.completedAt,b.completedAt].filter(Number.isFinite);
+      const finished=[a.finishedAt,b.finishedAt].filter(Number.isFinite);
       activity[id]={
         ...a,...b,
         firstOpenedAt: vals.length ? Math.min(...vals) : (a.firstOpenedAt||b.firstOpenedAt),
         lastOpenedAt: Math.max(a.lastOpenedAt||0,b.lastOpenedAt||0)||undefined,
         visits: Math.max(a.visits||0,b.visits||0),
+        finishedAt: finished.length ? Math.min(...finished) : (a.finishedAt||b.finishedAt),
         completedAt: completed.length ? Math.min(...completed) : (a.completedAt||b.completedAt)
       };
     }
@@ -255,7 +257,8 @@
     const newestLocal=Math.max(0,...Object.values(la).map(v=>v.lastOpenedAt||0));
     const newestRemote=Math.max(0,...Object.values(ra).map(v=>v.lastOpenedAt||0));
     const completed=[...new Set([...(remote.completed||[]),...(local.completed||[])])];
-    const completedMinutes=completed.reduce((total,id)=>total+(Number(window.LESSONS?.[id]?.duration)||0),0);
+    const finished=[...new Set([...(remote.finished||[]),...(local.finished||[]),...completed])];
+    const completedMinutes=finished.reduce((total,id)=>total+(Number(window.LESSONS?.[id]?.duration)||0),0);
     const practiceAttempts={};
     const lp=local.practiceAttempts||{}, rp=remote.practiceAttempts||{};
     for(const key of new Set([...Object.keys(rp),...Object.keys(lp)])){
@@ -263,20 +266,53 @@
       practiceAttempts[key]={
         attempts:Math.max(Number(a.attempts)||0,Number(b.attempts)||0),
         correct:Boolean(a.correct||b.correct),
+        qualified:Boolean(a.qualified||b.qualified),
         revealed:Boolean(a.revealed||b.revealed),
-        selfAssessed:b.selfAssessed||a.selfAssessed||null,
+        selfAssessed:(Number(b.lastAttemptAt)||0)>=(Number(a.lastAttemptAt)||0) ? (b.selfAssessed||a.selfAssessed||null) : (a.selfAssessed||b.selfAssessed||null),
         lastAttemptAt:Math.max(Number(a.lastAttemptAt)||0,Number(b.lastAttemptAt)||0)||undefined
       };
+    }
+    const quickChecks={};
+    const lq=local.quickChecks||{}, rq=remote.quickChecks||{};
+    for(const id of new Set([...Object.keys(rq),...Object.keys(lq)])){
+      const a=rq[id]||{}, b=lq[id]||{};
+      quickChecks[id]={
+        attempts:Math.max(Number(a.attempts)||0,Number(b.attempts)||0),
+        correct:Boolean(a.correct||b.correct),
+        lastAttemptAt:Math.max(Number(a.lastAttemptAt)||0,Number(b.lastAttemptAt)||0)||undefined
+      };
+    }
+    const mastery={};
+    const lm=local.mastery||{}, rm=remote.mastery||{};
+    for(const id of new Set([...Object.keys(rm),...Object.keys(lm),...completed])){
+      const a=rm[id]||{}, b=lm[id]||{};
+      const mastered=completed.includes(id) || a.status==='mastered' || b.status==='mastered';
+      const masteredDates=[Number(a.masteredAt),Number(b.masteredAt)].filter(Number.isFinite);
+      mastery[id]={...a,...b,status:mastered?'mastered':(b.status||a.status||'needs-review')};
+      if(masteredDates.length) mastery[id].masteredAt=Math.min(...masteredDates);
+      const verified=Math.max(Number(a.lastVerifiedAt)||0,Number(b.lastVerifiedAt)||0);
+      if(verified) mastery[id].lastVerifiedAt=verified;
+    }
+    const reviewSchedule={};
+    const lr=local.reviewSchedule||{}, rr=remote.reviewSchedule||{};
+    for(const id of new Set([...Object.keys(rr),...Object.keys(lr)])){
+      const a=rr[id]||{}, b=lr[id]||{};
+      const chosen=(Number(b.lastReviewedAt)||0)>=(Number(a.lastReviewedAt)||0) ? b : a;
+      reviewSchedule[id]={...chosen};
     }
     return {
       ...remote,...local,
       completed,
+      finished,
       errors:[...errMap.values()].sort((a,b)=>(a.date||0)-(b.date||0)).slice(-100),
       minutes:Math.max(Number(local.minutes)||0,Number(remote.minutes)||0,completedMinutes),
       streak:Math.max(Number(local.streak)||0,Number(remote.streak)||0),
       lastLesson:newestLocal>=newestRemote ? (local.lastLesson||remote.lastLesson) : (remote.lastLesson||local.lastLesson),
       lessonActivity:activity,
-      practiceAttempts
+      practiceAttempts,
+      quickChecks,
+      mastery,
+      reviewSchedule
     };
   }
 
