@@ -1,27 +1,20 @@
-/* LifePlan service worker — static public assets only. No user data or API responses are cached. */
-const CACHE_NAME = 'lifeplan-public-assets-v1';
+/* LifePlan 1.0 RC1: only public installation assets are cached. Never cache HTML/app data or Supabase requests. */
+const CACHE_NAME = 'lifeplan-public-assets-rc1';
 const STATIC_ASSETS = [
-  './offline.html',
-  './manifest.webmanifest',
-  './lifeplan-icon-64.png',
-  './lifeplan-icon-192.png',
-  './lifeplan-icon-512.png'
+  './offline.html', './manifest.webmanifest',
+  './lifeplan-icon-64.png', './lifeplan-icon-192.png', './lifeplan-icon-512.png'
 ];
-
+const staticPaths = new Set(STATIC_ASSETS.map(path => new URL(path, self.registration.scope).pathname));
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil(caches.open(CACHE_NAME)
+    .then(cache => cache.addAll(STATIC_ASSETS))
+    .then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(names => Promise.all(
-      names.filter(name => name.startsWith('lifeplan-public-assets-') && name !== CACHE_NAME)
-        .map(name => caches.delete(name))
-    )).then(() => self.clients.claim())
-  );
+  event.waitUntil(caches.keys().then(names => Promise.all(
+    names.filter(name => name.startsWith('lifeplan-public-assets-') && name !== CACHE_NAME)
+      .map(name => caches.delete(name))
+  )).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', event => {
   const request = event.request;
@@ -29,14 +22,19 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   if (request.mode === 'navigate') {
-    // Never store index.html or authenticated pages in Cache Storage.
+    // Always contact the network for the app; never cache authenticated HTML.
     event.respondWith(fetch(request).catch(async () =>
       (await caches.match('./offline.html')) || Response.error()
     ));
     return;
   }
-  const publicPaths = STATIC_ASSETS.map(path => new URL(path, self.registration.scope).pathname);
-  if (publicPaths.includes(url.pathname)) {
-    event.respondWith(caches.match(request, {ignoreSearch:true}).then(cached => cached || fetch(request)));
-  }
+  if (!staticPaths.has(url.pathname)) return;
+  // Refresh icons and manifest on each online request; fall back to cached public assets offline.
+  event.respondWith(fetch(request).then(async response => {
+    if (response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  }).catch(async () => (await caches.match(request, {ignoreSearch: true})) || Response.error()));
 });
