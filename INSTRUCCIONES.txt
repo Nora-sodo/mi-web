@@ -1,18 +1,17 @@
-LIFEPLAN 5.1 — SINCRONIZACIÓN SUPABASE
+LIFEPLAN — ENGLISH DEFAULT + GOOGLE / PASSWORD LOGIN + DEMO CONTENT
 
-Sube a la RAÍZ de la rama usada por GitHub Pages los archivos index.html, CNAME, .nojekyll y los 3 iconos.
-INSTRUCCIONES.txt es sólo para ti, no necesitas subirlo.
+1. Guarda una copia de seguridad de los datos y del repositorio GitHub.
+2. Sustituye index.html y los iconos lifeplan-icon-*.png en el repositorio (mantén CNAME y .nojekyll).
+3. Configura Supabase > Authentication > Providers > Email:
+   - activa Email, y permite contraseña (password-based authentication).
+   - si la confirmación de email está activada, los nuevos registros deben confirmar el correo.
+4. Supabase > Authentication > Providers > Google:
+   - activa Google y añade el Client ID/Client Secret de Google Cloud OAuth.
+   - la URI de redirección autorizada en Google Cloud es la callback que Supabase proporciona: https://TU-PROYECTO.supabase.co/auth/v1/callback
+5. Supabase > Authentication > URL Configuration: Site URL https://dosonoprojects.top/ y Redirect URLs https://dosonoprojects.top/** (según configuración de tu Supabase).
+6. Prueba el registro por contraseña en una ventana privada, luego login y Google; confirma conservación de sesión y logout.
+7. Inglés es el idioma predeterminado para nuevos visitantes. Preferencias anteriores de idioma se respetan: cambia manualmente el idioma si ya lo habías seleccionado.
+8. En Explorar encontrarás rutas y proyectos de ejemplo, identificados como Demo. Puedes usar sus plantillas; no se han creado cuentas falsas en Supabase Auth ni puntuaciones falsas en el ranking real.
 
-ANTES: En Supabase debe existir public.user_app_state con RLS y políticas de lectura/inserción/actualización para auth.uid() = user_id.
-
-PRIMER USO (en el navegador que ya tiene tus datos):
-1. Entra a dosonoprojects.top e inicia sesión.
-2. Mi perfil > Sincronización privada.
-3. Pulsa Copia JSON y guárdala.
-4. Pulsa Subir mis datos, confirma. Espera al aviso de sincronización activa.
-5. En otro móvil, inicia sesión con la MISMA cuenta, entra a Mi perfil > Recuperar nube.
-6. Comprueba tus tareas, notas y XP.
-
-La sincronización es de última escritura; NO edites simultáneamente desde varios dispositivos.
-Configuración de Supabase NO se incluye en la copia en la nube.
-El HTML conserva las funciones sociales existentes.
+Nota: Supabase puede requerir correo confirmado. El enlace de recuperación abre un formulario para definir nueva contraseña mediante updateUser; comprueba este flujo real antes de producción. Cuentas creadas anteriormente por enlace mágico pueden usar «Forgot your password?» para establecer contraseña.
+No ejecutes SQL ni compartas secretos de Google o Supabase en el chat.
