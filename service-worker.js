@@ -1,5 +1,5 @@
-/* LifePlan 1.0 RC1: only public installation assets are cached. Never cache HTML/app data or Supabase requests. */
-const CACHE_NAME = 'lifeplan-public-assets-rc1';
+/* LifePlan 1.0 RC2: only public installation assets are cached. Never cache HTML/app data or Supabase requests. */
+const CACHE_NAME = 'lifeplan-public-assets-rc2';
 const STATIC_ASSETS = [
   './offline.html', './manifest.webmanifest',
   './lifeplan-icon-64.png', './lifeplan-icon-192.png', './lifeplan-icon-512.png'

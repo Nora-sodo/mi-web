@@ -1800,19 +1800,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  const primary=[
   {key:'inicio',icon:'⌂',name:{en:'Home',es:'Inicio',fr:'Accueil',pt:'Início'}},
   {key:'agenda',icon:'✓',name:{en:'Tasks',es:'Tareas',fr:'Tâches',pt:'Tarefas'}},
-  {key:'proyectos',icon:'▤',name:{en:'Plans',es:'Planes',fr:'Projets',pt:'Planos'}},
+  {key:'planes',icon:'▤',name:{en:'Plans',es:'Planes',fr:'Projets',pt:'Planos'}},
   {key:'social',icon:'♧',name:{en:'Social',es:'Social',fr:'Social',pt:'Social'}},
   {key:'perfil',icon:'◯',name:{en:'Profile',es:'Perfil',fr:'Profil',pt:'Perfil'}}
  ];
  const subtabs={
   agenda:[['agenda','Calendar','Calendario','Calendrier','Calendário'],['semana','Week','Semana','Semaine','Semana'],['misiones','Challenges','Retos','Défis','Desafios']],
-  proyectos:[['proyectos','Projects','Proyectos','Projets','Projetos'],['viajes','Trips','Viajes','Voyages','Viagens'],['notas','Notes','Notas','Notes','Notas'],['carpetas','Folders','Carpetas','Dossiers','Pastas'],['explorar','Explore','Explorar','Explorer','Explorar'],['aventuras','Adventures','Aventuras','Aventures','Aventuras']],
+  planes:[['proyectos','Projects','Proyectos','Projets','Projetos'],['viajes','Trips','Viajes','Voyages','Viagens'],['notas','Notes','Notas','Notes','Notas'],['carpetas','Folders','Carpetas','Dossiers','Pastas'],['explorar','Explore','Explorar','Explorer','Explorar'],['aventuras','Adventures','Aventuras','Aventures','Aventuras']],
   social:[['social','Friends & ranking','Amigos y ranking','Amis et classement','Amigos e ranking'],['chat','Chat','Chat','Discussion','Chat'],['buscar','Search','Buscar','Rechercher','Pesquisar'],['equipo','Team','Equipo','Équipe','Equipa']]
  };
  const lang=()=>typeof lifeplanLanguage==='string'&&['es','en','fr','pt'].includes(lifeplanLanguage)?lifeplanLanguage:'en';
  const i18n=(en,es,fr,pt)=>({en,es,fr,pt})[lang()]||en;
  const group=(key)=>{
-  if(key==='inicio')return 'inicio';if(key==='perfil')return 'perfil';
+  if(key==='inicio')return 'inicio';if(key==='perfil')return 'perfil';if(key==='planes')return 'planes';
   for(const [section,tabs] of Object.entries(subtabs))if(tabs.some(x=>x[0]===key))return section;
   return 'inicio';
  };
@@ -1835,9 +1835,38 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <section class="lpCleanPanel" aria-label="${taskTitle}"><div class="lpCleanPanelHead"><h2>${taskTitle}</h2><button class="lpCleanLink" type="button" onclick="go('agenda')">${i18n('Open calendar','Ver calendario','Voir le calendrier','Ver calendário')} →</button></div>
      ${list.length?list.map(x=>taskRow(x,TODAY())).join(''):`<div class="lpCleanEmpty">${empty}</div>`}
     </section>
-    <section class="lpCleanPanel" aria-label="${i18n('Other sections','Otras secciones','Autres sections','Outras secções')}"><div class="lpCleanPanelHead"><h2>${i18n('Keep things organised','Organiza tus planes','Organisez vos projets','Organiza os teus planos')}</h2></div><p class="lpCleanHint">${i18n('Projects, trips and notes are in Plans. Challenges are under Tasks; friends and messages are under Social.','Los proyectos, viajes y notas están en Planes. Los retos están en Tareas y los amigos y mensajes en Social.','Projets, voyages et notes sont dans Projets. Défis dans Tâches ; amis et messages dans Social.','Projetos, viagens e notas estão em Planos. Desafios em Tarefas; amigos e mensagens em Social.')}</p></section>
+    <div class="lpHomeShortcuts"><button type="button" onclick="go('planes')"><span class="lpShortcutIcon">▦</span>${i18n('My plans','Mis planes','Mes projets','Os meus planos')} <span class="lpShortcutArrow">↗</span></button><button type="button" onclick="go('misiones')"><span class="lpShortcutIcon">◇</span>${i18n('Challenges','Retos','Défis','Desafios')} <span class="lpShortcutArrow">↗</span></button></div>
    </div>`;
  };
+ const planLabels={
+  en:{title:'Plans',sub:'Projects, trips and notes in one place.',project:'Projects',trips:'Trips',notes:'Notes',folders:'Folders',explore:'Explore templates',newProject:'New project',newTrip:'New trip',newNote:'New note',open:'View all',recent:'Your plans',noProjects:'No projects yet',noTrips:'No trips yet',noNotes:'No notes yet',start:'Create a project or trip to get started.',templates:'Need a starting point?',templatesInfo:'Browse example projects and travel routes. Save a copy to make them your own.',browse:'Browse examples',count:'items',all:'All plans'},
+  es:{title:'Planes',sub:'Proyectos, viajes y notas en un solo lugar.',project:'Proyectos',trips:'Viajes',notes:'Notas',folders:'Carpetas',explore:'Explorar plantillas',newProject:'Nuevo proyecto',newTrip:'Nuevo viaje',newNote:'Nueva nota',open:'Ver todos',recent:'Tus planes',noProjects:'Aún no hay proyectos',noTrips:'Aún no hay viajes',noNotes:'Aún no hay notas',start:'Crea un proyecto o un viaje para empezar.',templates:'¿Buscas ideas?',templatesInfo:'Explora proyectos y rutas de ejemplo. Guarda una copia para personalizarlos.',browse:'Ver ejemplos',count:'elementos',all:'Todos los planes'},
+  fr:{title:'Projets',sub:'Projets, voyages et notes au même endroit.',project:'Projets',trips:'Voyages',notes:'Notes',folders:'Dossiers',explore:'Modèles',newProject:'Nouveau projet',newTrip:'Nouveau voyage',newNote:'Nouvelle note',open:'Tout voir',recent:'Vos projets',noProjects:'Aucun projet',noTrips:'Aucun voyage',noNotes:'Aucune note',start:'Créez un projet ou un voyage pour commencer.',templates:'Besoin d’idées ?',templatesInfo:'Découvrez des exemples de projets et d’itinéraires à adapter.',browse:'Voir les exemples',count:'éléments',all:'Tous les projets'},
+  pt:{title:'Planos',sub:'Projetos, viagens e notas num só lugar.',project:'Projetos',trips:'Viagens',notes:'Notas',folders:'Pastas',explore:'Modelos',newProject:'Novo projeto',newTrip:'Nova viagem',newNote:'Nova nota',open:'Ver todos',recent:'Os teus planos',noProjects:'Ainda não há projetos',noTrips:'Ainda não há viagens',noNotes:'Ainda não há notas',start:'Cria um projeto ou uma viagem para começar.',templates:'Precisas de ideias?',templatesInfo:'Explora projetos e roteiros de exemplo e guarda uma cópia.',browse:'Ver exemplos',count:'itens',all:'Todos os planos'}
+ };
+ function plansOverview(){
+  const tr=planLabels[lang()]||planLabels.en;
+  const projects=Array.isArray(state.plans)?state.plans.filter(x=>x&&x.type==='proyecto'):[];
+  const trips=Array.isArray(state.plans)?state.plans.filter(x=>x&&x.type==='viaje'):[];
+  const notes=Array.isArray(state.notes)?state.notes:[];
+  const folders=Array.isArray(state.folders)?state.folders:[];
+  const cards=[
+   {label:tr.project,icon:'▣',count:projects.length,page:'proyectos',action:'editPlan(null,\'proyecto\')',actionText:tr.newProject,tint:'purple',preview:projects.slice(0,2).map(x=>x.title),empty:tr.noProjects},
+   {label:tr.trips,icon:'⌁',count:trips.length,page:'viajes',action:'editPlan(null,\'viaje\')',actionText:tr.newTrip,tint:'blue',preview:trips.slice(0,2).map(x=>x.title),empty:tr.noTrips},
+   {label:tr.notes,icon:'≡',count:notes.length,page:'notas',action:'editNote()',actionText:tr.newNote,tint:'amber',preview:notes.slice(0,2).map(x=>x.title),empty:tr.noNotes},
+   {label:tr.folders,icon:'▦',count:folders.length,page:'carpetas',action:'go(\'carpetas\')',actionText:tr.open,tint:'mint',preview:folders.slice(0,2).map(x=>x.name),empty:''}
+  ];
+  const total=projects.length+trips.length+notes.length;
+  return `<div class="lpPlansPage">
+   <div class="lpPlansHeader"><div><div class="lpPageKicker">LIFEPLAN / ${tr.title.toUpperCase()}</div><h1>${tr.title}</h1><p>${tr.sub}</p></div><button type="button" class="lpPlanTopCta" onclick="editPlan(null,'proyecto')">＋ ${tr.newProject}</button></div>
+   <div class="lpPlanOverviewGrid">${cards.map(card=>`<section class="lpPlanFeature ${card.tint}">
+    <div class="lpPlanFeatureTop"><div class="lpPlanIcon" aria-hidden="true">${card.icon}</div><span class="lpPlanCount">${card.count}</span></div>
+    <h2>${card.label}</h2><div class="lpPlanFeaturePreview">${card.preview.length?card.preview.map(name=>`<div class="lpPlanMiniItem">${safe(name)}</div>`).join(''):card.empty||'&nbsp;'}</div>
+    <div class="lpPlanActions"><button type="button" class="lpPlanOpen" onclick="go('${card.page}')">${tr.open} <span aria-hidden="true">↗</span></button><button type="button" class="lpPlanAdd" aria-label="${card.actionText}" title="${card.actionText}" onclick="${card.action}">＋</button></div>
+   </section>`).join('')}</div>
+   <section class="lpPlanExploreStrip"><div class="lpPlanExploreSymbol" aria-hidden="true">✦</div><div><h2>${tr.templates}</h2><p>${tr.templatesInfo}</p></div><button type="button" class="lpPlanBrowse" onclick="go('explorar')">${tr.browse} <span aria-hidden="true">↗</span></button></section>
+  </div>`;
+ }
  renderNav=function(){
   const active=group(tab);
   const make=(isMobile)=>primary.map(item=>{
@@ -1849,8 +1878,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   document.getElementById('mobileNav').innerHTML=make(true);
  };
  renderMain=function(){
-  previousRenderMain();
   const pane=document.getElementById('page');
+  if(tab==='planes'){
+   pane.innerHTML=plansOverview();
+   const floating=document.getElementById('floating');if(floating)floating.style.display='none';
+  }else previousRenderMain();
   const selected=group(tab);
   if(subtabs[selected]){
    const langOffset=({en:1,es:2,fr:3,pt:4})[lang()];
@@ -2023,4 +2055,63 @@ document.addEventListener('visibilitychange',()=>{
 const lpVerifiedPreviousSocialPage=socialPage;
 socialPage=function(){return lpVerifiedPreviousSocialPage()+lpVerifiedCard()};
 </script>
+
+<style id="lifeplan-rc2-ui">
+/* LifePlan 1.0 RC2 - cohesive application shell, without changing application data. */
+:root{--bg:#f8f8fc;--white:#fff;--ink:#202338;--muted:#757b93;--line:#eaeaf2;--purple:#7150c5;--purple2:#a38be7;--lav:#f3f0fc;--shadow:0 4px 20px rgba(35,29,76,.035)}
+body{background:linear-gradient(170deg,#fbfaff 0%,#f8f8fc 420px,#f6f7fb 100%);color:#24253b;-webkit-font-smoothing:antialiased}
+.shell{max-width:1500px!important;grid-template-columns:240px minmax(0,1fr)!important}
+.shell>.center{max-width:1100px!important;padding:44px clamp(24px,5vw,72px) 120px!important}
+.left{background:rgba(255,255,255,.94)!important;border-right:1px solid #edebf4;gap:36px!important;padding:34px 18px!important}
+.brand{padding:0 12px!important;letter-spacing:-1px;font-size:24px;gap:11px}
+.logo,.logo img{width:44px;height:44px;border-radius:15px}
+.nav{gap:7px!important}.nav button{font-size:14px;min-height:54px!important;gap:14px!important;color:#777b92!important;padding:12px 15px!important;border-radius:15px!important;transition:background .16s ease,color .16s ease}
+.nav button:hover{background:#f7f5fc!important;color:#4f3b94!important}
+.nav button.active{background:#eee9fb!important;color:#6241b0!important;box-shadow:inset 3px 0 0 #8969d6}
+.nav .emoji{width:26px!important;font-size:21px!important;font-family:inherit}
+.leftfoot{display:none!important}
+.card,.lpCleanPanel,.lpCleanStat,.rightbox,.folderTile,.person{border-color:#e9e8f1!important;box-shadow:0 3px 18px rgba(30,31,65,.025)!important;border-radius:19px!important}
+.top{margin-bottom:28px!important}.top h1{font-size:clamp(26px,3.1vw,34px)!important;font-weight:780;color:#24243b}
+.top .sub{font-size:14px;color:#797f91}
+.sectionhead h2,.lpCleanPanelHead h2{font-weight:770;color:#24243b}
+.lpCleanHome{max-width:960px}.lpCleanWelcome{margin-bottom:30px;align-items:center}.lpCleanWelcome h1{font-weight:790;color:#24243b;font-size:clamp(35px,5vw,46px);letter-spacing:-1.8px}
+.lpCleanWelcome p{font-size:15px!important;color:#737991!important}
+.lpCleanPrimary,.primary,.lpPlanTopCta{background:#7452c9!important;color:#fff!important;border-radius:13px!important;box-shadow:0 6px 17px #7251c522!important;min-height:44px}
+.lpCleanPrimary:hover,.primary:hover,.lpPlanTopCta:hover{background:#6443b7!important}
+.lpCleanStats{margin-bottom:20px;gap:14px}.lpCleanStat{padding:22px!important;border-radius:18px!important;background:white}.lpCleanStat span{font-size:13px!important;margin-bottom:11px;color:#777c90}.lpCleanStat b{font-size:29px!important;font-weight:800;color:#352854}.lpCleanStat small{font-size:12px!important}
+.lpCleanPanel{padding:26px!important;margin-bottom:16px!important}.lpCleanPanelHead h2{font-size:20px}
+.todayTask{padding:16px 0!important}.taskname{font-size:14px!important}.tick{width:29px;height:29px;border-radius:9px}
+.lpHomeShortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.lpHomeShortcuts button{display:flex;gap:12px;align-items:center;text-align:left;padding:17px 18px;background:white;border:1px solid #eae8f2;border-radius:16px;font-size:14px;font-weight:740;color:#41445e}
+.lpHomeShortcuts button:hover{border-color:#bcb0e5;background:#fcfaff}.lpShortcutIcon{font-size:21px;color:#8265c5}.lpShortcutArrow{margin-left:auto;color:#a39abc;font-size:20px}
+.lpCleanSubnav{border:0!important;gap:5px!important;padding:6px!important;background:#f0eff6;border-radius:14px!important;margin-bottom:30px!important;display:flex;align-items:center}
+.lpCleanSubnav button{padding:10px 13px!important;color:#6e7286!important;border-radius:10px!important;font-size:12px!important;font-weight:750!important;min-height:39px!important}
+.lpCleanSubnav button.active{background:#fff!important;color:#6447a9!important;border-color:transparent!important;box-shadow:0 1px 7px #33265c10}
+.lpPlansPage{max-width:1020px;margin:auto}.lpPlansHeader{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:28px}
+.lpPageKicker{letter-spacing:1.4px;font-size:10px;font-weight:820;color:#8b72bf;margin-bottom:10px}.lpPlansHeader h1{font-size:clamp(32px,5vw,43px);line-height:1.08;letter-spacing:-1.4px;font-weight:790;margin:0 0 9px;color:#24243b}.lpPlansHeader p{margin:0;color:#777d93;font-size:14px;line-height:1.5}
+.lpPlanTopCta{font-size:13px;font-weight:780;padding:12px 17px;white-space:nowrap}
+.lpPlanOverviewGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.lpPlanFeature{position:relative;display:flex;flex-direction:column;min-height:236px;background:white;border:1px solid #e9e8f0;border-radius:22px;padding:24px;box-shadow:0 6px 22px #22253b08;overflow:hidden;transition:transform .15s ease,border-color .15s ease}
+.lpPlanFeature:hover{transform:translateY(-2px);border-color:#cfc4ec}
+.lpPlanFeatureTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.lpPlanIcon{width:50px;height:50px;display:grid;place-items:center;border-radius:16px;background:#f0eafa;color:#7751bb;font-weight:800;font-size:24px}
+.lpPlanFeature.blue .lpPlanIcon{background:#e9f2fd;color:#4779c0}.lpPlanFeature.amber .lpPlanIcon{background:#fdf2e0;color:#c4873c}.lpPlanFeature.mint .lpPlanIcon{background:#e9f7f1;color:#468d74}
+.lpPlanCount{display:inline-grid;place-items:center;min-width:29px;height:29px;padding:0 8px;border-radius:10px;color:#787c91;background:#f6f6fa;font-size:12px;font-weight:800}
+.lpPlanFeature h2{margin:0 0 8px;font-size:20px;font-weight:790;letter-spacing:-.5px}
+.lpPlanFeaturePreview{flex:1;color:#81859b;font-size:12px;line-height:1.7;min-height:44px;margin-bottom:12px}
+.lpPlanMiniItem{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;max-width:100%;font-weight:660;color:#555b74}
+.lpPlanActions{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #f0eff6;padding-top:16px}
+.lpPlanOpen{color:#6b4cb5;background:transparent;font-size:13px;font-weight:780;display:flex;gap:10px;align-items:center;padding:6px 0}
+.lpPlanOpen span{font-size:18px}.lpPlanAdd{width:35px;height:35px;display:grid;place-items:center;background:#f1ebfc;border-radius:11px;color:#694cb0;font-size:20px;font-weight:600}
+.lpPlanAdd:hover{background:#e5dbfa}.lpPlanExploreStrip{display:flex;align-items:center;gap:17px;background:#efeafa;border:1px solid #e5dcf5;border-radius:21px;padding:22px;margin-top:18px}
+.lpPlanExploreSymbol{width:48px;height:48px;border-radius:15px;background:white;color:#8a64c6;display:grid;place-items:center;flex-shrink:0;font-size:23px}
+.lpPlanExploreStrip h2{font-size:16px;margin:0 0 4px}.lpPlanExploreStrip p{font-size:12px;color:#77728b;line-height:1.5;margin:0}
+.lpPlanBrowse{margin-left:auto;background:white;border:1px solid #ded3f3;color:#6546ad;border-radius:11px;padding:12px 15px;white-space:nowrap;font-weight:750;font-size:12px}
+.lpPlanBrowse:hover{background:#fbfaff}.lpPlanBrowse span{margin-left:7px}
+#page{min-width:0;overflow-wrap:break-word}.row{min-width:0}.card{max-width:100%}button{transition:background-color .15s ease,border-color .15s ease}
+@media (max-width:900px){.shell{display:block!important}.shell>.center{padding:26px 19px calc(122px + env(safe-area-inset-bottom))!important;max-width:100%!important}.lpCleanSubnav{overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}.lpCleanSubnav::-webkit-scrollbar{display:none}.lpCleanSubnav button{flex-shrink:0}.mobileNav{position:fixed;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:center!important;gap:2px!important;overflow:visible!important;left:0;right:0;bottom:0;padding:8px 7px calc(9px + env(safe-area-inset-bottom))!important;max-width:100%;background:rgba(255,255,255,.97)!important;border-top:1px solid #eae6f2;box-shadow:0 -8px 28px #251f3a0b;z-index:30}.mobileNav button{min-width:0!important;max-width:100%!important;display:grid!important;place-items:center!important;gap:4px!important;font-size:11px!important;padding:8px 1px!important;color:#89859d!important;line-height:1.15!important}.mobileNav button.active{color:#6e4fbb!important}.mobileNav button span:first-child{font-size:22px!important;line-height:1.1}.mobileNav .lpCleanMobileLabel{font-size:10px!important;white-space:nowrap!important;text-overflow:ellipsis!important;overflow:hidden!important;max-width:100%}.floating{bottom:calc(93px + env(safe-area-inset-bottom))!important}}
+@media(max-width:640px){.lpPlansHeader{align-items:stretch;flex-direction:column;gap:18px;margin-bottom:22px}.lpPlanTopCta{width:100%}.lpPlanOverviewGrid{gap:12px}.lpPlanFeature{min-height:212px;padding:18px}.lpPlanFeature h2{font-size:17px}.lpPlanIcon{width:43px;height:43px;font-size:21px}.lpPlanExploreStrip{flex-wrap:wrap;padding:18px}.lpPlanExploreStrip>div:nth-child(2){flex:1;min-width:170px}.lpPlanBrowse{margin:0;width:100%}.lpCleanWelcome{align-items:stretch}.lpCleanWelcome>.lpCleanPrimary{width:100%}.lpCleanStats{gap:8px}.lpCleanStat{padding:16px 12px!important}.lpCleanStat b{font-size:23px!important}.lpCleanStat span{font-size:11px!important}.lpCleanStat small{font-size:10px!important}.lpCleanPanel{padding:18px!important}.lpHomeShortcuts{gap:9px}.lpHomeShortcuts button{font-size:12px;padding:14px 11px;gap:7px}.lpShortcutIcon{font-size:18px}}
+@media(max-width:380px){.lpPlanOverviewGrid{grid-template-columns:1fr}.lpPlanFeature{min-height:185px}.lpPlanExploreStrip{gap:11px}}
+@media(prefers-reduced-motion:reduce){.lpPlanFeature{transition:none!important}}
+</style>
 </body></html>
