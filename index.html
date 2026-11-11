@@ -42,7 +42,8 @@ const samplePosts=[{id:'d1',type:'viaje',title:'Interrail por Europa',descriptio
 const samplePeople=[{name:'Lucía',avatar:'👩🏻',bio:'Viajes lentos · fotografía · naturaleza',tags:['viajes','naturaleza','fotografía'],score:94},{name:'Marcos',avatar:'🧑🏽',bio:'Idiomas · lectura · hábitos',tags:['idiomas','estudio','hábitos'],score:89},{name:'Sara',avatar:'👩🏾',bio:'Montaña · running · escapadas',tags:['montaña','deporte','viajes'],score:86}];
 const initial=()=>({name:'Explorador',avatar:'🧑‍🚀',xp:90,earned:[],doneDates:[],tasks:[{id:'t1',title:'Planificar mi semana',date:TODAY(),time:'09:00',repeat:'semanal',done:[],tags:['organización']},{id:'t2',title:'Dedicar 20 min a mi proyecto',date:TODAY(),time:'17:00',repeat:'diaria',done:[],tags:['creatividad']},{id:'t3',title:'Preparar una escapada',date:TODAY(),time:'19:00',repeat:'ninguna',done:[],tags:['viajes']}],plans:[],specials:{},posts:[],likes:[],joined:[],checks:{},teamName:'Los imparables',teamMembers:['Explorador','Lucía','Marcos'],teamMockDays:4,interests:['viajes','creatividad','naturaleza'],config:{url:'',key:''}});
 let state;try{state={...initial(),...JSON.parse(localStorage.getItem(STORE)||'{}')}}catch{state=initial()}let tab='inicio',filter='todos',search='',calendarDate=TODAY(),user=null,client=null,remotePosts=[],remotePeople=[],remoteChecks=[],remoteMembers=[],remoteCircles=[],loading=false;
-const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random();const save=()=>{localStorage.setItem(STORE,JSON.stringify(state))};const toast=m=>{document.getElementById('toastRoot').innerHTML='<div class="toast">'+safe(m)+'</div>';setTimeout(()=>document.getElementById('toastRoot').innerHTML='',3000)};const xpLevel=()=>Math.floor(state.xp/180)+1;const xpPct=()=>Math.round((state.xp%180)/180*100);const streak=()=>{let s=0,d=TODAY();if(!state.doneDates.includes(d))d=addDays(d,-1);while(state.doneDates.includes(d)){s++;d=addDays(d,-1)}return s};const stamp=()=>new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});const isDone=(t,date=TODAY())=>(t.done||[]).includes(date);const activeTask=(t,date=TODAY())=>{if(date<t.date)return false;const diff=Math.round((new Date(date+'T12:00:00')-new Date(t.date+'T12:00:00'))/86400000);if(t.repeat==='diaria')return true;if(t.repeat==='laborables')return ![0,6].includes(new Date(date+'T12:00:00').getDay());if(t.repeat==='semanal')return diff%7===0;if(t.repeat==='mensual')return +t.date.slice(8)===+date.slice(8);if(t.repeat==='anual')return t.date.slice(5)===date.slice(5);return diff===0};const dayTasks=(d=TODAY())=>state.tasks.filter(t=>activeTask(t,d)).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+let syncReady=false,syncRemoteExists=false,syncBusy=false,syncTimer=null,syncLastPayload="",syncStatus="Inicia sesión para sincronizar",syncOwner=null,syncRemoteTime=null;
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random();const save=()=>{localStorage.setItem(STORE,JSON.stringify(state));scheduleCloudSave()};const toast=m=>{document.getElementById('toastRoot').innerHTML='<div class="toast">'+safe(m)+'</div>';setTimeout(()=>document.getElementById('toastRoot').innerHTML='',3000)};const xpLevel=()=>Math.floor(state.xp/180)+1;const xpPct=()=>Math.round((state.xp%180)/180*100);const streak=()=>{let s=0,d=TODAY();if(!state.doneDates.includes(d))d=addDays(d,-1);while(state.doneDates.includes(d)){s++;d=addDays(d,-1)}return s};const stamp=()=>new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});const isDone=(t,date=TODAY())=>(t.done||[]).includes(date);const activeTask=(t,date=TODAY())=>{if(date<t.date)return false;const diff=Math.round((new Date(date+'T12:00:00')-new Date(t.date+'T12:00:00'))/86400000);if(t.repeat==='diaria')return true;if(t.repeat==='laborables')return ![0,6].includes(new Date(date+'T12:00:00').getDay());if(t.repeat==='semanal')return diff%7===0;if(t.repeat==='mensual')return +t.date.slice(8)===+date.slice(8);if(t.repeat==='anual')return t.date.slice(5)===date.slice(5);return diff===0};const dayTasks=(d=TODAY())=>state.tasks.filter(t=>activeTask(t,d)).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
 const menu=[['inicio','🏠','Inicio'],['explorar','🧭','Explorar'],['agenda','📅','Mi agenda'],['misiones','🎯','Mis misiones'],['equipo','🔥','Mi equipo'],['perfil','👤','Mi perfil']];function go(t){tab=t;filter='todos';search='';render();window.scrollTo({top:0,behavior:'smooth'})};function renderNav(){let html=menu.map(([k,e,l])=>`<button class="${tab===k?'active':''}" onclick="go('${k}')"><span class="emoji">${e}</span>${l}${k==='equipo'?'<small>social</small>':''}</button>`).join('');document.getElementById('nav').innerHTML=html;document.getElementById('mobileNav').innerHTML=menu.filter(x=>x[0]!=='misiones').map(([k,e,l])=>`<button class="${tab===k?'active':''}" onclick="go('${k}')"><span>${e}</span>${l}</button>`).join('')}
 function header(title,sub){return `<div class="top"><div><div class="eyebrow">LIFEPLAN SOCIAL ✦</div><h1>${title}</h1><div class="sub">${sub}</div></div><div class="topright"><span class="pill">🔥 ${streak()} días</span><div class="avatar">${safe(state.avatar)}</div></div></div>`}
 function taskRow(t,date=TODAY()){return `<div class="todayTask"><button class="tick ${isDone(t,date)?'done':''}" onclick="toggleTask('${safe(t.id)}','${date}')">${isDone(t,date)?'✓':''}</button><div class="grow"><div class="taskname ${isDone(t,date)?'done':''}">${safe(t.title)}</div><div class="mini" style="margin-top:5px">${safe(t.time||'Sin hora')} · ${t.repeat!=='ninguna'?'🔁 '+safe(t.repeat):'una vez'}</div></div><button class="link" onclick="editTask('${safe(t.id)}')">Editar</button></div>`}
@@ -81,9 +82,9 @@ function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'
 /* Conexión opcional: Supabase JS + autenticación OTP. El usuario debe configurar su propio proyecto. */
 function openConnect(){modal(`<h2>🌐 Activar LifePlan online</h2><p class="sub">Para que personas reales puedan publicar y conectar, necesitas un proyecto Supabase y ejecutar el archivo orbita_backend.sql.</p><form onsubmit="connectFromForm(event)"><label>URL pública de Supabase</label><input name="url" type="url" required placeholder="https://xxxxx.supabase.co" value="${safe(state.config.url||'')}"><label>Clave pública anon / publishable</label><input name="key" required placeholder="sb_publishable_..." value="${safe(state.config.key||'')}"><p class="notice">Usa solamente la clave pública. Nunca introduzcas la <b>service_role</b> ni otras claves secretas.</p><div class="modalActions"><button class="outline" type="button" onclick="closeModal()">Cancelar</button><button class="primary">Conectar</button></div></form>${client?`<hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><label>Iniciar sesión por enlace de correo</label><input id="loginEmail" type="email" placeholder="tu@correo.com"><button class="secondary full" style="margin-top:9px" onclick="emailLogin()">Enviarme enlace</button>`:''}`)}
 async function connectFromForm(e){e.preventDefault();let f=new FormData(e.target);state.config.url=String(f.get('url')).trim();state.config.key=String(f.get('key')).trim();save();try{await initClient();toast('Proyecto conectado. Inicia sesión por correo.');openConnect()}catch(err){toast('Conexión fallida: '+err.message)}}
-async function initClient(){if(!state.config.url||!state.config.key)return;if(!/^https:\/\/[a-z0-9.-]+\.supabase\.co\/?$/i.test(state.config.url))throw Error('Introduce una URL válida de Supabase');if(!window.supabase){await new Promise((resolve,reject)=>{let s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=resolve;s.onerror=()=>reject(Error('No se pudo cargar la biblioteca'));document.head.appendChild(s)})}client=window.supabase.createClient(state.config.url,state.config.key);let res=await client.auth.getUser();user=res.data.user||null;client.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;setTimeout(()=>{if(user){pushProfile().then(loadRemote).catch(()=>{})}else{remotePosts=[];remotePeople=[];remoteChecks=[];render()}},0)});if(user){await pushProfile();await loadRemote()}render()}
+async function initClient(){if(!state.config.url||!state.config.key)return;if(!/^https:\/\/[a-z0-9.-]+\.supabase\.co\/?$/i.test(state.config.url))throw Error('Introduce una URL válida de Supabase');if(!window.supabase){await new Promise((resolve,reject)=>{let s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=resolve;s.onerror=()=>reject(Error('No se pudo cargar la biblioteca'));document.head.appendChild(s)})}client=window.supabase.createClient(state.config.url,state.config.key);let res=await client.auth.getUser();user=res.data.user||null;client.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;setTimeout(async()=>{try{if(user){await prepareCloudSync();await pushProfile();await loadRemote()}else{stopCloudSync();remotePosts=[];remotePeople=[];remoteChecks=[];render()}}catch(err){syncStatus='Error: '+err.message;render()}},0)});if(user){await prepareCloudSync();await pushProfile();await loadRemote()}render()}
 async function emailLogin(){if(!client)return toast('Configura el servidor primero');const email=document.getElementById('loginEmail')?.value;if(!email)return toast('Introduce tu correo');const {error}=await client.auth.signInWithOtp({email});toast(error?error.message:'Revisa tu correo para entrar. Debes añadir la URL de la app a los redirects autorizados.');}
-async function logout(){if(client)await client.auth.signOut();user=null;render()}
+async function logout(){stopCloudSync();if(client)await client.auth.signOut();user=null;render()}
 async function pushProfile(){if(!user)return;const {error}=await client.from('profiles').upsert({id:user.id,display_name:state.name,avatar:state.avatar,interests:state.interests},{onConflict:'id'});if(error)throw error}
 async function pushPost(p){if(!user||!client)return;const payload={user_id:user.id,local_id:String(p.id),type:p.type,title:p.title,description:p.description,tags:p.tags,emoji:p.emoji,is_public:p.public,start_date:p.date||null};const {error}=await client.from('posts').upsert(payload,{onConflict:'user_id,local_id'});if(error)throw error;await loadRemote()}
 async function loadRemote(){if(!user||!client)return;const [a,b,c]=await Promise.all([client.from('posts').select('id,user_id,title,description,type,emoji,tags,start_date,profiles(display_name,avatar)').eq('is_public',true).order('created_at',{ascending:false}).limit(80),client.from('profiles').select('id,display_name,avatar,interests').limit(80),client.from('checkins').select('user_id,day').gte('day',addDays(TODAY(),-60)).limit(1000)]);if(a.error)throw a.error;if(b.error)throw b.error;remotePosts=(a.data||[]).filter(p=>p.user_id!==user.id).map(p=>({...p,owner:p.profiles?.display_name||'Explorador',avatar:p.profiles?.avatar||'🙂',remote:true,likes:0}));remotePeople=b.data||[];remoteChecks=c.data||[];await loadCircle();render()}
@@ -410,6 +411,90 @@ profile=function(){return prevProfileV5()+`<div class="card" style="margin-top:2
 // El buscador de la app pasa a incluir las notas.
 const prevSearchResultsV5=searchResultsHtml;
 searchResultsHtml=function(items){let x=prevSearchResultsV5(items);let q=String(globalQuery||'').trim().toLowerCase();let notes=state.notes.filter(n=>`${n.title} ${n.body}`.toLowerCase().includes(q)).slice(0,10);return x+(notes.length?`<div class="sectionhead"><h2>📝 Notas (${notes.length})</h2></div><div class="card">${notes.map(n=>`<div class="v5TaskRow"><div class="grow"><b>${safe(n.title)}</b></div><button class="link" onclick="editNote('${safe(n.id)}')">Abrir</button></div>`).join('')}</div>`:'')};
+
+/* LifePlan 5.1 · Sincronización privada Supabase. No envía credenciales/configuración. */
+function cloudPayload(){const copy={...state};delete copy.config;return copy}
+function cloudSerialized(){return JSON.stringify(cloudPayload())}
+function stopCloudSync(){clearTimeout(syncTimer);syncReady=false;syncOwner=null;syncBusy=false;syncRemoteExists=false;syncLastPayload='';syncStatus='Inicia sesión para sincronizar'}
+function scheduleCloudSave(){
+ if(!syncReady||!client||!user||syncOwner!==user.id)return;
+ const payload=cloudSerialized();if(payload===syncLastPayload)return;
+ clearTimeout(syncTimer);syncTimer=setTimeout(()=>uploadCloud(false),1200);
+}
+async function prepareCloudSync(){
+ if(!client||!user)return;
+ const uid=user.id;
+ clearTimeout(syncTimer);syncReady=false;syncOwner=uid;
+ syncStatus='Comprobando tus datos en Supabase…';
+ const {data,error}=await client.from('user_app_state').select('data,updated_at').eq('user_id',uid).maybeSingle();
+ if(error)throw error;
+ if(!user||user.id!==uid)return;
+ syncRemoteExists=!!data;syncRemoteTime=data?.updated_at||null;
+ const isBound=localStorage.getItem('lifeplan-sync-bound-'+uid)==='yes';
+ if(data&&isBound){
+   applyCloudState(data.data);syncLastPayload=cloudSerialized();syncReady=true;
+   syncStatus='Sincronización automática activa';
+ }else if(data){
+   syncStatus='Hay datos en la nube. Elige qué copia conservar en Mi perfil.';
+ }else{
+   syncStatus='Nube vacía. En Mi perfil pulsa «Subir mis datos» para comenzar.';
+ }
+ render();
+}
+function applyCloudState(data){
+ if(!data||!Array.isArray(data.tasks)||!Array.isArray(data.plans))throw Error('Los datos de la nube no tienen el formato esperado');
+ const config=state.config||{url:'',key:''};
+ state={...initial(),...data,config};
+ localStorage.setItem(STORE,JSON.stringify(state));
+}
+async function uploadCloud(explicit){
+ if(!client||!user){toast('Inicia sesión primero');return}
+ if(!explicit&&!syncReady)return;
+ if(syncBusy){if(!explicit)scheduleCloudSave();return}
+ const uid=user.id;
+ if(explicit){
+   const msg=syncRemoteExists?'La nube ya tiene datos. ¿Quieres SUSTITUIRLOS por los datos de este navegador? Exporta una copia de seguridad primero.':'¿Subir los datos de este navegador a tu cuenta? Se guardarán en tu nube privada.';
+   if(!confirm(msg))return;
+ }
+ syncBusy=true;
+ const payload=cloudPayload();const serialized=JSON.stringify(payload);
+ syncStatus='Guardando en la nube…';
+ try{
+   const {error}=await client.from('user_app_state').upsert({user_id:uid,data:payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+   if(error)throw error;
+   if(!user||user.id!==uid)return;
+   syncLastPayload=serialized;syncReady=true;syncRemoteExists=true;syncOwner=uid;
+   localStorage.setItem('lifeplan-sync-bound-'+uid,'yes');
+   syncStatus='Sincronización automática activa';
+   if(explicit)toast('Datos guardados en Supabase ✓');
+ }catch(err){syncStatus='Error al guardar: '+err.message;if(explicit)toast(syncStatus)}
+ finally{syncBusy=false;if(user?.id===uid){render();scheduleCloudSave()}}
+}
+async function downloadCloud(){
+ if(!client||!user)return toast('Inicia sesión primero');
+ if(!confirm('¿Reemplazar los datos de este navegador por los de Supabase? Descarga una copia JSON antes de continuar.'))return;
+ const uid=user.id;
+ clearTimeout(syncTimer);syncReady=false;
+ try{
+   const {data,error}=await client.from('user_app_state').select('data').eq('user_id',uid).maybeSingle();
+   if(error)throw error;if(!data)throw Error('Todavía no hay ninguna copia en la nube');
+   if(!user||user.id!==uid)return;
+   // Respaldo automático recuperable desde el almacenamiento del navegador.
+   localStorage.setItem('lifeplan-backup-before-cloud-'+uid,JSON.stringify(state));
+   applyCloudState(data.data);
+   syncLastPayload=cloudSerialized();syncReady=true;syncOwner=uid;syncRemoteExists=true;
+   localStorage.setItem('lifeplan-sync-bound-'+uid,'yes');
+   syncStatus='Sincronización automática activa';
+   render();toast('Datos recuperados de la nube ✓');
+ }catch(err){syncStatus='Error al descargar: '+err.message;render();toast(syncStatus)}
+}
+const profileBeforeCloud=profile;
+profile=function(){
+ const status=safe(syncStatus);
+ const active=user&&client;
+ return profileBeforeCloud()+`<div class="card" style="margin-top:20px"><h3>☁️ Sincronización privada</h3><p class="sub">${status}</p><p class="sub">Tus tareas, notas, proyectos, XP y rachas se guardan en Supabase cuando activas la sincronización. No sincronices dos dispositivos a la vez: gana el último guardado.</p><div class="row" style="gap:9px;flex-wrap:wrap"><button class="secondary" onclick="exportData()">↓ Copia JSON</button><button class="primary" onclick="uploadCloud(true)" ${!active?'disabled':''}>↑ Subir mis datos</button><button class="outline" onclick="downloadCloud()" ${!active||!syncRemoteExists?'disabled':''}>↓ Recuperar nube</button></div><p class="sub" style="margin-top:12px">Antes de usar otro móvil, espera a que aparezca «Sincronización automática activa». En el dispositivo nuevo, entra con la misma cuenta y elige «Recuperar nube».</p></div>`;
+};
+
 // Mostrar en la parte superior un atajo universal con teclado.
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();go('buscar');const el=document.querySelector('input[placeholder*="Buscar"]');if(el)el.focus()}if(e.key==='Escape')closeModal()});
 render();

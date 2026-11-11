@@ -1,0 +1,18 @@
+LIFEPLAN 5.1 — SINCRONIZACIÓN SUPABASE
+
+Sube a la RAÍZ de la rama usada por GitHub Pages los archivos index.html, CNAME, .nojekyll y los 3 iconos.
+INSTRUCCIONES.txt es sólo para ti, no necesitas subirlo.
+
+ANTES: En Supabase debe existir public.user_app_state con RLS y políticas de lectura/inserción/actualización para auth.uid() = user_id.
+
+PRIMER USO (en el navegador que ya tiene tus datos):
+1. Entra a dosonoprojects.top e inicia sesión.
+2. Mi perfil > Sincronización privada.
+3. Pulsa Copia JSON y guárdala.
+4. Pulsa Subir mis datos, confirma. Espera al aviso de sincronización activa.
+5. En otro móvil, inicia sesión con la MISMA cuenta, entra a Mi perfil > Recuperar nube.
+6. Comprueba tus tareas, notas y XP.
+
+La sincronización es de última escritura; NO edites simultáneamente desde varios dispositivos.
+Configuración de Supabase NO se incluye en la copia en la nube.
+El HTML conserva las funciones sociales existentes.
