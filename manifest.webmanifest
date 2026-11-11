@@ -1,24 +1,40 @@
 {
+  "id": "./",
   "name": "LifePlan",
   "short_name": "LifePlan",
-  "start_url": "/",
-  "scope": "/",
+  "description": "Tasks, projects and travel plans.",
+  "lang": "en",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f7f8fe",
+  "background_color": "#f7f5fc",
   "theme_color": "#7650e9",
-  "description": "Tasks, projects and travel plans",
   "icons": [
     {
       "src": "lifeplan-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "lifeplan-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open LifePlan",
+      "short_name": "LifePlan",
+      "url": "./",
+      "icons": [
+        {
+          "src": "lifeplan-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
