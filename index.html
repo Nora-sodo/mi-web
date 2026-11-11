@@ -614,6 +614,24 @@ input:not([type=checkbox]):not([type=radio]):focus,select:focus,textarea:focus{b
 .lp20-legal-links a{display:flex;align-items:center;min-height:46px;border:1px solid #e7e0f4;background:#faf9ff;border-radius:12px;padding:10px 14px;text-decoration:none;font-size:14px;color:#5a498b;font-weight:750}
 .lp20-legal-links a:hover,.lp20-legal-links a:focus-visible{background:#eee9ff;outline-color:#7650e9}
 @media(max-width:560px){.lp20-legal-links{grid-template-columns:1fr}}
+</style><style id="lifeplan-rc23-economy">
+/* RC23: cosmetic rewards, respectful monetization surfaces */
+.lp23-link{border:1px solid #e7def6;background:linear-gradient(110deg,#f7f3ff,#fff);border-radius:17px;padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:15px 0;color:#412a6c}
+.lp23-link button,.lp23-action{background:#7950d4;border:0;color:#fff;border-radius:12px;padding:11px 14px;font-weight:700;cursor:pointer}
+.lp23-link button:focus-visible,.lp23-action:focus-visible,.lp23-item button:focus-visible{outline:3px solid #a689ef;outline-offset:3px}
+.lp23-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin:16px 0}
+.lp23-item{border:1px solid #e8e0f5;border-radius:17px;background:white;padding:17px;display:flex;flex-direction:column;gap:9px;min-width:0}
+.lp23-item h3{margin:0;font-size:16px}.lp23-item p{margin:0;color:#625c6d;font-size:13px;line-height:1.45;flex:1}
+.lp23-item .lp23-symbol{font-size:28px;width:55px;height:55px;border-radius:16px;display:grid;place-items:center;background:#f2ecfd;color:#7950d4}
+.lp23-item button{width:100%;border:1px solid #ddd2f1;border-radius:11px;padding:10px 8px;font:inherit;font-size:13px;font-weight:700;background:#f5f0fe;color:#5a3c99;cursor:pointer}
+.lp23-item button:disabled{cursor:default;opacity:.65}.lp23-stat{border:1px solid #ebe2f7;border-radius:16px;padding:16px;background:#fff;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.lp23-stat b{font-size:22px;color:#5e36a4}.lp23-note{font-size:12px;color:#6b6278;line-height:1.5}.lp23-section-title{margin:24px 0 7px;font-size:20px}
+.lp23-theme-aurora .shell{--purple:#338d9c}.lp23-theme-sunset .shell{--purple:#c56a46}
+.lp23-profile-frame .lp19-profile-avatar{outline:3px solid #a67ee7;outline-offset:3px}
+.lp23-profile-frame-gold .lp19-profile-avatar{outline:3px solid #d6a338;outline-offset:3px}
+.lp23-sponsorship{max-width:750px;margin:16px auto;border:1px dashed #d7cdec;padding:11px 14px;border-radius:12px;text-align:center;color:#7b708d;font-size:12px}
+.lp23-price{font-size:23px;color:#6340ae;font-weight:800}
+@media(max-width:600px){.lp23-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.lp23-item{padding:12px}.lp23-link{flex-wrap:wrap}.lp23-link button{width:100%}.lp23-item h3{font-size:14px}}
 </style></head><body><a class="lpSkipLink" href="#page">Skip to content</a><div id="lpConnectionBanner" role="status" aria-live="polite">Sin conexión. Los cambios se guardarán localmente hasta que recuperes internet.</div><section id="lpAuthGate" aria-label="LifePlan authentication" aria-live="polite">
  <div class="lpAuthCard lpAuthCardNew">
   <div class="lpAuthTop"><div class="lpAuthLogo"><img src="lifeplan-icon-192.png" alt="LifePlan icon" width="68" height="68"></div>
@@ -718,7 +736,7 @@ const save=()=>{
   }
  }
  scheduleCloudSave();
-};const toast=m=>{m=lifeplanFeedback(m);document.getElementById('toastRoot').innerHTML='<div class="toast">'+safe(m)+'</div>';setTimeout(()=>document.getElementById('toastRoot').innerHTML='',3000)};const xpLevel=()=>Math.floor(state.xp/180)+1;const xpPct=()=>Math.round((state.xp%180)/180*100);const streak=()=>{let s=0,d=TODAY();if(!state.doneDates.includes(d))d=addDays(d,-1);while(state.doneDates.includes(d)){s++;d=addDays(d,-1)}return s};const stamp=()=>new Date().toLocaleDateString(lifeplanLocale(),{weekday:'long',day:'numeric',month:'long'});const isDone=(t,date=TODAY())=>(t.done||[]).includes(date);const activeTask=(t,date=TODAY())=>{if(date<t.date)return false;const diff=Math.round((new Date(date+'T12:00:00')-new Date(t.date+'T12:00:00'))/86400000);if(t.repeat==='diaria')return true;if(t.repeat==='laborables')return ![0,6].includes(new Date(date+'T12:00:00').getDay());if(t.repeat==='semanal')return diff%7===0;if(t.repeat==='mensual')return +t.date.slice(8)===+date.slice(8);if(t.repeat==='anual')return t.date.slice(5)===date.slice(5);return diff===0};const dayTasks=(d=TODAY())=>state.tasks.filter(t=>activeTask(t,d)).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+};const toast=m=>{m=lifeplanFeedback(m);document.getElementById('toastRoot').innerHTML='<div class="toast">'+safe(m)+'</div>';setTimeout(()=>document.getElementById('toastRoot').innerHTML='',3000)};const xpLevel=()=>Math.floor(state.xp/180)+1;const xpPct=()=>Math.round((state.xp%180)/180*100);const streak=()=>{let s=0,d=TODAY();if(!state.doneDates.includes(d))d=addDays(d,-1);while(state.doneDates.includes(d)){s++;d=addDays(d,-1)}return s};const stamp=()=>new Date().toLocaleDateString(lifeplanLocale(),{weekday:'long',day:'numeric',month:'long'});const isDone=(t,date=TODAY())=>(t.done||[]).includes(date);const activeTask=(t,date=TODAY())=>{if(date<t.date)return false;const diff=Math.round((new Date(date+'T12:00:00')-new Date(t.date+'T12:00:00'))/86400000);if(t.repeat==='dias_semana')return Array.isArray(t.weekdays)&&t.weekdays.includes(new Date(date+'T12:00:00').getDay());if(t.repeat==='diaria')return true;if(t.repeat==='laborables')return ![0,6].includes(new Date(date+'T12:00:00').getDay());if(t.repeat==='semanal')return diff%7===0;if(t.repeat==='mensual')return +t.date.slice(8)===+date.slice(8);if(t.repeat==='anual')return t.date.slice(5)===date.slice(5);return diff===0};const dayTasks=(d=TODAY())=>state.tasks.filter(t=>activeTask(t,d)).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
 const menu=[['inicio','🏠','Inicio'],['explorar','🧭','Explorar'],['agenda','📅','Mi agenda'],['misiones','🎯','Mis misiones'],['equipo','🔥','Mi equipo'],['perfil','👤','Mi perfil']];function go(t){tab=t;filter='todos';search='';render();window.scrollTo({top:0,behavior:'smooth'})};function renderNav(){
  const desktop=menu.map(([k,e,l])=>`<button class="${tab===k?'active':''}" onclick="go('${k}')"><span class="emoji">${e}</span><span class="navLabel">${l}</span>${tab===k?'<small>en juego</small>':(k==='equipo'?'<small>social</small>':'')}</button>`).join('');
  document.getElementById('nav').innerHTML=desktop;
@@ -1249,8 +1267,8 @@ tripDetailsPage=function(p){let core=originalTripDetailsV5(p);return core+bookin
 // Exportación iCalendar: las tareas recurrentes usan RRULE en vez de multiplicar eventos.
 function icsEscape(s){return String(s??'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
 function icsDate(d){return String(d).replace(/-/g,'')}
-function icsEvent(o){let date=o.date||TODAY();let time=o.time||'';let dt=time?`DTSTART:${icsDate(date)}T${time.replace(':','')}00`: `DTSTART;VALUE=DATE:${icsDate(date)}`;let lines=['BEGIN:VEVENT','UID:'+icsEscape(o.uid||id())+'@lifeplan.local','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'').replace('Z','Z'),dt,'SUMMARY:'+icsEscape(o.title||'Actividad')];if(!time)lines.push(`DTEND;VALUE=DATE:${icsDate(addDays(date,1))}`);else{let ds=new Date(date+'T'+time+':00');ds.setMinutes(ds.getMinutes()+(Number(o.duration)||30));lines.push('DTEND:'+ds.getFullYear()+String(ds.getMonth()+1).padStart(2,'0')+String(ds.getDate()).padStart(2,'0')+'T'+String(ds.getHours()).padStart(2,'0')+String(ds.getMinutes()).padStart(2,'0')+'00')};if(o.description)lines.push('DESCRIPTION:'+icsEscape(o.description));const rule={'diaria':'FREQ=DAILY','laborables':'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR','semanal':'FREQ=WEEKLY','mensual':'FREQ=MONTHLY','anual':'FREQ=YEARLY'}[o.repeat];if(rule)lines.push('RRULE:'+rule);lines.push('END:VEVENT');return lines.join('\r\n')}
-function exportCalendar(pid=''){let events=[];if(pid){let p=state.plans.find(x=>x.id===pid);if(!p)return;let d=tripData(pid);events=(d.stops||[]).filter(x=>x.day).map(x=>({date:x.day,time:x.time,uid:x.id,title:x.name,description:x.address+' '+x.note}));events.push(...(d.bookings||[]).filter(x=>x.date).map(x=>({date:x.date,time:x.time,uid:x.id,title:x.kind+' · '+x.name,description:x.place+' '+x.notes})));events.push(...(d.stays||[]).filter(x=>x.checkin).map(x=>({date:x.checkin,uid:x.id,title:'Check-in · '+x.name,description:x.address})));}else events=state.tasks.map(t=>({uid:t.id,date:t.date,time:t.time,title:t.title,description:t.description,repeat:t.repeat,duration:t.duration}));if(!events.length){toast('No hay eventos para exportar');return}const ical=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LifePlan//Personal Planner//ES','CALSCALE:GREGORIAN',...events.map(icsEvent),'END:VCALENDAR'].join('\r\n');let blob=new Blob([ical],{type:'text/calendar;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=pid?'lifeplan-viaje.ics':'lifeplan-agenda.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Calendario exportado ✓')}
+function icsEvent(o){let date=o.date||TODAY();let time=o.time||'';let dt=time?`DTSTART:${icsDate(date)}T${time.replace(':','')}00`: `DTSTART;VALUE=DATE:${icsDate(date)}`;let lines=['BEGIN:VEVENT','UID:'+icsEscape(o.uid||id())+'@lifeplan.local','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'').replace('Z','Z'),dt,'SUMMARY:'+icsEscape(o.title||'Actividad')];if(!time)lines.push(`DTEND;VALUE=DATE:${icsDate(addDays(date,1))}`);else{let ds=new Date(date+'T'+time+':00');ds.setMinutes(ds.getMinutes()+(Number(o.duration)||30));lines.push('DTEND:'+ds.getFullYear()+String(ds.getMonth()+1).padStart(2,'0')+String(ds.getDate()).padStart(2,'0')+'T'+String(ds.getHours()).padStart(2,'0')+String(ds.getMinutes()).padStart(2,'0')+'00')};if(o.description)lines.push('DESCRIPTION:'+icsEscape(o.description));const rule={'diaria':'FREQ=DAILY','laborables':'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR','semanal':'FREQ=WEEKLY','mensual':'FREQ=MONTHLY','anual':'FREQ=YEARLY'}[o.repeat];if(o.repeat==='dias_semana'&&Array.isArray(o.weekdays)&&o.weekdays.length){const days=['SU','MO','TU','WE','TH','FR','SA'];lines.push('RRULE:FREQ=WEEKLY;BYDAY='+o.weekdays.slice().sort().map(d=>days[d]).join(','));}else if(rule)lines.push('RRULE:'+rule);lines.push('END:VEVENT');return lines.join('\r\n')}
+function exportCalendar(pid=''){let events=[];if(pid){let p=state.plans.find(x=>x.id===pid);if(!p)return;let d=tripData(pid);events=(d.stops||[]).filter(x=>x.day).map(x=>({date:x.day,time:x.time,uid:x.id,title:x.name,description:x.address+' '+x.note}));events.push(...(d.bookings||[]).filter(x=>x.date).map(x=>({date:x.date,time:x.time,uid:x.id,title:x.kind+' · '+x.name,description:x.place+' '+x.notes})));events.push(...(d.stays||[]).filter(x=>x.checkin).map(x=>({date:x.checkin,uid:x.id,title:'Check-in · '+x.name,description:x.address})));}else events=state.tasks.map(t=>({uid:t.id,date:t.date,time:t.time,title:t.title,description:t.description,repeat:t.repeat,weekdays:t.weekdays,duration:t.duration}));if(!events.length){toast('No hay eventos para exportar');return}const ical=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LifePlan//Personal Planner//ES','CALSCALE:GREGORIAN',...events.map(icsEvent),'END:VCALENDAR'].join('\r\n');let blob=new Blob([ical],{type:'text/calendar;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=pid?'lifeplan-viaje.ics':'lifeplan-agenda.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Calendario exportado ✓')}
 // Incluir apuntes en la navegación global y mejoras del perfil.
 const prevProfileV5=profile;
 profile=function(){return prevProfileV5()+`<div class="card" style="margin-top:20px"><h3>💾 Tu información, bajo tu control</h3><p class="sub">Descarga una copia JSON periódicamente. Este navegador conserva tus datos locales, pero al limpiar su almacenamiento podrían perderse. Las notas también se incluyen en la copia.</p><div class="row" style="gap:10px;flex-wrap:wrap"><button class="primary" onclick="exportData()">↓ Copia de seguridad</button><button class="outline" onclick="importData()">↑ Restaurar copia</button><button class="outline" onclick="exportCalendar()">↓ Agenda .ics</button></div></div>`};
@@ -3130,4 +3148,280 @@ if(typeof lifeplanTranslate==='function')lifeplanTranslate();
  document.getElementById('lpAuthLangSelect')?.addEventListener('change',updateLegalLinks);
 })();
 </script>
-</body></html>
+
+<style id="lp22-polish">
+.lp22-actions{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0 20px}.lp22-actions button{min-height:44px}
+.lp22-weekdays{display:flex;gap:7px;flex-wrap:wrap;background:#f7f5fd;padding:11px;border-radius:13px;margin:9px 0 15px}
+.lp22-weekdays label{display:flex!important;align-items:center;justify-content:center;gap:5px;margin:0!important;font-size:12px;min-width:43px;cursor:pointer}
+.lp22-weekdays input{display:inline-block!important;width:17px!important;height:17px!important;accent-color:#7650e9}
+.lp22-project-pane{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:16px}
+.lp22-project-pane h3{margin:0 0 13px;font-size:17px}.lp22-project-pane .lp22-sub{margin:10px 0 10px 16px;border-left:2px solid #ddd2fa;padding-left:13px}
+.lp22-project-pane .lp22-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid #eeeef6}
+.lp22-project-pane .lp22-line:last-child{border-bottom:0}.lp22-project-pane .lp22-line button{min-height:34px}
+.lp22-project-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px;margin-top:12px}
+.lp22-project-image{position:relative;background:#f7f5ff;border-radius:12px;overflow:hidden;min-width:0}.lp22-project-image img{width:100%;height:115px;object-fit:cover;display:block}
+.lp22-project-image button{width:100%;border-radius:0;font-size:12px}.lp22-caption{font-size:12px;color:var(--muted);line-height:1.45;margin-top:8px}
+.lp22-id{display:block;overflow-wrap:anywhere;font-family:ui-monospace,monospace;font-size:12px;color:#6c6480}
+.lp22-nav-box{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.lp22-nav-box button{min-height:44px}
+@media(max-width:550px){.lp22-project-pane{padding:14px}.lp22-weekdays label{min-width:37px}}
+</style>
+
+<script id="lp22-functional-upgrade">
+/* RC22: local-first planning features. No privileged Supabase calls are added. */
+(function(){
+ const tr=(es,en,fr,pt)=>lifeplanT(es,en,fr,pt);
+ const escape=s=>safe(String(s??''));
+ // Review strings that previously remained Spanish on the primary screens.
+ const fixes=[
+ ['Aventuras en compañía 🗺️','Shared adventures 🗺️','Aventures partagées 🗺️','Aventuras partilhadas 🗺️'],
+ ['Grandes planes, misiones pequeñas. Tu progreso cuenta y el del grupo también.','Big plans, small steps. Your progress and your team’s both count.','De grands projets, de petites étapes. Vos progrès et ceux du groupe comptent.','Grandes planos, pequenos passos. O teu progresso e o da equipa contam.'],
+ ['Crear aventura','Create adventure','Créer une aventure','Criar aventura'],
+ ['Mis aventuras','My adventures','Mes aventures','As minhas aventuras'],
+ ['Sin proyectos compartidos','No shared projects','Aucun projet partagé','Sem projetos partilhados'],
+ ['Crear mi aventura','Create an adventure','Créer une aventure','Criar uma aventura'],
+ ['Aventura privada','Private adventure','Aventure privée','Aventura privada'],
+ ['Aventura compartida','Shared adventure','Aventure partagée','Aventura partilhada'],
+ ['Tu ruta de misiones','Your steps','Vos étapes','As tuas etapas'],
+ ['Todo en su sitio 🗂️','Everything organized 🗂️','Tout organiser 🗂️','Tudo organizado 🗂️'],
+ ['Carpetas y subcarpetas para tus tareas, proyectos, viajes y aventuras.','Folders and subfolders for tasks, projects, trips and adventures.','Dossiers et sous-dossiers pour vos tâches, projets, voyages et aventures.','Pastas e subpastas para tarefas, projetos, viagens e aventuras.'],
+ ['No hay subcarpetas aquí.','No subfolders here.','Aucun sous-dossier ici.','Não há subpastas aqui.'],
+ ['Sin tareas en esta carpeta.','No tasks in this folder.','Aucune tâche dans ce dossier.','Sem tarefas nesta pasta.'],
+ ['Sin aventuras en esta carpeta.','No adventures in this folder.','Aucune aventure dans ce dossier.','Sem aventuras nesta pasta.'],
+ ['Encuentra lo que quieras 🔎','Find what you need 🔎','Trouvez ce dont vous avez besoin 🔎','Encontra o que precisas 🔎'],
+ ['Busca tareas, proyectos, viajes y aventuras sin perderte.','Search tasks, projects, trips and adventures in one place.','Recherchez tâches, projets, voyages et aventures au même endroit.','Pesquisa tarefas, projetos, viagens e aventuras num só lugar.'],
+ ['Buscar en todo LifePlan','Search all of LifePlan','Rechercher dans LifePlan','Pesquisar em todo o LifePlan'],
+ ['No hay resultados para esta búsqueda.','No results for this search.','Aucun résultat pour cette recherche.','Sem resultados para esta pesquisa.'],
+ ['Mis proyectos 🚀','My projects 🚀','Mes projets 🚀','Os meus projetos 🚀'],
+ ['Ideas grandes divididas en hitos pequeños, con progreso y recompensas.','Break big goals into milestones and track your progress.','Découpez les grands objectifs en étapes et suivez vos progrès.','Divide grandes objetivos em etapas e acompanha o progresso.'],
+ ['Tu próximo gran objetivo','Your next big goal','Votre prochain grand objectif','O teu próximo grande objetivo'],
+ ['Hito del proyecto','Project milestone','Étape du projet','Etapa do projeto'],
+ ['Crear proyecto','Create project','Créer un projet','Criar projeto'],
+ ['Nueva carpeta','New folder','Nouveau dossier','Nova pasta'],
+ ['Sin carpeta','No folder','Sans dossier','Sem pasta'],
+ ['Guardar carpeta','Save folder','Enregistrer le dossier','Guardar pasta'],
+ ['Nueva aventura','New adventure','Nouvelle aventure','Nova aventura'],
+ ['Crear proyecto compartido','Create shared project','Créer un projet partagé','Criar projeto partilhado'],
+ ['Unirme con código','Join with code','Rejoindre avec un code','Entrar com código'],
+ ['Abrir','Open','Ouvrir','Abrir'],
+ ['Todos los proyectos','All projects','Tous les projets','Todos os projetos'],
+ ['Editar carpeta','Edit folder','Modifier le dossier','Editar pasta'],
+ ['Nivel principal','Top level','Niveau principal','Nível principal'],
+ ['Dentro de','Inside','Dans','Dentro de'],
+ ['Mover aventura','Move adventure','Déplacer l’aventure','Mover aventura'],
+ ['Todas','All','Toutes','Todas'],
+ ['Hitos','Milestones','Étapes','Etapas'],
+ ['Bloc de notas','Notes','Notes','Notas']
+ ];
+ for(const [es,en,fr,pt] of fixes){LP_DICTIONARY.en[es]=en;LP_DICTIONARY.fr[es]=fr;LP_DICTIONARY.pt[es]=pt;}
+
+ const actionText={
+  nav:[tr('Aventuras','Adventures','Aventures','Aventuras'),tr('Carpetas','Folders','Dossiers','Pastas'),tr('Buscar','Search','Rechercher','Pesquisar')]
+ };
+ // Always offer a stable route to the pages. The original renderer stays in place.
+ const originalRenderMain=renderMain;
+ renderMain=function(){
+   originalRenderMain();
+   const page=document.getElementById('page');if(!page)return;
+   if(['misiones','planes','explorar','social','inicio'].includes(tab)){
+     const zone=document.createElement('nav');zone.className='lp22-nav-box';zone.setAttribute('aria-label',tr('Herramientas','Tools','Outils','Ferramentas'));
+     zone.innerHTML=`<button type="button" class="outline" onclick="go('aventuras')">🗺️ ${tr('Aventuras','Adventures','Aventures','Aventuras')}</button><button type="button" class="outline" onclick="go('carpetas')">📁 ${tr('Carpetas','Folders','Dossiers','Pastas')}</button><button type="button" class="outline" onclick="go('buscar')">🔎 ${tr('Buscar','Search','Rechercher','Pesquisar')}</button>`;
+     const first=page.querySelector('.top,.duoTop');if(first)first.insertAdjacentElement('afterend',zone);else page.prepend(zone);
+   }
+ };
+
+ const weekDescription=()=>tr('Días seleccionados','Selected weekdays','Jours choisis','Dias selecionados');
+ // Never display the internal database value "dias_semana" to users.
+ const originalTaskRow22=taskRow;
+ taskRow=function(...args){return originalTaskRow22(...args).replaceAll('dias_semana',weekDescription());};
+ if(typeof enhancedTaskRow==='function'){
+   const oldEnhanced22=enhancedTaskRow;
+   enhancedTaskRow=function(...args){return oldEnhanced22(...args).replaceAll('dias_semana',weekDescription());};
+ }
+ const originalAgenda22=agenda;
+ agenda=function(...args){return originalAgenda22(...args).replaceAll('dias_semana',weekDescription());};
+ // A robust weekly day selector added to the existing task form.
+ const originalEditTask=editTask;
+ editTask=function(taskId=''){
+   originalEditTask(taskId);
+   const frm=document.querySelector('#modalRoot form');if(!frm)return;
+   const select=frm.elements.namedItem('repeat');if(!select)return;
+   const t=state.tasks.find(x=>x.id===taskId);
+   const option=document.createElement('option');option.value='dias_semana';option.textContent=tr('Días de la semana','Selected weekdays','Jours de la semaine','Dias da semana');select.append(option);
+   const area=document.createElement('div');area.className='lp22-weekdays';area.id='lp22-weekdays';
+   const names=[tr('Dom','Sun','Dim','Dom'),tr('Lun','Mon','Lun','Seg'),tr('Mar','Tue','Mar','Ter'),tr('Mié','Wed','Mer','Qua'),tr('Jue','Thu','Jeu','Qui'),tr('Vie','Fri','Ven','Sex'),tr('Sáb','Sat','Sam','Sáb')];
+   const current=t?.weekdays||[1,2,3,4,5];
+   area.innerHTML=names.map((name,i)=>`<label><input type="checkbox" name="lp22day" value="${i}" ${current.includes(i)?'checked':''}>${name}</label>`).join('');
+   const label=document.createElement('p');label.className='lp22-caption';label.textContent=tr('Elige los días; se repetirá desde la fecha de inicio.','Choose the days; recurrence starts on the selected date.','Choisissez les jours ; la répétition commence à la date choisie.','Escolhe os dias; a repetição começa na data escolhida.');
+   select.insertAdjacentElement('afterend',area);area.insertAdjacentElement('afterend',label);
+   function update(){const is=select.value==='dias_semana';area.hidden=!is;label.hidden=!is;}
+   select.addEventListener('change',update);update();
+ };
+ const originalSaveTask=saveTask;
+ saveTask=function(e,taskId){
+   const frm=e.target;
+   if(frm.elements.namedItem('repeat')?.value==='dias_semana'){
+     const selected=[...frm.querySelectorAll('input[name="lp22day"]:checked')].map(x=>Number(x.value));
+     if(!selected.length){e.preventDefault();toast(tr('Elige al menos un día.','Select at least one day.','Sélectionnez au moins un jour.','Seleciona pelo menos um dia.'));return;}
+     const existing=state.tasks.find(x=>x.id===taskId);
+     if(existing)existing.weekdays=selected;
+     else {
+       // The original save routine pushes the new task synchronously.
+       originalSaveTask(e,taskId);
+       const created=state.tasks[state.tasks.length-1];
+       if(created&&created.repeat==='dias_semana'){created.weekdays=selected;save();}
+       return;
+     }
+   }
+   originalSaveTask(e,taskId);
+ };
+
+ // Folder and search project cards open the actual project workspace, not just settings.
+ window.lp22OpenProject=function(pid){selectedProject=pid;go('proyectos');};
+ const priorFoldersPage=foldersPage;
+ foldersPage=function(){let result=priorFoldersPage();for(const p of state.plans.filter(x=>x.type==='proyecto')){
+   result=result.replace(`editPlan('${safe(p.id)}')`,`lp22OpenProject('${safe(p.id)}')`);
+ }return result;};
+ const priorSearchResults=searchResultsHtml;
+ searchResultsHtml=function(items){let result=priorSearchResults(items);for(const p of items.filter(x=>x.kind==='Proyecto')){
+   result=result.replace(`editPlan('${safe(p.id)}')`,`lp22OpenProject('${safe(p.id)}')`);
+ }return result;};
+ // Project details: nested checklist + separate notes with images + intentional sharing.
+ const oldProjectDetails=projectDetailsPage;
+ projectDetailsPage=function(p){
+   const d=projectData(p.id);d.milestones ||= [];d.images ||= [];
+   const extra=`<section class="lp22-project-pane" aria-label="${tr('Subtareas','Subtasks','Sous-tâches','Subtarefas')}">
+     <h3>☑️ ${tr('Subtareas por hito','Subtasks per milestone','Sous-tâches par étape','Subtarefas por etapa')}</h3>
+     ${d.milestones.map(m=>{
+       m.subtasks ||= [];
+       return `<div class="lp22-sub"><div class="row" style="justify-content:space-between;flex-wrap:wrap"><b>${escape(m.title)}</b><button type="button" class="secondary" onclick="lp22SubtaskForm('${escape(p.id)}','${escape(m.id)}')">＋ ${tr('Subtarea','Subtask','Sous-tâche','Subtarefa')}</button></div>
+       ${m.subtasks.map(st=>`<div class="lp22-line"><button type="button" class="tick ${st.done?'done':''}" aria-label="${tr('Completar','Complete','Terminer','Concluir')}" onclick="lp22ToggleSubtask('${escape(p.id)}','${escape(m.id)}','${escape(st.id)}')">${st.done?'✓':''}</button><span class="grow" style="${st.done?'text-decoration:line-through;opacity:.65':''}">${escape(st.title)}</span><button type="button" class="link" onclick="lp22SubtaskForm('${escape(p.id)}','${escape(m.id)}','${escape(st.id)}')">${tr('Editar','Edit','Modifier','Editar')}</button><button type="button" class="link" onclick="lp22DeleteSubtask('${escape(p.id)}','${escape(m.id)}','${escape(st.id)}')">✕</button></div>`).join('')||`<p class="lp22-caption">${tr('Sin subtareas todavía.','No subtasks yet.','Aucune sous-tâche.','Ainda sem subtarefas.')}</p>`}
+       </div>`;
+     }).join('')||`<p class="lp22-caption">${tr('Crea primero un hito para añadir subtareas.','Create a milestone to add subtasks.','Créez une étape avant d’ajouter des sous-tâches.','Cria uma etapa antes de adicionar subtarefas.')}</p>`}
+   </section>
+   <section class="lp22-project-pane"><h3>🖼️ ${tr('Imágenes y referencias','Images and references','Images et références','Imagens e referências')}</h3>
+     <label class="secondary" style="display:inline-block;cursor:pointer" for="lp22-image-input">＋ ${tr('Añadir imagen','Add image','Ajouter une image','Adicionar imagem')}</label>
+     <input type="file" id="lp22-image-input" accept="image/png,image/jpeg,image/webp" style="position:absolute;opacity:0;width:1px;height:1px" onchange="lp22AddImage('${escape(p.id)}',this)">
+     <p class="lp22-caption">${tr('Imágenes comprimidas guardadas con tu proyecto. Hasta 4 por proyecto. No incluyas documentos confidenciales.','Compressed images saved with your project. Up to 4 per project. Do not add confidential documents.','Images compressées enregistrées avec votre projet. Jusqu’à 4. N’ajoutez pas de documents confidentiels.','Imagens comprimidas guardadas no projeto. Até 4. Não adiciones documentos confidenciais.')}</p>
+     <div class="lp22-project-images">${d.images.map(img=>`<div class="lp22-project-image"><img alt="${escape(img.caption||'Image')}" src="${img.data}"><button type="button" class="outline" onclick="lp22RemoveImage('${escape(p.id)}','${escape(img.id)}')">${tr('Eliminar','Remove','Supprimer','Eliminar')}</button></div>`).join('')}</div>
+   </section>
+   <section class="lp22-project-pane"><h3>🔗 ${tr('Compartir y gestionar','Share and manage','Partager et gérer','Partilhar e gerir')}</h3>
+    <div class="lp22-actions"><button class="secondary" type="button" onclick="lp22ShareProject('${escape(p.id)}')">${tr('Compartir resumen','Share summary','Partager le résumé','Partilhar resumo')}</button><button class="outline" type="button" onclick="editPlan('${escape(p.id)}')">${tr('Privacidad y edición','Privacy and editing','Confidentialité et modification','Privacidade e edição')}</button><button class="outline" type="button" onclick="lp22ExportProject('${escape(p.id)}')">${tr('Exportar proyecto','Export project','Exporter le projet','Exportar projeto')}</button></div>
+    <p class="lp22-caption">${tr('Compartir resumen envía solo título, descripción e hitos. Las notas e imágenes privadas no se envían. Para colaboración real con miembros utiliza Aventuras.','Share summary sends only title, description and milestones. Private notes and images are not sent. Use Adventures for member collaboration.','Le partage transmet uniquement le titre, la description et les étapes. Les notes et images privées ne sont pas envoyées. Utilisez Aventures pour collaborer.','Partilhar resumo envia apenas título, descrição e etapas. Notas e imagens privadas não são enviadas. Usa Aventuras para colaboração.')}</p>
+   </section>`;
+   return oldProjectDetails(p)+extra;
+ };
+ window.lp22SubtaskForm=function(pid,mid,sid=''){
+  const m=projectData(pid).milestones.find(x=>x.id===mid);if(!m)return;
+  const st=(m.subtasks||[]).find(x=>x.id===sid)||{title:''};
+  modal(`<h2>${sid?tr('Editar subtarea','Edit subtask','Modifier la sous-tâche','Editar subtarefa'):tr('Nueva subtarea','New subtask','Nouvelle sous-tâche','Nova subtarefa')}</h2><form onsubmit="lp22SaveSubtask(event,'${escape(pid)}','${escape(mid)}','${escape(sid)}')"><label>${tr('Título','Title','Titre','Título')}</label><input name="title" maxlength="150" value="${escape(st.title)}" required><div class="modalActions"><button class="outline" type="button" onclick="closeModal()">${tr('Cancelar','Cancel','Annuler','Cancelar')}</button><button class="primary">${tr('Guardar','Save','Enregistrer','Guardar')}</button></div></form>`);
+ };
+ window.lp22SaveSubtask=function(e,pid,mid,sid){e.preventDefault();const m=projectData(pid).milestones.find(x=>x.id===mid);if(!m)return; m.subtasks||=[];const title=String(new FormData(e.target).get('title')||'').trim();if(!title)return;const st=m.subtasks.find(x=>x.id===sid);if(st)st.title=title;else m.subtasks.push({id:id(),title,done:false});closeModal();render();};
+ window.lp22ToggleSubtask=function(pid,mid,sid){const st=projectData(pid).milestones.find(x=>x.id===mid)?.subtasks?.find(x=>x.id===sid);if(!st)return;st.done=!st.done;render();};
+ window.lp22DeleteSubtask=function(pid,mid,sid){if(!confirm(tr('¿Eliminar subtarea?','Delete subtask?','Supprimer la sous-tâche ?','Eliminar subtarefa?')))return;const m=projectData(pid).milestones.find(x=>x.id===mid);if(m){m.subtasks=(m.subtasks||[]).filter(x=>x.id!==sid);render();}};
+ window.lp22AddImage=async function(pid,input){
+   const f=input.files?.[0];if(!f)return;const d=projectData(pid);d.images||=[];
+   if(d.images.length>=4){toast(tr('Máximo 4 imágenes por proyecto.','Maximum 4 images per project.','Maximum de 4 images par projet.','Máximo de 4 imagens por projeto.'));return;}
+   if(!['image/png','image/jpeg','image/webp'].includes(f.type)||f.size>8*1024*1024){toast(tr('Imagen no válida o demasiado grande (máx. 8 MB).','Invalid image or too large (max 8 MB).','Image invalide ou trop volumineuse (max. 8 Mo).','Imagem inválida ou demasiado grande (máx. 8 MB).'));return;}
+   try{
+     const src=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(Error('read'));r.readAsDataURL(f)});
+     const img=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(Error('image'));im.src=src});
+     const scale=Math.min(1,1000/Math.max(img.width,img.height));const canvas=document.createElement('canvas');canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);
+     canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);let data=canvas.toDataURL('image/jpeg',0.66);
+     if(data.length>190000){canvas.width=Math.round(canvas.width*0.65);canvas.height=Math.round(canvas.height*0.65);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);data=canvas.toDataURL('image/jpeg',0.5)}
+     if(data.length>190000)throw Error('size');
+     d.images.push({id:id(),data,caption:f.name.slice(0,90)});render();toast(tr('Imagen añadida.','Image added.','Image ajoutée.','Imagem adicionada.'));
+   }catch(_){toast(tr('No se pudo procesar la imagen.','Could not process the image.','Traitement de l’image impossible.','Não foi possível processar a imagem.'));}
+ };
+ window.lp22RemoveImage=function(pid,imgid){const d=projectData(pid);d.images=(d.images||[]).filter(x=>x.id!==imgid);render()};
+ window.lp22ShareProject=async function(pid){const p=state.plans.find(x=>x.id===pid);if(!p)return;const d=projectData(pid);const msg=[p.title,p.description||'',...(d.milestones||[]).map(x=>(x.done?'☑ ':'☐ ')+x.title)].join('\n');try{if(navigator.share)await navigator.share({title:p.title,text:msg});else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(msg);toast(tr('Resumen copiado.','Summary copied.','Résumé copié.','Resumo copiado.'));}else modal(`<h2>${tr('Resumen para compartir','Summary to share','Résumé à partager','Resumo para partilhar')}</h2><textarea readonly rows="9">${escape(msg)}</textarea><div class="modalActions"><button class="primary" onclick="closeModal()">OK</button></div>`);}catch(e){if(e?.name!=='AbortError')toast(tr('No se pudo compartir.','Could not share.','Partage impossible.','Não foi possível partilhar.'));}};
+ window.lp22ExportProject=function(pid){const p=state.plans.find(x=>x.id===pid);if(!p)return;const blob=new Blob([JSON.stringify({format:'lifeplan-project',version:1,project:p,details:projectData(pid)},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='lifeplan-project.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)};
+ // Account: stable user ID, and an editable personal handle (not a reserved public username).
+ const oldProfile=profile;
+ profile=function(){let html=oldProfile();if(!user)return html;
+  const handle=state.username||String(state.name||'lifeplan').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9_]/g,'').slice(0,25)||'lifeplan';
+  const card=`<section class="lp19-profile-card"><h2>${tr('Identidad de usuario','User identity','Identité utilisateur','Identidade de utilizador')}</h2><div><b>@${escape(handle)}</b></div><span class="lp22-id">ID: ${escape(user.id)}</span><p class="lp22-caption">${tr('El ID identifica tu cuenta. El alias es personal y no está reservado globalmente.','The ID identifies your account. The handle is personal and is not globally reserved.','L’ID identifie votre compte. Le pseudonyme n’est pas réservé globalement.','O ID identifica a tua conta. O nome de utilizador não é reservado globalmente.')}</p><button class="outline" onclick="lp22EditHandle()">${tr('Editar alias','Edit handle','Modifier le pseudonyme','Editar nome de utilizador')}</button></section>`;
+  const marker='<section class="lp19-profile-card">';const pos=html.indexOf(marker);return pos>=0?html.slice(0,pos)+card+html.slice(pos):html+card;
+ };
+ window.lp22EditHandle=function(){modal(`<h2>${tr('Nombre de usuario','Username','Nom d’utilisateur','Nome de utilizador')}</h2><form onsubmit="lp22SaveHandle(event)"><label>${tr('Alias (3–25 letras, números o _)','Handle (3–25 letters, numbers or _)','Pseudonyme (3 à 25 lettres, chiffres ou _)','Nome (3–25 letras, números ou _)')}</label><input name="handle" pattern="[a-z0-9_]{3,25}" maxlength="25" required value="${escape(state.username||'')}"><p class="lp22-caption">${tr('Este alias no permite buscar usuarios todavía. El ID sí es único.','This handle cannot be used to search users yet. The ID is unique.','Ce pseudonyme ne permet pas encore la recherche. L’ID est unique.','Este nome ainda não permite procurar utilizadores. O ID é único.')}</p><div class="modalActions"><button class="outline" type="button" onclick="closeModal()">${tr('Cancelar','Cancel','Annuler','Cancelar')}</button><button class="primary">${tr('Guardar','Save','Enregistrer','Guardar')}</button></div></form>`)};
+ window.lp22SaveHandle=function(e){e.preventDefault();const handle=String(new FormData(e.target).get('handle')||'').trim().toLowerCase();if(!/^[a-z0-9_]{3,25}$/.test(handle))return;state.username=handle;closeModal();render();};
+ // Expose a simple smoke-test surface without modifying any backend data.
+ window.lp22Test={occurs:(t,date)=>activeTask(t,date),project:pid=>projectData(pid)};
+})();
+</script>
+<script id="lifeplan-rc23-economy">
+(function(){'use strict';
+const L=(es,en,fr,pt)=>({es,en,fr,pt})[typeof lifeplanLanguage==='string'?lifeplanLanguage:'en']||en;
+const CATALOG=[
+ {id:'frame_lilac',name:['Marco lavanda','Lavender frame','Cadre lavande','Moldura lavanda'],description:['Personaliza tu avatar.','Customize your avatar.','Personnalisez votre avatar.','Personaliza o teu avatar.'],icon:'◇',price:60,group:'frame'},
+ {id:'frame_gold',name:['Marco dorado','Golden frame','Cadre doré','Moldura dourada'],description:['Un marco especial para el perfil.','A special profile frame.','Un cadre spécial pour le profil.','Uma moldura especial para o perfil.'],icon:'✧',price:140,group:'frame'},
+ {id:'theme_aurora',name:['Tema aurora','Aurora theme','Thème aurore','Tema aurora'],description:['Acentos turquesa suaves.','Soft turquoise accents.','Des accents turquoise doux.','Tons turquesa suaves.'],icon:'✦',price:100,group:'theme'},
+ {id:'theme_sunset',name:['Tema atardecer','Sunset theme','Thème coucher de soleil','Tema pôr do sol'],description:['Un toque cálido en la aplicación.','A warmer look for the app.','Une touche chaleureuse.','Um toque mais quente.'],icon:'◐',price:100,group:'theme'},
+ {id:'badge_builder',name:['Distintivo creador','Builder badge','Badge créateur','Emblema criador'],description:['Decoración de tu colección.','A collectible decoration.','Un objet décoratif à collectionner.','Um colecionável decorativo.'],icon:'✷',price:80,group:'badge'},
+ {id:'badge_explorer',name:['Distintivo explorador','Explorer badge','Badge explorateur','Emblema explorador'],description:['Celebra tus proyectos y viajes.','Celebrate plans and trips.','Célébrez vos projets et voyages.','Celebra os teus planos e viagens.'],icon:'⌁',price:80,group:'badge'}
+];
+const LABELS=['es','en','fr','pt'];function loc(a){return a[Math.max(0,LABELS.indexOf(typeof lifeplanLanguage==='string'?lifeplanLanguage:'en'))]}
+function icon(type){const body={shop:'<path d="M3 9h18l-2-5H5L3 9Z"/><path d="M5 9v11h14V9M9 20v-7h6v7"/>',coins:'<circle cx="12" cy="12" r="9"/><path d="M9 10h4a2 2 0 0 1 0 4H9m3-7v10"/>',crown:'<path d="m2 7 5 4 5-7 5 7 5-4-2 12H4L2 7Z"/>',star:'<path d="m12 2 3.1 6.3 6.9 1-5 5 .9 7L12 18l-5.9 3.3.9-7-5-5 6.9-1Z"/>'}[type]||'';return '<svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">'+body+'</svg>'}
+function activeAccount(){return Boolean(user&&user.id)}
+function econ(){
+ if(!state.lpEconomy||typeof state.lpEconomy!=='object')state.lpEconomy={coins:0,claimed:[],owned:[],equipped:{},version:1};
+ let e=state.lpEconomy;if(!Number.isSafeInteger(e.coins)||e.coins<0)e.coins=0;
+ if(!Array.isArray(e.claimed))e.claimed=[];if(!Array.isArray(e.owned))e.owned=[];
+ if(!e.equipped||typeof e.equipped!=='object')e.equipped={};return e;
+}
+// Awards one local cosmetic coin reward per task completion, capped at 10 rewards per day.
+// This browser-side economy is deliberately NON-MONETARY and is not a fraud-resistant ledger.
+function award(){if(!activeAccount())return;const e=econ();const dates={};for(const key of e.claimed){let d=String(key).split(':').pop();dates[d]=(dates[d]||0)+1;}
+ let changed=false;
+ for(const task of Array.isArray(state.tasks)?state.tasks:[]){for(const d of Array.isArray(task.done)?task.done:[]){
+ const k=String(task.id)+':'+d;if(e.claimed.includes(k))continue;
+ // Disallow future rewards, invalid date values and ancient historic records.
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(d))||String(d)>new Date().toISOString().slice(0,10))continue;
+ if(dates[d]>=10)continue; if(e.claimed.length>=3000)continue;
+ e.claimed.push(k);dates[d]=(dates[d]||0)+1;e.coins+=5;changed=true;
+ }}if(changed)save();
+}
+let entitlement={premium:false,expires:null,checked:false};let lastUid=null;let requestSerial=0;
+async function refreshEntitlement(){
+ const uid=user?.id||null;if(!uid){entitlement={premium:false,expires:null,checked:true};lastUid=null;return}
+ if(lastUid!==uid){lastUid=uid;entitlement={premium:false,expires:null,checked:false}}
+ const serial=++requestSerial;
+ if(!client||typeof client.from!=='function'){entitlement.checked=true;return}
+ try{const r=await client.from('lifeplan_subscriptions').select('status,expires_at').eq('user_id',uid).maybeSingle();if(serial!==requestSerial||user?.id!==uid)return;
+ if(r.error){entitlement={premium:false,expires:null,checked:false};return}
+ const row=r.data;entitlement={premium:!!row&&['active','grace_period'].includes(row.status)&&Date.parse(row.expires_at)>Date.now(),expires:row?.expires_at||null,checked:true};
+ }catch(_){if(serial===requestSerial)entitlement={premium:false,expires:null,checked:false}}
+ if(tab==='mercado'||tab==='perfil')renderMain();
+}
+function isPremium(){return activeAccount()&&entitlement.premium&&Date.parse(entitlement.expires)>Date.now()}
+function balance(){award();return econ().coins}
+function owned(i){return econ().owned.includes(i.id)}
+function buy(itemid){if(!activeAccount())return;const item=CATALOG.find(x=>x.id===itemid);if(!item)return;const e=econ();award();if(e.owned.includes(item.id))return;
+ if(e.coins<item.price){toast(L('No tienes monedas suficientes.','Not enough coins.','Pièces insuffisantes.','Moedas insuficientes.'));return}
+ e.coins-=item.price;e.owned.push(item.id);save();renderMain();toast(L('¡Objeto desbloqueado!','Item unlocked!','Objet débloqué !','Item desbloqueado!'))}
+function equip(itemid){const item=CATALOG.find(x=>x.id===itemid),e=econ();if(!item||!e.owned.includes(itemid))return;
+ e.equipped[item.group]=e.equipped[item.group]===itemid?'':itemid;save();applyCosmetics();renderMain();}
+function applyCosmetics(){const e=econ();document.body.classList.toggle('lp23-theme-aurora',e.equipped.theme==='theme_aurora');document.body.classList.toggle('lp23-theme-sunset',e.equipped.theme==='theme_sunset');document.body.classList.toggle('lp23-profile-frame',e.equipped.frame==='frame_lilac');document.body.classList.toggle('lp23-profile-frame-gold',e.equipped.frame==='frame_gold')}
+function shop(){const premium=isPremium(),coin=balance(),e=econ();const freeText=L('Gratuito','Free','Gratuit','Gratuito');const xplvl=typeof xpLevel==='function'?xpLevel():1;
+ const cards=CATALOG.map(item=>{const have=owned(item),equipped=e.equipped[item.group]===item.id;const btn=have?`<button type="button" onclick="lp23Equip('${item.id}')">${equipped?L('Quitar','Unequip','Retirer','Remover'):L('Equipar','Equip','Équiper','Equipar')}</button>`:`<button type="button" ${coin<item.price?'disabled':''} onclick="lp23Buy('${item.id}')">${item.price} ${L('monedas','coins','pièces','moedas')}</button>`;
+ return `<article class="lp23-item"><div class="lp23-symbol" aria-hidden="true">${item.icon}</div><h3>${loc(item.name)}</h3><p>${loc(item.description)}</p>${have?`<small>✓ ${L('Desbloqueado','Unlocked','Débloqué','Desbloqueado')}</small>`:''}${btn}</article>`}).join('');
+ return `<section class="lp23-market">${header(L('Mercado de recompensas','Rewards market','Boutique de récompenses','Mercado de recompensas'),L('Consigue monedas al completar tareas y personaliza LifePlan.','Earn coins by completing tasks and customize LifePlan.','Gagnez des pièces en terminant des tâches et personnalisez LifePlan.','Ganha moedas ao concluir tarefas e personaliza o LifePlan.'))}
+ <div class="lp23-grid"><div class="lp23-stat">${icon('coins')}<div><b>${coin}</b><div>${L('Tus monedas','Your coins','Vos pièces','As tuas moedas')}</div></div></div><div class="lp23-stat">${icon('star')}<div><b>${Math.max(0,Number(state.xp)||0)} XP</b><div>${L('Nivel','Level','Niveau','Nível')} ${xplvl}</div></div></div></div>
+ <p class="lp23-note">${L('Recibes 5 monedas por tarea completada (hasta 10 recompensas por día). Las monedas son virtuales, no se pueden comprar con dinero ni cambiar por dinero real, y no mejoran tu posición en el ranking.','Earn 5 coins per completed task (up to 10 rewards per day). Coins are virtual: they cannot be bought with money or redeemed for cash and do not affect leaderboard rankings.','Vous gagnez 5 pièces par tâche terminée (10 récompenses maximum par jour). Les pièces sont virtuelles, non achetables et non échangeables contre de l’argent ; elles ne modifient pas le classement.','Ganhas 5 moedas por tarefa concluída (até 10 recompensas por dia). As moedas são virtuais, não se compram nem trocam por dinheiro e não alteram a classificação.')}</p>
+ <h2 class="lp23-section-title">${L('Mercado cosmético','Cosmetic shop','Boutique cosmétique','Loja de cosméticos')}</h2><div class="lp23-grid">${cards}</div>
+ <h2 class="lp23-section-title">${L('Tu plan','Your plan','Votre abonnement','O teu plano')}</h2><article class="lp23-item"><div class="lp23-symbol">${icon('crown')}</div><h3>${premium?'LifePlan Premium':'LifePlan Free'}</h3><p>${premium?L('Sin publicidad mientras tu suscripción esté activa.','No ads while your subscription is active.','Sans publicités pendant votre abonnement.','Sem anúncios durante a tua subscrição.'):L('Todas las funciones principales y recompensas cosméticas. Publicidad limitada en la futura aplicación Android.','All core features and cosmetic rewards. Limited advertising in the upcoming Android app.','Toutes les fonctions essentielles et les récompenses cosmétiques. Publicité limitée dans la future application Android.','Todas as funções principais e recompensas cosméticas. Publicidade limitada na futura aplicação Android.')}</p><div class="lp23-price">${premium?'✓ Premium':'1 € / '+L('mes','month','mois','mês')}</div>
+ ${premium?'':`<button type="button" onclick="lp23PremiumInfo()">${L('Cómo conseguir Premium','How to get Premium','Comment obtenir Premium','Como obter Premium')}</button>`}
+ </article><p class="lp23-note">${L('La suscripción de 1 €/mes se ofrecerá en Android mediante Google Play cuando la facturación y la verificación del servidor estén configuradas. Esta web no cobra ni activa Premium manualmente.','The €1/month subscription will be offered on Android through Google Play after billing and server verification are configured. This website neither charges nor grants Premium manually.','L’abonnement à 1 €/mois sera proposé sur Android via Google Play après configuration de la facturation et de la vérification serveur. Ce site ne facture ni n’active Premium.','A subscrição de 1 €/mês será disponibilizada no Android através do Google Play após configurar a faturação e verificação no servidor. Este site não cobra nem ativa Premium.')}</p>
+ </section>`}
+window.lp23Buy=buy;window.lp23Equip=equip;window.lp23PremiumInfo=()=>modal(`<h2>LifePlan Premium</h2><p>${L('Precio previsto: 1 € al mes. Quita los anuncios; no da monedas, XP ni ventajas competitivas. La compra estará disponible cuando publiquemos la aplicación Android con Google Play Billing.','Planned price: €1 per month. Removes ads, without extra coins, XP or competitive advantages. Purchasing will be available with Google Play Billing in the Android release.','Prix prévu : 1 € par mois. Supprime les publicités, sans pièces, XP ni avantages compétitifs supplémentaires. L’achat sera disponible via Google Play Billing sur Android.','Preço previsto: 1 € por mês. Remove anúncios, sem moedas, XP ou vantagens competitivas. A compra estará disponível com o Google Play Billing no Android.')}</p><div class="modalActions"><button type="button" class="primary" onclick="closeModal()">${L('Entendido','Got it','Compris','Entendido')}</button></div>`);
+window.lp23RefreshSubscription=refreshEntitlement;
+const beforeMain=renderMain;renderMain=function(){if(tab==='mercado'){const page=document.getElementById('page');page.innerHTML=shop();const fab=document.getElementById('floating');if(fab)fab.style.display='none';return;}beforeMain();applyCosmetics();if(tab==='inicio'){let page=document.getElementById('page');if(page&&!page.querySelector('.lp23-link')){page.insertAdjacentHTML('afterbegin',`<div class="lp23-link"><div><b>${icon('shop')} ${L('Tus recompensas','Your rewards','Vos récompenses','As tuas recompensas')}</b><div class="lp23-note">${L('Completa tareas, gana monedas y personaliza tu espacio.','Complete tasks, earn coins and customize your space.','Terminez des tâches, gagnez des pièces et personnalisez votre espace.','Conclui tarefas, ganha moedas e personaliza o teu espaço.')}</div></div><button type="button" onclick="go('mercado')">${L('Abrir mercado','Open shop','Ouvrir la boutique','Abrir mercado')}</button></div>`);}}
+};
+const beforeNav=renderNav;renderNav=function(){beforeNav();const nav=document.getElementById('nav');if(nav&&!nav.querySelector('[data-lp23-shop]'))nav.insertAdjacentHTML('beforeend',`<button type="button" data-lp23-shop class="${tab==='mercado'?'active':''}" onclick="go('mercado')" ${tab==='mercado'?'aria-current="page"':''}>${icon('shop')} <span class="navLabel">${L('Mercado','Shop','Boutique','Mercado')}</span></button>`);};
+const beforeProfile=profile;profile=function(){const content=beforeProfile();if(!activeAccount())return content;return content+`<section class="lp19-profile-card"><h2>${icon('crown')} LifePlan ${isPremium()?'Premium':'Free'}</h2><p>${isPremium()?L('Suscripción activa. Sin anuncios.','Subscription active. No ads.','Abonnement actif. Sans publicités.','Subscrição ativa. Sem anúncios.'):L('La versión Premium sin anuncios estará disponible en la aplicación Android por 1 €/mes.','Ad-free Premium will be available on Android for €1/month.','Premium sans publicité sera disponible sur Android à 1 €/mois.','O Premium sem anúncios estará disponível no Android por 1 €/mês.')}</p><button type="button" class="outline" onclick="go('mercado')">${icon('shop')} ${L('Recompensas y mercado','Rewards and shop','Récompenses et boutique','Recompensas e mercado')}</button></section>`};
+// On account switch, do not display the previous user's premium entitlement.
+setInterval(()=>{const uid=user?.id||null;if(uid!==lastUid){entitlement={premium:false,expires:null,checked:false};lastUid=uid;if(uid)refreshEntitlement();}else if(uid)refreshEntitlement();},60000);
+setTimeout(()=>{if(user?.id)refreshEntitlement();applyCosmetics()},1200);
+window.lp23Test={catalog:()=>CATALOG.map(x=>({id:x.id,price:x.price})),market:()=>econ(),premium:()=>isPremium(),refresh:refreshEntitlement};
+})();
+</script></body></html>
