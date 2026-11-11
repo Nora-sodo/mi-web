@@ -1,7 +1,8 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#58cc02"><title>LifePlan</title>
 <link rel="icon" type="image/png" href="lifeplan-icon-64.png">
 <link rel="apple-touch-icon" href="lifeplan-icon-192.png">
-<meta name="application-name" content="LifePlan"><meta name="apple-mobile-web-app-title" content="LifePlan">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="description" content="LifePlan — tasks, projects and travel plans."><meta name="application-name" content="LifePlan"><meta name="apple-mobile-web-app-title" content="LifePlan">
 <style>
 :root{--bg:#f7f8fe;--white:#fff;--ink:#20263c;--muted:#8290a7;--line:#e7eaf4;--purple:#7650e9;--purple2:#9b80f7;--lav:#f1edff;--green:#1baa83;--mint:#e9faf3;--yellow:#f6b938;--red:#f16a7d;--shadow:0 12px 36px rgba(45,43,112,.07)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}button:disabled{opacity:.55;cursor:not-allowed}a{color:inherit}.shell{display:grid;grid-template-columns:252px minmax(0,1fr) 290px;min-height:100vh;max-width:1600px;margin:auto}.left{background:white;border-right:1px solid var(--line);padding:30px 20px;display:flex;flex-direction:column;gap:34px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:10px;font-size:23px;font-weight:900;letter-spacing:-1.2px;padding:0 12px}.logo{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;overflow:hidden;flex-shrink:0}.logo img{display:block;width:43px;height:43px;object-fit:cover;border-radius:13px}.nav{display:grid;gap:7px}.nav button{display:flex;align-items:center;gap:13px;text-align:left;background:none;border-radius:15px;color:#69758d;font-weight:750;padding:14px 15px}.nav button:hover,.nav button.active{background:var(--lav);color:var(--purple)}.nav .emoji{font-size:20px;width:23px;text-align:center}.nav small{margin-left:auto;background:#e7defe;color:var(--purple);border-radius:10px;padding:3px 8px}.leftfoot{margin-top:auto;background:linear-gradient(140deg,#7950e9,#a680f8);border-radius:20px;padding:18px;color:white;overflow:hidden}.leftfoot h3{margin:0 0 6px}.leftfoot p{font-size:12px;line-height:1.55;opacity:.9}.leftfoot button{background:white;color:var(--purple);font-weight:800;border-radius:10px;padding:9px 11px}.center{padding:32px 42px 100px;min-width:0}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:25px}.eyebrow{letter-spacing:2px;font-size:10px;font-weight:900;color:var(--purple);text-transform:uppercase}.top h1{font-size:31px;letter-spacing:-1.3px;margin:7px 0 2px}.muted{color:var(--muted)}.sub{font-size:13px;color:var(--muted);line-height:1.6}.avatar{width:42px;height:42px;border-radius:15px;background:#e3d8ff;display:grid;place-items:center;font-size:23px;flex-shrink:0}.avatar.sm{width:34px;height:34px;border-radius:12px;font-size:18px}.topright{display:flex;gap:9px;align-items:center}.pill{border:1px solid var(--line);background:white;border-radius:40px;padding:9px 12px;font-size:12px;font-weight:800;white-space:nowrap}.card{background:white;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:22px}.hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;background:linear-gradient(110deg,#7147de,#9b78f9);color:white;border-radius:25px;padding:24px 25px;overflow:hidden;min-height:176px}.hero:after{content:'✦';position:absolute;font-size:170px;color:#ffffff12;right:60px;top:-60px;pointer-events:none}.hero h2{margin:8px 0;font-size:24px;letter-spacing:-.6px}.hero p{font-size:13px;opacity:.9;max-width:330px;line-height:1.6}.hero .medal{font-size:75px;filter:drop-shadow(0 12px 12px #432c965e)}.hero .progress{height:9px;border-radius:8px;background:#ffffff3b;max-width:310px;overflow:hidden;margin-top:16px}.hero .progress>span{display:block;height:100%;background:#ffdc7e;border-radius:8px}.two{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.sectionhead{display:flex;align-items:center;justify-content:space-between;margin:27px 0 13px;gap:12px}.sectionhead h2{font-size:18px;letter-spacing:-.55px;margin:0}.link{color:var(--purple);background:transparent;font-weight:800;font-size:12px}.todayTask{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid #f0f1f7}.todayTask:last-child{border:0}.tick{width:25px;height:25px;border:2px solid #d6d8ec;background:white;border-radius:9px;display:grid;place-items:center;color:white;flex-shrink:0}.tick.done{background:var(--green);border-color:var(--green)}.taskname{font-size:13px;font-weight:800}.taskname.done{text-decoration:line-through;color:var(--muted)}.tag{display:inline-block;border-radius:7px;background:#f3f0ff;color:#7d65c6;font-size:10px;font-weight:750;padding:5px 7px}.tag.green{background:#e6fbf2;color:#0c9c71}.tag.orange{background:#fff3df;color:#b87a0d}.row{display:flex;align-items:center;gap:10px}.grow{flex:1;min-width:0}.streakNum{font-size:47px;font-weight:900;letter-spacing:-2px}.mini{font-size:11px;color:var(--muted)}.week{display:flex;justify-content:space-between;gap:5px;margin-top:21px}.day{display:grid;gap:6px;justify-items:center;font-size:11px;color:var(--muted)}.dot{background:#f0f1f7;width:30px;height:30px;border-radius:11px;display:grid;place-items:center;color:#a2a5b8;font-weight:800}.dot.done{background:#d9f8e9;color:#10a77b}.dot.now{outline:2px solid var(--purple);outline-offset:2px}.right{background:#fbfbff;border-left:1px solid var(--line);padding:34px 20px;position:sticky;top:0;height:100vh;overflow:auto}.right h3{font-size:14px;margin:0 0 13px}.profileBar{display:flex;align-items:center;gap:11px;padding-bottom:22px;border-bottom:1px solid var(--line);margin-bottom:25px}.xpbar{height:7px;background:#eeebf8;border-radius:9px;overflow:hidden;margin-top:7px}.xpbar span{background:linear-gradient(90deg,var(--purple),#c1acff);display:block;height:100%}.rightbox{border:1px solid var(--line);border-radius:18px;background:white;padding:17px;margin-bottom:14px}.leader{display:flex;align-items:center;gap:10px;margin:14px 0}.leader .rank{font-size:11px;font-weight:900;color:#afafbf;width:12px}.leader .score{margin-left:auto;font-size:11px;color:var(--purple);font-weight:800}.primary{color:white;background:var(--purple);border-radius:12px;padding:12px 17px;font-weight:850;box-shadow:0 7px 15px #865fe72b}.secondary{background:var(--lav);color:var(--purple);border-radius:12px;padding:11px 15px;font-weight:850}.outline{background:white;border:1px solid var(--line);border-radius:12px;padding:10px 15px;font-weight:800;color:#5c6682}.full{width:100%}.itemGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.exploreCard{padding:0;overflow:hidden}.cover{height:124px;display:flex;align-items:center;justify-content:center;font-size:67px;background:linear-gradient(135deg,#e7dfff,#f9eafd)}.cover.green{background:linear-gradient(135deg,#d6f9eb,#e6f5ff)}.cover.yellow{background:linear-gradient(135deg,#fff1d7,#ffe7e6)}.cover.blue{background:linear-gradient(135deg,#dceeff,#e8eaff)}.exploreBody{padding:17px}.exploreBody h3{margin:10px 0 4px;font-size:15px}.exploreBody p{min-height:39px;margin:0 0 13px;font-size:12px;line-height:1.5;color:var(--muted)}.chiprow{display:flex;gap:5px;flex-wrap:wrap}.filterbar{display:flex;gap:8px;margin:17px 0;flex-wrap:wrap}.filterbar button{border:1px solid var(--line);background:white;border-radius:20px;padding:9px 14px;color:#7d849a;font-weight:800;font-size:12px}.filterbar button.active{background:var(--purple);color:white;border-color:var(--purple)}.search{width:100%;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:white;outline:0}.search:focus,input:focus,textarea:focus,select:focus{border-color:#a087f3;outline:2px solid #ece5ff}.people{display:grid;gap:12px}.person{display:flex;align-items:center;gap:12px;padding:15px;border:1px solid var(--line);border-radius:17px;background:white}.person .match{font-size:12px;font-weight:900;color:var(--green)}.person h4{font-size:14px;margin:0 0 4px}.person p{font-size:12px;color:var(--muted);margin:0}.timeline{display:grid;gap:9px}.timeItem{display:flex;gap:13px;align-items:center;background:white;border:1px solid var(--line);border-radius:13px;padding:12px 15px}.timeItem b{color:var(--purple);font-size:12px;width:45px}.timeItem span{font-size:12px;font-weight:750}.specialGrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.calday{min-height:51px;background:#f8f8fd;border-radius:10px;padding:7px 5px;font-weight:800;font-size:12px;text-align:left}.calday.active{background:var(--lav);color:var(--purple)}.calday.special{background:#fff0d4}.calday small{display:block;font-size:9px;margin-top:5px;color:var(--muted);font-weight:500}.statGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{text-align:center}.stat b{display:block;font-size:27px;color:var(--purple)}.stat span{font-size:11px;color:var(--muted)}.empty{padding:36px 20px;text-align:center;color:var(--muted);background:white;border:1px dashed #d8d3f2;border-radius:18px;font-size:13px}.floating{position:fixed;bottom:28px;right:28px;border-radius:17px;padding:14px 19px;background:var(--purple);color:white;font-weight:850;box-shadow:0 15px 30px #6241c358;z-index:5}.mobileNav{display:none}.modalback{position:fixed;inset:0;background:#1c184670;display:grid;place-items:center;z-index:10;padding:18px}.modal{background:white;width:min(490px,100%);max-height:90vh;overflow:auto;border-radius:25px;padding:25px;box-shadow:0 30px 90px #21194c55}.modal h2{font-size:22px;margin:0 0 7px;letter-spacing:-.6px}.modal label{display:block;font-size:12px;font-weight:800;margin:15px 0 6px}.modal input,.modal select,.modal textarea{display:block;width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;outline:0;color:var(--ink)}.modal textarea{min-height:80px;resize:vertical}.modalActions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}.notice{font-size:11px;line-height:1.6;background:#f8f5ff;border-radius:12px;padding:11px;color:#655b89}.banner{padding:12px 15px;background:#fff8e9;color:#95650a;border:1px solid #ffedc2;border-radius:14px;font-size:12px;line-height:1.5;margin-bottom:19px}.bottomGap{height:70px}.postmeta{font-size:11px;color:var(--muted)}.overflow{overflow-wrap:anywhere}.tinyBtn{padding:8px 10px;font-size:11px}.status{padding:7px 10px;border-radius:10px;background:#f2f5ff;color:#7364ba;font-size:11px;font-weight:800}.tabs{display:flex;gap:7px;flex-wrap:wrap}.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);padding:12px 20px;background:#252443;color:white;border-radius:14px;font-size:13px;font-weight:750;z-index:30;box-shadow:var(--shadow)}.hidden{display:none!important}@media(max-width:1230px){.shell{grid-template-columns:220px minmax(0,1fr)}.right{display:none}.center{padding:30px}}@media(max-width:720px){.shell{display:block}.left{display:none}.center{padding:24px 17px 105px}.top h1{font-size:26px}.hero{min-height:158px}.hero .medal{font-size:55px}.hero h2{font-size:20px}.two,.itemGrid{grid-template-columns:1fr}.mobileNav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#fffffff5;backdrop-filter:blur(14px);padding:10px 5px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--line);z-index:7}.mobileNav button{display:grid;justify-items:center;gap:2px;background:transparent;color:#9993aa;font-size:9px;font-weight:800;padding:4px}.mobileNav button.active{color:var(--purple)}.mobileNav span{font-size:21px}.floating{bottom:90px;right:18px}.card{padding:17px}.statGrid{gap:5px}}
 
@@ -16,6 +17,13 @@
 .chatBox.open{display:flex}.chatHead{display:flex;align-items:center;gap:9px;background:#f5f2ff;padding:15px 16px;justify-content:space-between}.chatHead button{background:transparent;font-size:18px}.chatRooms{display:flex;gap:6px;overflow:auto;max-width:100%;padding:9px 12px;border-bottom:1px solid var(--line);flex-shrink:0}.chatRooms button{background:#f4f5fa;white-space:nowrap;font-size:12px;padding:8px 11px;border-radius:16px;color:#66718b}.chatRooms button.sel{background:#7650e9;color:white}.chatMessages{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}.chatMsg{max-width:86%;background:#f1f2f9;padding:10px 12px;border-radius:15px;align-self:flex-start;overflow-wrap:anywhere}.chatMsg.mine{align-self:flex-end;background:#eee7ff}.chatMsg small{display:block;color:#7b8198;font-size:10px;margin-bottom:4px}.chatMsg p{margin:0;font-size:13px;line-height:1.5;white-space:pre-wrap}.chatEntry{display:flex;gap:7px;padding:11px;border-top:1px solid var(--line)}.chatEntry textarea{flex:1;min-width:0;resize:none;max-height:90px;padding:10px;border-radius:12px;border:1px solid #dde0ed;font-size:13px}.chatEntry button{background:#7650e9;color:#fff;border-radius:12px;padding:0 14px;font-weight:800}.chatTools{display:flex;gap:7px;flex-wrap:wrap;padding:9px 12px;border-bottom:1px solid var(--line)}.chatTools button{border-radius:11px;background:#f1edff;color:#7650e9;font-size:11px;font-weight:750;padding:7px 9px}.chatStatus{font-size:11px;color:#8290a7;padding:7px 13px 2px}.chatRoomList{display:grid;gap:8px}.chatRoomCard{display:flex;gap:10px;align-items:center;background:white;border:1px solid var(--line);padding:13px;border-radius:15px}.chatRoomCard button{margin-left:auto}.chatEmpty{text-align:center;margin:auto;color:#8890a7;font-size:13px;line-height:1.6;padding:25px}
 @media(max-width:700px){.chatBubble{bottom:82px;right:12px}.chatBox{right:8px;bottom:140px;width:calc(100vw - 16px);height:min(540px,calc(100dvh - 165px))}}
 
+/* Accessibility and responsive navigation */
+.lpSkipLink{position:fixed;left:14px;top:-100px;z-index:9999;padding:11px 16px;border-radius:10px;background:#fff;color:#231844;box-shadow:0 4px 24px #0002;font-weight:800}
+.lpSkipLink:focus{top:12px}
+:where(button,a,input,select,textarea):focus-visible{outline:3px solid #6540d7;outline-offset:3px}
+#page:focus{outline:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media(max-width:620px){.center{min-width:0}.card{max-width:100%}.modalback .modal{max-height:calc(100dvh - 30px);overflow:auto}}
 </style><style>
 /* LifePlan 5 — refinamiento visual, accesibilidad y planificador semanal */
 :root{--purple:#7255d9;--lav:#f2edff;--line:#e9eaf2;--ink:#252a43}
@@ -254,7 +262,7 @@ body.lp-authenticated #lpAuthGate{display:none!important}
 @media(max-width:500px){.lpAuthCardNew{padding:21px}.lpAuthCardNew .lpAuthTop{flex-direction:row;text-align:left}.lpAuthCardNew .lpAuthTopText{text-align:left}.lpAuthCardNew .lpAuthLogo{width:68px;height:68px;border-radius:20px}.lpAuthCardNew .lpAuthLogo img{width:54px;height:54px}.lpAuthCardNew .lpAuthTop h1{font-size:31px}}
 </style>
 <style id="lp-demo-style">.lpDemoCatalog{margin-top:28px}.lpDemoCatalog h3{margin:17px 0 11px}.lpDemoCatalogGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.lpDemoCard{display:flex;flex-direction:column;align-items:flex-start;gap:7px;text-align:left;min-width:0;padding:17px;border-radius:19px;border:1px solid #e0d6ee;border-bottom:4px solid #d8cae9;background:white;cursor:pointer}.lpDemoCard .lpDemoIcon{font-size:30px}.lpDemoCard b{font-size:15px;color:#3c3054}.lpDemoCard span:not(.lpDemoIcon){font-size:12px;color:#786989}.lpDemoCard small{color:#7851ae;font-weight:800}.lpDemoSteps{padding-left:25px;line-height:2}@media(max-width:650px){.lpDemoCatalogGrid{grid-template-columns:1fr 1fr}}@media(max-width:420px){.lpDemoCatalogGrid{grid-template-columns:1fr}}</style>
-</head><body><div id="lpConnectionBanner" role="status" aria-live="polite">Sin conexión. Los cambios se guardarán localmente hasta que recuperes internet.</div><section id="lpAuthGate" aria-label="LifePlan authentication" aria-live="polite">
+</head><body><a class="lpSkipLink" href="#page">Skip to content</a><div id="lpConnectionBanner" role="status" aria-live="polite">Sin conexión. Los cambios se guardarán localmente hasta que recuperes internet.</div><section id="lpAuthGate" aria-label="LifePlan authentication" aria-live="polite">
  <div class="lpAuthCard lpAuthCardNew">
   <div class="lpAuthTop"><div class="lpAuthLogo"><img src="lifeplan-icon-192.png" alt="LifePlan icon" width="68" height="68"></div>
    <div class="lpAuthTopText"><h1>LifePlan</h1><p class="lpAuthIntro">Tasks, projects and plans in one place.</p></div></div>
@@ -276,7 +284,7 @@ body.lp-authenticated #lpAuthGate{display:none!important}
   <div class="lpAuthLang"><label for="lpAuthLangSelect">Language</label><select id="lpAuthLangSelect" aria-label="Language" onchange="lpSetAuthLanguage(this.value)"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option></select></div>
  </div>
 </section>
-<div class="shell"><aside class="left"><div class="brand"><span class="logo"><img src="lifeplan-icon-64.png" alt="Icono de LifePlan" width="40" height="40"></span> LifePlan</div><nav class="nav" id="nav"></nav><div class="leftfoot"><div style="font-size:30px">🌈</div><h3>Crece acompañado</h3><p>Tus pequeños pasos se convierten en grandes aventuras cuando los compartes.</p><button onclick="go('equipo')">Ver mi equipo →</button></div></aside><main class="center" id="page"></main><aside class="right" id="right"></aside></div><nav class="mobileNav" id="mobileNav"></nav><button class="floating" id="floating" onclick="editTask()">＋ Misión</button><div id="modalRoot"></div><div id="toastRoot"></div>
+<div class="shell"><aside class="left"><div class="brand"><span class="logo"><img src="lifeplan-icon-64.png" alt="Icono de LifePlan" width="40" height="40"></span> LifePlan</div><nav class="nav" id="nav"></nav><div class="leftfoot"><div style="font-size:26px">👥</div><h3>Team projects</h3><p>Manage shared plans and activity.</p><button onclick="go('equipo')">Open team →</button></div></aside><main class="center" id="page" tabindex="-1"></main><aside class="right" id="right"></aside></div><nav class="mobileNav" id="mobileNav"></nav><button class="floating" id="floating" onclick="editTask()">＋ Misión</button><div id="modalRoot"></div><div id="toastRoot"></div>
 <script>
 /* LifePlan Social: demo local funcional + opción de backend Supabase. Los datos de ejemplo se etiquetan como demo. */
 const STORE='orbita-social-v1';const TODAY=()=>new Date().toISOString().slice(0,10);const addDays=(d,n)=>{let x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
@@ -293,6 +301,7 @@ const samplePeople=[{name:'Lucía',avatar:'👩🏻',bio:'Viajes lentos · fotog
 const initial=()=>({name:'Explorador',avatar:'🧑‍🚀',xp:90,earned:[],doneDates:[],tasks:[{id:'t1',title:'Planificar mi semana',date:TODAY(),time:'09:00',repeat:'semanal',done:[],tags:['organización']},{id:'t2',title:'Dedicar 20 min a mi proyecto',date:TODAY(),time:'17:00',repeat:'diaria',done:[],tags:['creatividad']},{id:'t3',title:'Preparar una escapada',date:TODAY(),time:'19:00',repeat:'ninguna',done:[],tags:['viajes']}],plans:[],specials:{},posts:[],likes:[],joined:[],checks:{},teamName:'Los imparables',teamMembers:['Explorador','Lucía','Marcos'],teamMockDays:4,interests:['viajes','creatividad','naturaleza'],config:{url:'',key:''}});
 let state;try{state={...initial(),...JSON.parse(localStorage.getItem(STORE)||'{}')}}catch{state=initial()}let tab='inicio',filter='todos',search='',calendarDate=TODAY(),user=null,client=null,remotePosts=[],remotePeople=[],remoteChecks=[],remoteMembers=[],remoteCircles=[],loading=false;
 let syncReady=false,syncRemoteExists=false,syncBusy=false,syncTimer=null,syncLastPayload="",syncStatus="Inicia sesión para sincronizar",syncOwner=null,syncRemoteTime=null;
+let lpSyncConflict=false; // No subir datos locales hasta resolver una copia remota diferente.
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random();/* Datos locales aislados por sesión; conserva la copia antigua hasta que se asigne. */
 let lpAccountUid=null;
 const lpConfig=()=>state.config||{};
@@ -786,16 +795,16 @@ searchResultsHtml=function(items){let x=prevSearchResultsV5(items);let q=String(
 /* LifePlan 5.1 · Sincronización privada Supabase. No envía credenciales/configuración. */
 function cloudPayload(){const copy={...state};delete copy.config;return copy}
 function cloudSerialized(){return JSON.stringify(cloudPayload())}
-function stopCloudSync(){clearTimeout(syncTimer);syncReady=false;syncOwner=null;syncBusy=false;syncRemoteExists=false;syncLastPayload='';syncStatus='Inicia sesión para sincronizar'}
+function stopCloudSync(){clearTimeout(syncTimer);syncReady=false;syncOwner=null;syncBusy=false;syncRemoteExists=false;syncRemoteTime=null;lpSyncConflict=false;syncLastPayload='';syncStatus='Inicia sesión para sincronizar'}
 function scheduleCloudSave(){
- if(!syncReady||!client||!user||syncOwner!==user.id)return;
+ if(!syncReady||lpSyncConflict||!client||!user||syncOwner!==user.id)return;
  const payload=cloudSerialized();if(payload===syncLastPayload)return;
  clearTimeout(syncTimer);syncTimer=setTimeout(()=>uploadCloud(false),1200);
 }
 async function prepareCloudSync(){
  if(!client||!user)return;
  const uid=user.id;
- clearTimeout(syncTimer);syncReady=false;syncOwner=uid;
+ clearTimeout(syncTimer);syncReady=false;syncOwner=uid;lpSyncConflict=false;
  syncStatus='Comprobando tus datos en Supabase…';
  const {data,error}=await client.from('user_app_state').select('data,updated_at').eq('user_id',uid).maybeSingle();
  if(error)throw error;
@@ -820,26 +829,51 @@ function applyCloudState(data){
 }
 async function uploadCloud(explicit){
  if(!client||!user){toast('Inicia sesión primero');return}
- if(!explicit&&!syncReady)return;
- if(syncBusy){if(!explicit)scheduleCloudSave();return}
+ if(!explicit&&(!syncReady||lpSyncConflict))return;
+ if(syncBusy)return;
  const uid=user.id;
  if(explicit){
-   const msg=syncRemoteExists?'La nube ya tiene datos. ¿Quieres SUSTITUIRLOS por los datos de este navegador? Exporta una copia de seguridad primero.':'¿Subir los datos de este navegador a tu cuenta? Se guardarán en tu nube privada.';
+   const msg=syncRemoteExists?'Hay datos guardados en Supabase. ¿Quieres reemplazarlos con los de este dispositivo? Descarga antes una copia JSON.':'¿Subir los datos de este dispositivo a tu cuenta?';
    if(!confirm(msg))return;
  }
  syncBusy=true;
  const payload=cloudPayload();const serialized=JSON.stringify(payload);
- syncStatus='Guardando en la nube…';
+ syncStatus='Comprobando versión remota…';
+ let success=false;
  try{
-   const {error}=await client.from('user_app_state').upsert({user_id:uid,data:payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+   // Comprueba cambios remotos antes de cada guardado. Reduce pérdidas entre dispositivos;
+   // NO es una operación atómica: se necesitará una función RPC con control de versión
+   // en la base de datos para resolver escrituras verdaderamente simultáneas.
+   const {data:latest,error:readError}=await client.from('user_app_state').select('updated_at').eq('user_id',uid).maybeSingle();
+   if(readError)throw readError;
+   if(!user||user.id!==uid)return;
+   const remoteVersion=latest?.updated_at||null;
+   if(!explicit && remoteVersion!==syncRemoteTime){
+     lpSyncConflict=true;syncReady=false;clearTimeout(syncTimer);
+     syncStatus='Hay cambios más recientes en la nube. Guarda una copia JSON y elige «Recuperar nube» o «Subir mis datos».';
+     toast('Sincronización detenida: se detectaron cambios en otro dispositivo');
+     return;
+   }
+   syncStatus='Guardando en la nube…';
+   const updatedAt=new Date().toISOString();
+   const {data:written,error}=await client.from('user_app_state').upsert({user_id:uid,data:payload,updated_at:updatedAt},{onConflict:'user_id'}).select('updated_at').single();
    if(error)throw error;
    if(!user||user.id!==uid)return;
-   syncLastPayload=serialized;syncReady=true;syncRemoteExists=true;syncOwner=uid;
+   syncLastPayload=serialized;syncReady=true;lpSyncConflict=false;syncRemoteExists=true;syncOwner=uid;
+   syncRemoteTime=written?.updated_at||updatedAt;
    localStorage.setItem('lifeplan-sync-bound-'+uid,'yes');
    syncStatus='Sincronización automática activa';
-   if(explicit)toast('Datos guardados en Supabase ✓');
- }catch(err){syncStatus='Error al guardar: '+err.message;if(explicit)toast(syncStatus)}
- finally{syncBusy=false;if(user?.id===uid){render();scheduleCloudSave()}}
+   success=true;
+   if(explicit)toast('Datos guardados en Supabase');
+ }catch(err){
+   syncStatus='Error al guardar: '+(err?.message||'Comprueba tu conexión');
+   // No iniciar un bucle de subidas mientras el servicio falla.
+   syncReady=false;
+   if(explicit)toast(syncStatus);
+ }finally{
+   syncBusy=false;
+   if(user?.id===uid){render();if(success)scheduleCloudSave()}
+ }
 }
 async function downloadCloud(){
  if(!client||!user)return toast('Inicia sesión primero');
@@ -847,13 +881,13 @@ async function downloadCloud(){
  const uid=user.id;
  clearTimeout(syncTimer);syncReady=false;
  try{
-   const {data,error}=await client.from('user_app_state').select('data').eq('user_id',uid).maybeSingle();
+   const {data,error}=await client.from('user_app_state').select('data,updated_at').eq('user_id',uid).maybeSingle();
    if(error)throw error;if(!data)throw Error('Todavía no hay ninguna copia en la nube');
    if(!user||user.id!==uid)return;
    // Respaldo automático recuperable desde el almacenamiento del navegador.
    localStorage.setItem('lifeplan-backup-before-cloud-'+uid,JSON.stringify(state));
    applyCloudState(data.data);
-   syncLastPayload=cloudSerialized();syncReady=true;syncOwner=uid;syncRemoteExists=true;
+   syncLastPayload=cloudSerialized();syncReady=true;syncOwner=uid;syncRemoteExists=true;lpSyncConflict=false;syncRemoteTime=data.updated_at||null;
    localStorage.setItem('lifeplan-sync-bound-'+uid,'yes');
    syncStatus='Sincronización automática activa';
    render();toast('Datos recuperados de la nube ✓');
@@ -863,7 +897,7 @@ const profileBeforeCloud=profile;
 profile=function(){
  const status=safe(syncStatus);
  const active=user&&client;
- return profileBeforeCloud()+`<div class="card" style="margin-top:20px"><h3>☁️ Sincronización privada</h3><p class="sub">${status}</p><p class="sub">Tus tareas, notas, proyectos, XP y rachas se guardan en Supabase cuando activas la sincronización. No sincronices dos dispositivos a la vez: gana el último guardado.</p><div class="row" style="gap:9px;flex-wrap:wrap"><button class="secondary" onclick="exportData()">↓ Copia JSON</button><button class="primary" onclick="uploadCloud(true)" ${!active?'disabled':''}>↑ Subir mis datos</button><button class="outline" onclick="downloadCloud()" ${!active||!syncRemoteExists?'disabled':''}>↓ Recuperar nube</button></div><p class="sub" style="margin-top:12px">Antes de usar otro móvil, espera a que aparezca «Sincronización automática activa». En el dispositivo nuevo, entra con la misma cuenta y elige «Recuperar nube».</p></div>`;
+ return profileBeforeCloud()+`<div class="card" style="margin-top:20px"><h3>☁️ Sincronización privada</h3><p class="sub">${status}</p><p class="sub">Tus datos se guardan en Supabase cuando activas la sincronización. Si se detectan cambios en otro dispositivo, el guardado automático se detendrá para evitar sustituirlos. No edites simultáneamente desde dos dispositivos.</p><div class="row" style="gap:9px;flex-wrap:wrap"><button class="secondary" onclick="exportData()">↓ Copia JSON</button><button class="primary" onclick="uploadCloud(true)" ${!active?'disabled':''}>↑ Subir mis datos</button><button class="outline" onclick="downloadCloud()" ${!active||!syncRemoteExists?'disabled':''}>↓ Recuperar nube</button></div><p class="sub" style="margin-top:12px">Si aparece un conflicto, exporta primero una copia JSON. Después utiliza «Recuperar nube» para conservar la versión remota o «Subir mis datos» para sustituirla. La detección no cubre guardados exactamente simultáneos.</p></div>`;
 };
 
 // Mostrar en la parte superior un atajo universal con teclado.
