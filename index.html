@@ -1,5 +1,4 @@
-<!doctype html><html lang="en"><head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3625012173163661"
-     crossorigin="anonymous"></script><meta name="google-adsense-account" content="ca-pub-TU_ID"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#7650e9"><meta name="color-scheme" content="light"><title>LifePlan</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#7650e9"><meta name="color-scheme" content="light"><title>LifePlan</title>
 <link rel="icon" type="image/png" href="lifeplan-icon-64.png">
 <link rel="apple-touch-icon" href="./lifeplan-icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -615,7 +614,7 @@ input:not([type=checkbox]):not([type=radio]):focus,select:focus,textarea:focus{b
 .lp20-legal-links a{display:flex;align-items:center;min-height:46px;border:1px solid #e7e0f4;background:#faf9ff;border-radius:12px;padding:10px 14px;text-decoration:none;font-size:14px;color:#5a498b;font-weight:750}
 .lp20-legal-links a:hover,.lp20-legal-links a:focus-visible{background:#eee9ff;outline-color:#7650e9}
 @media(max-width:560px){.lp20-legal-links{grid-template-columns:1fr}}
-</style><style id="lifeplan-rc23-economy">
+</style><style id="lifeplan-rc23-economy-styles">
 /* RC23: cosmetic rewards, respectful monetization surfaces */
 .lp23-link{border:1px solid #e7def6;background:linear-gradient(110deg,#f7f3ff,#fff);border-radius:17px;padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:15px 0;color:#412a6c}
 .lp23-link button,.lp23-action{background:#7950d4;border:0;color:#fff;border-radius:12px;padding:11px 14px;font-weight:700;cursor:pointer}
@@ -714,7 +713,7 @@ const TODAY=()=>lpDateKey(new Date());
 const addDays=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return lpDateKey(x)};
 const samplePosts=[];
 const samplePeople=[];
-const initial=()=>({name:'Explorer',avatar:'🧑‍🚀',xp:90,earned:[],doneDates:[],tasks:[{id:'t1',title:'Plan my week',date:TODAY(),time:'09:00',repeat:'semanal',done:[],tags:['organización']},{id:'t2',title:'Spend 20 minutes on my project',date:TODAY(),time:'17:00',repeat:'diaria',done:[],tags:['creatividad']},{id:'t3',title:'Plan a weekend trip',date:TODAY(),time:'19:00',repeat:'ninguna',done:[],tags:['viajes']}],plans:[],specials:{},posts:[],likes:[],joined:[],checks:{},teamName:'My team',teamMembers:['Explorador'],teamMockDays:0,interests:['viajes','creatividad','naturaleza'],config:{url:'',key:''}});
+const initial=()=>({name:'Explorer',avatar:'🧑‍🚀',xp:0,earned:[],doneDates:[],tasks:[],plans:[],specials:{},posts:[],likes:[],joined:[],checks:{},teamName:'',teamMembers:[],teamMockDays:0,interests:[],config:{url:'',key:''}});
 let state;try{state={...initial(),...JSON.parse(localStorage.getItem(STORE)||'{}')}}catch{state=initial()}
 if(Array.isArray(state.teamMembers)&&state.teamMembers.length===3&&state.teamMembers[0]==='Explorador'&&state.teamMembers[1]==='Lucía'&&state.teamMembers[2]==='Marcos'){state.teamMembers=['Explorador'];state.teamMockDays=0;}let tab='inicio',filter='todos',search='',calendarDate=TODAY(),user=null,client=null,remotePosts=[],remotePeople=[],remoteChecks=[],remoteMembers=[],remoteCircles=[],loading=false;
 let syncReady=false,syncRemoteExists=false,syncBusy=false,syncTimer=null,syncLastPayload="",syncStatus="Inicia sesión para sincronizar",syncOwner=null,syncRemoteTime=null;
@@ -741,13 +740,26 @@ function lifeplanSwitchAccount(uid){
  if(scoped){try{const parsed=JSON.parse(scoped);if(Array.isArray(parsed.tasks)&&Array.isArray(parsed.plans))next=parsed}catch{}}
  if(!next&&!localStorage.getItem('lifeplan-legacy-assigned')){
   const raw=localStorage.getItem(STORE);
-  if(raw){
+  let legacy=null;
+  if(raw){try{legacy=JSON.parse(raw)}catch{}}
+  // Never prompt to import a mere config or an untouched starter profile.
+  // Only meaningful user-created content qualifies as legacy personal data.
+  const hasLegacyContent=legacy&&typeof legacy==='object'&&[
+   'tasks','plans','notes','folders','posts','adventures','chatRooms','earned','doneDates'
+  ].some(k=>Array.isArray(legacy[k])&&legacy[k].length>0)
+   ||(legacy&&['specials','checks','tripDetails'].some(k=>legacy[k]&&typeof legacy[k]==='object'&&Object.keys(legacy[k]).length>0))
+   ||(legacy&&typeof legacy.xp==='number'&&legacy.xp>0);
+  if(hasLegacyContent){
    localStorage.setItem('lifeplan-legacy-backup',raw);
-   if(confirm('Hay datos de una versión anterior guardados en este navegador. ¿Quieres asignarlos a la cuenta que acabas de abrir? Si eliges Cancelar, quedarán en una copia local sin asignar.')){
-    try{const legacy=JSON.parse(raw);if(Array.isArray(legacy.tasks)&&Array.isArray(legacy.plans))next=legacy}catch{}
-   }
+   const ask=lifeplanT(
+    'Hay datos antiguos guardados en este dispositivo. ¿Quieres importarlos a esta cuenta? Si cancelas, quedarán en una copia local sin asignar.',
+    'Older data was found on this device. Import it into this account? If you cancel, an unassigned local copy will be kept.',
+    'Des anciennes données ont été trouvées sur cet appareil. Les importer dans ce compte ? Sinon, une copie locale non attribuée sera conservée.',
+    'Foram encontrados dados antigos neste dispositivo. Importá-los para esta conta? Se cancelares, ficará uma cópia local não atribuída.'
+   );
+   if(confirm(ask)&&Array.isArray(legacy.tasks)&&Array.isArray(legacy.plans))next=legacy;
+   localStorage.setItem('lifeplan-legacy-assigned',uid);
   }
-  localStorage.setItem('lifeplan-legacy-assigned',uid);
  }
  lpFreshAccountHere=!scoped&&!next;
  state={...initial(),...(next||{}),config};
@@ -791,7 +803,6 @@ const menu=[['inicio','🏠','Inicio'],['explorar','🧭','Explorar'],['agenda',
  document.getElementById('mobileNav').innerHTML=menu.filter(x=>x[0]!=='misiones').map(([k,e,l])=>`<button class="${tab===k?'active':''}" onclick="go('${k}')"><span>${e}</span>${l}</button>`).join('')
 }
 
-function header(title,sub){return `<div class="top duoTop"><div><div class="eyebrow">LIFEPLAN · AVENTURA</div><h1>${title}</h1><div class="sub">${sub}</div></div><div class="topright"><div class="duoHeaderStats"><span class="pill green">⭐ Nivel ${xpLevel()}</span><span class="pill">🔥 ${streak()} días</span></div><div class="avatar duoAvatar">${safe(state.avatar)}</div></div></div>`}
 function header(title,sub){return `<div class="top"><div><div class="eyebrow">LIFEPLAN ✦</div><h1>${title}</h1><div class="sub">${sub}</div></div><div class="topright"><span class="pill">🔥 ${streak()} días</span><div class="avatar">${safe(state.avatar)}</div></div></div>`}
 function taskRow(t,date=TODAY()){return `<div class="todayTask"><button class="tick ${isDone(t,date)?'done':''}" onclick="toggleTask('${safe(t.id)}','${date}')">${isDone(t,date)?'✓':''}</button><div class="grow"><div class="taskname ${isDone(t,date)?'done':''}">${safe(t.title)}</div><div class="mini" style="margin-top:5px">${safe(t.time||'Sin hora')} · ${t.repeat!=='ninguna'?'🔁 '+safe(t.repeat):'una vez'}</div></div><button class="link" onclick="editTask('${safe(t.id)}')">Editar</button></div>`}
 function home(){
@@ -1804,7 +1815,7 @@ function lifeplanTranslate(root=document.body){
  const walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
  let node;while((node=walk.nextNode())){
    const parent=node.parentElement;
-   if(!parent||parent.closest('script,style,textarea,[contenteditable="true"],.lp-no-translate,.taskname,[data-user-content],.lpDemoCard .lpDemoDesc,.lpDemoCard .lpDemoTitle,.chatMessage,.messageText,.postBody,.v5NoteText,.v5NoteContent,[data-user-text]'))continue;
+   if(!parent||parent.closest('#lpAuthGate,script,style,textarea,[contenteditable="true"],.lp-no-translate,.taskname,[data-user-content],.lpDemoCard .lpDemoDesc,.lpDemoCard .lpDemoTitle,.chatMessage,.messageText,.postBody,.v5NoteText,.v5NoteContent,[data-user-text]'))continue;
    // Record both the source string and our last rendered translation.
    // If application code updates the same DOM node, discard its stale cached source.
    const remembered=lpOriginalText.get(node);
@@ -2030,7 +2041,31 @@ function lifeplanAuthUpdate(isLoggedIn,problem=''){
 // Legacy magic-link flow replaced with password login and Google OAuth.
 let lpAuthMode='login';
 function lpAuthMsg(message,kind='error'){
- const el=document.getElementById('lpAuthMessage');el.hidden=false;el.className=kind==='success'?'lpAuthSuccess':'lpAuthError';el.textContent=message;
+ const el=document.getElementById('lpAuthMessage');el.hidden=false;el.className=kind==='success'?'lpAuthSuccess':'lpAuthError';el.textContent=kind==='error'?lpLocalizeAuthError(message):message;
+}
+function lpLocalizeAuthError(error){
+ const code=String(error?.code||'').toLowerCase();
+ const text=String(error?.message||error||'');
+ const cases={
+  invalid_credentials:['Correo o contraseña incorrectos.','Incorrect email or password.','Adresse e-mail ou mot de passe incorrect.','E-mail ou palavra-passe incorretos.'],
+  email_not_confirmed:['Confirma tu correo antes de iniciar sesión.','Confirm your email before signing in.','Confirmez votre e-mail avant de vous connecter.','Confirma o teu e-mail antes de iniciares sessão.'],
+  user_already_exists:['Esta cuenta ya existe. Inicia sesión.','This account already exists. Log in.','Ce compte existe déjà. Connectez-vous.','Esta conta já existe. Inicia sessão.'],
+  weak_password:['La contraseña no cumple los requisitos de seguridad.','Password does not meet security requirements.','Le mot de passe ne respecte pas les exigences de sécurité.','A palavra-passe não cumpre os requisitos de segurança.'],
+  over_email_send_rate_limit:['Demasiados correos enviados. Prueba más tarde.','Too many emails sent. Try again later.','Trop d’e-mails envoyés. Réessayez plus tard.','Demasiados e-mails enviados. Tenta mais tarde.'],
+  over_request_rate_limit:['Demasiados intentos. Prueba más tarde.','Too many attempts. Try again later.','Trop de tentatives. Réessayez plus tard.','Demasiadas tentativas. Tenta mais tarde.']
+ };
+ let key=code;
+ if(!cases[key]){
+  if(/invalid login credentials|invalid credentials/i.test(text))key='invalid_credentials';
+  else if(/email not confirmed/i.test(text))key='email_not_confirmed';
+  else if(/already registered|user already exists/i.test(text))key='user_already_exists';
+  else if(/password.*(weak|short)|weak password/i.test(text))key='weak_password';
+ }
+ const row=cases[key];
+ if(row)return ({es:row[0],en:row[1],fr:row[2],pt:row[3]})[lifeplanLanguage]||row[1];
+ // Unknown errors retain their technical code for troubleshooting but not an English-only message.
+ const prefix=lifeplanT('No se ha podido completar la autenticación.','Authentication could not be completed.','Authentification impossible.','Não foi possível concluir a autenticação.');
+ return code?prefix+' ('+code+')':prefix;
 }
 const lpLoginCopy={
  en:{login:'Log in',signup:'Create account',google:'Continue with Google',or:'or use your email',email:'Email address',password:'Password',forgot:'Forgot your password?',session:'Your session stays active on this device until you log out.',intro:'Tasks, projects and plans in one place.',checking:'Checking your session…',retry:'Try again',language:'Language',placeholder:'At least 8 characters'},
@@ -2048,7 +2083,7 @@ function lpUpdateAuthCopy(){
  const passLabel=document.querySelector('label[for="lpAuthPassword"]');if(passLabel)passLabel.textContent=t.password;
  const p=document.getElementById('lpAuthPassword');if(p)p.placeholder=t.placeholder;
  const b=document.getElementById('lpAuthSend');if(b&&!b.disabled)b.textContent=lpAuthMode==='signup'?t.signup:t.login;
- const minor=document.querySelector('#lpAuthForm .lpAuthMinor');if(minor)minor.textContent=t.session;
+ const minor=document.querySelector('#lpAuthForm .lpAuthMinor');if(minor)minor.textContent=lpAuthMode==='signup'?lifeplanT('Puede que debas confirmar tu correo para activar la cuenta. No se añadirán tareas ni intereses de ejemplo.','You may need to confirm your email to activate the account. No example tasks or interests will be added.','Vous devrez peut-être confirmer votre e-mail. Aucune tâche ni aucun centre d’intérêt fictif ne sera ajouté.','Poderás ter de confirmar o e-mail. Não serão adicionadas tarefas ou interesses de exemplo.'):t.session;
  const langLabel=document.querySelector('label[for="lpAuthLangSelect"]');if(langLabel)langLabel.textContent=t.language;
  const select=document.getElementById('lpAuthLangSelect');if(select)select.value=code;
  const loading=document.getElementById('lpAuthLoading');if(loading&&!loading.hidden)loading.textContent=t.checking;
@@ -2071,14 +2106,14 @@ async function lpPasswordAuth(event){
   if(lpAuthMode==='signup')result=await client.auth.signUp({email,password,options:{emailRedirectTo:new URL('./',location.href).href}});
   else result=await client.auth.signInWithPassword({email,password});
   if(result.error)throw result.error;
-  if(lpAuthMode==='signup'&&!result.data.session)lpAuthMsg(lifeplanT('Confirma tu cuenta por correo y vuelve a entrar.','Check your email to confirm the account, then log in.','Confirmez votre compte par e-mail, puis connectez-vous.','Confirma a conta por e-mail e depois inicia sessão.'),'success');
+  if(lpAuthMode==='signup'&&!result.data?.session)lpAuthMsg(lifeplanT('Confirma tu cuenta por correo y vuelve a entrar.','Check your email to confirm the account, then log in.','Confirmez votre compte par e-mail, puis connectez-vous.','Confirma a conta por e-mail e depois inicia sessão.'),'success');
   else {lpAuthMsg(lifeplanT('Sesión iniciada.','Signed in.','Connexion réussie.','Sessão iniciada.'),'success');if(result.data?.user){const authUid=result.data.user.id;user=result.data.user;lifeplanSwitchAccount(authUid);lifeplanAuthUpdate(true);render();if(!syncReady&&syncOwner!==authUid)lpLoadAccountData(authUid)}}
- }catch(err){lpAuthMsg(err?.message||lifeplanT('No se pudo iniciar sesión.','Authentication failed.','Connexion impossible.','Não foi possível iniciar sessão.'));}
+ }catch(err){lpAuthMsg(err||lifeplanT('No se pudo iniciar sesión.','Authentication failed.','Connexion impossible.','Não foi possível iniciar sessão.'));}
  finally{button.disabled=false;lpUpdateAuthCopy()}
 }
 function lpShowPasswordRecovery(){
  if(typeof modal!=='function')return;
- modal(`<h2>Set a new password</h2><form onsubmit="lpCompletePasswordReset(event)"><label>New password</label><input type="password" name="password" autocomplete="new-password" minlength="8" required><div class="modalActions"><button class="primary" type="submit">Save new password</button></div></form>`);
+ modal(`<h2>${lifeplanT('Establecer nueva contraseña','Set a new password','Définir un nouveau mot de passe','Definir nova palavra-passe')}</h2><form onsubmit="lpCompletePasswordReset(event)"><label>${lifeplanT('Nueva contraseña','New password','Nouveau mot de passe','Nova palavra-passe')}</label><input type="password" name="password" autocomplete="new-password" minlength="8" required><div class="modalActions"><button class="primary" type="submit">${lifeplanT('Guardar nueva contraseña','Save new password','Enregistrer le nouveau mot de passe','Guardar nova palavra-passe')}</button></div></form>`);
 }
 async function lpCompletePasswordReset(e){
  e.preventDefault();const password=String(new FormData(e.target).get('password')||'');
@@ -2111,7 +2146,7 @@ async function lpResetPassword(){
  if(!email)return lpAuthMsg(lifeplanT('Introduce primero tu correo.','Enter your email address first.','Saisissez d’abord votre adresse e-mail.','Introduz primeiro o teu e-mail.'));
  if(!client)return lpAuthMsg(lifeplanT('No hay conexión. Inténtalo de nuevo.','Connection unavailable. Try again.','Connexion indisponible. Réessayez.','Ligação indisponível. Tenta novamente.'));
  const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:new URL('./',location.href).href});
- if(error)lpAuthMsg(error.message);else lpAuthMsg(lifeplanT('Correo de recuperación enviado.','Password recovery email sent.','E-mail de récupération envoyé.','E-mail de recuperação enviado.'),'success');
+ if(error)lpAuthMsg(error);else lpAuthMsg(lifeplanT('Correo de recuperación enviado.','Password recovery email sent.','E-mail de récupération envoyé.','E-mail de recuperação enviado.'),'success');
 }
 // El inicio se realiza aquí, cuando todas las funciones están definidas.
 let lpAuthStarting=false;
@@ -2207,11 +2242,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   button.disabled=true;button.textContent='Deleting…';err.hidden=true;
   const uid=user.id;
   try{
+   const sessionResult=await client.auth.getSession();
+   if(sessionResult.error||!sessionResult.data?.session?.access_token)throw Error('Your session has expired. Sign in again before deleting the account.');
    const {data,error}=await client.functions.invoke('delete-account',{body:{confirmation:'DELETE'}});
-   if(error){let message=error.message||'Unable to delete your account';
-    if(error.context&&typeof error.context.json==='function'){
+   if(error){
+    let message=error.message||'Unable to delete your account';
+    const status=error.context?.status;
+    if(error.context&&typeof error.context.clone==='function'){
+     try{const detail=await error.context.clone().json();if(typeof detail.error==='string')message=detail.error}catch{}
+    }else if(error.context&&typeof error.context.json==='function'){
      try{const detail=await error.context.json();if(typeof detail.error==='string')message=detail.error}catch{}
     }
+    if(/Failed to send a request|Failed to fetch|NetworkError/i.test(message))message='Could not reach the deletion service. Check that the Supabase delete-account Edge Function is deployed and that your connection is working.';
+    if(status===404)message='The account deletion service is not deployed in Supabase. Ask the LifePlan administrator to deploy delete-account.';
+    if(status===401||status===403)message='Your session is not authorized to delete this account. Sign in again and retry.';
     throw Error(message)
    }
    if(!data||data.deleted!==true)throw Error('The server did not confirm account deletion.');
@@ -2223,9 +2267,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    }
    try{await client.auth.signOut({scope:'local'})}catch{}
    user=null;
-   lifeplanClearAccount();
-   // lifeplanClearAccount() can re-save the previous profile if lpAccountUid is not cleared.
+   // Clear the account binding FIRST: avoid re-saving the deleted profile to localStorage.
    lpAccountUid=null;
+   lifeplanClearAccount();
    localStorage.removeItem('lifeplan-user-local-'+uid);
    // Keep the migration marker so legacy browser data is not reassigned to a new account.
    try{socialBlockedIds.clear();socialRequests=[];socialProfiles=[];socialScores=[]}catch{}
@@ -2836,7 +2880,7 @@ if(typeof lifeplanTranslate==='function')lifeplanTranslate();
  if(typeof lifeplanTranslate==='function')lifeplanTranslate();
 })();
 </script>
-<style id="lifeplan-rc13-dialog-a11y">
+<style id="lifeplan-rc13-dialog-a11y-styles">
 /* Release candidate 13: accessible dialog focus and visual overflow protection. */
 #modalRoot .modalback .modal[role="dialog"] { outline:none; overscroll-behavior:contain; }
 #modalRoot .modalback .modal :focus-visible { outline:2px solid #7950bf; outline-offset:3px; }
@@ -3785,4 +3829,73 @@ window.lp23Test={catalog:()=>CATALOG.map(x=>({id:x.id,price:x.price})),market:()
   if(el.id==='projectNotes')el.placeholder=T('Ideas, resources, notes...','Ideas, recursos, apuntes...','Idées, ressources, notes...','Ideias, recursos, notas...');
  });};
 })();
-</script></body></html>
+</script>
+<style id="lifeplan-rc28-security-style">
+.lp28-security-card{background:#fff;border:1px solid #e8e3f0;border-radius:22px;padding:clamp(18px,4vw,26px);margin-top:18px;box-shadow:0 5px 22px rgba(49,28,78,.035)}
+.lp28-security-card h2{margin:0 0 8px;font-size:1.12rem}.lp28-security-card p{margin:0 0 14px;color:#6e637e;font-size:.94rem;line-height:1.55}.lp28-security-card button{min-height:44px}
+.lp28-password-form{display:grid;gap:12px}.lp28-password-form label{font-weight:650;display:grid;gap:6px}.lp28-password-form input{width:100%;box-sizing:border-box;min-height:44px;padding:10px;border:1px solid #d9d1e4;border-radius:12px;font:inherit}.lp28-form-help{font-size:.84rem;color:#6d6576}
+</style>
+<script id="lifeplan-rc28-account-security">
+/* Google OAuth and password sign-in are two sign-in methods for one verified Supabase user. */
+(function(){
+ const L={
+ en:['Password & sign-in','Add a password to sign in with your email, even if you created your account using Google.','Set or change password','Create a password','New password','Confirm new password','Save password','Cancel','Your password must have at least 10 characters.','The passwords do not match.','Password saved. You can now sign in using your email and password.','Sign in again to change your password.','Could not update the password.','A recent sign-in may be required for security. Sign in with Google again and retry.','Verification code','Email me a verification code','Check your email for the verification code.'],
+ es:['Contraseña y acceso','Añade una contraseña para entrar con tu correo, aunque crearas la cuenta con Google.','Establecer o cambiar contraseña','Crear contraseña','Nueva contraseña','Confirmar contraseña','Guardar contraseña','Cancelar','La contraseña debe tener al menos 10 caracteres.','Las contraseñas no coinciden.','Contraseña guardada. Ya puedes entrar con tu correo y contraseña.','Vuelve a iniciar sesión para cambiar tu contraseña.','No se pudo actualizar la contraseña.','Por seguridad, puede ser necesario volver a iniciar sesión con Google.','Código de verificación','Enviarme un código de verificación','Revisa tu correo para obtener el código.'],
+ fr:['Mot de passe et connexion','Ajoutez un mot de passe pour vous connecter avec votre adresse e-mail, même si vous avez créé le compte avec Google.','Définir ou changer le mot de passe','Créer un mot de passe','Nouveau mot de passe','Confirmer le mot de passe','Enregistrer le mot de passe','Annuler','Le mot de passe doit contenir au moins 10 caractères.','Les mots de passe ne correspondent pas.','Mot de passe enregistré. Vous pouvez vous connecter par e-mail et mot de passe.','Reconnectez-vous pour modifier votre mot de passe.','Impossible de modifier le mot de passe.','Pour des raisons de sécurité, reconnectez-vous avec Google puis réessayez.','Code de vérification','Recevoir un code par e-mail','Consultez votre e-mail pour obtenir le code.'],
+ pt:['Palavra-passe e acesso','Adiciona uma palavra-passe para entrares com o teu e-mail, mesmo que tenhas criado a conta com o Google.','Definir ou alterar palavra-passe','Criar palavra-passe','Nova palavra-passe','Confirmar palavra-passe','Guardar palavra-passe','Cancelar','A palavra-passe deve ter pelo menos 10 caracteres.','As palavras-passe não coincidem.','Palavra-passe guardada. Já podes entrar com o e-mail e palavra-passe.','Inicia sessão novamente para alterar a palavra-passe.','Não foi possível alterar a palavra-passe.','Por segurança, poderá ser necessário iniciar sessão novamente com o Google.','Código de verificação','Enviar código por e-mail','Verifica o teu e-mail para obter o código.']};
+ function msg(i){return (L[(typeof lifeplanLanguage==='string'?lifeplanLanguage:'en')]||L.en)[i]}
+ const previous=profile;
+ profile=function(){
+  const html=previous();
+  if(!user||!client)return html;
+  return html+'<section class="lp28-security-card" aria-label="Account security"><h2>'+msg(0)+'</h2><p>'+msg(1)+'</p><button type="button" class="outline" onclick="lifeplanOpenPasswordDialog()">'+msg(2)+'</button></section>';
+ };
+ window.lifeplanOpenPasswordDialog=function(){
+  if(!user||!client){toast(msg(11));return;}
+  modal('<div class="lp-account-dialog"><h2>'+msg(3)+'</h2><p class="lp28-form-help">'+msg(1)+'</p><form class="lp28-password-form" id="lp28PasswordForm" onsubmit="lifeplanSavePassword(event)"><label>'+msg(4)+'<input id="lp28Password" type="password" required minlength="10" maxlength="256" autocomplete="new-password"></label><label>'+msg(5)+'<input id="lp28PasswordConfirm" type="password" required minlength="10" maxlength="256" autocomplete="new-password"></label><div id="lp29NonceWrap" hidden><label>'+msg(14)+'<input id="lp29PasswordNonce" inputmode="numeric" autocomplete="one-time-code" maxlength="16"></label><button type="button" class="outline" id="lp29RequestNonce" onclick="lifeplanRequestPasswordNonce()">'+msg(15)+'</button></div><p role="alert" class="lpAuthError" id="lp28PasswordError" hidden></p><div class="modalActions"><button type="button" class="outline" onclick="closeModal()">'+msg(7)+'</button><button type="submit" id="lp28PasswordSubmit">'+msg(6)+'</button></div></form></div>');
+ };
+ window.lifeplanRequestPasswordNonce=async function(){
+  const errorEl=document.getElementById('lp28PasswordError');
+  try{
+   if(!client||!user)throw Error(msg(11));
+   const {error}=await client.auth.reauthenticate();
+   if(error)throw error;
+   if(errorEl){errorEl.hidden=false;errorEl.textContent=msg(16);}
+  }catch(e){if(errorEl){errorEl.hidden=false;errorEl.textContent=e?.message||msg(12);}}
+ };
+ window.lifeplanSavePassword=async function(event){
+  event.preventDefault();const pass=document.getElementById('lp28Password')?.value||'';
+  const confirmPass=document.getElementById('lp28PasswordConfirm')?.value||'';
+  const errorEl=document.getElementById('lp28PasswordError');
+  const btn=document.getElementById('lp28PasswordSubmit');
+  const fail=(message)=>{if(errorEl){errorEl.textContent=message;errorEl.hidden=false;}};
+  if(pass.length<10){fail(msg(8));return;}
+  if(pass!==confirmPass){fail(msg(9));return;}
+  if(!client||!user){fail(msg(11));return;}
+  btn.disabled=true;errorEl.hidden=true;
+  try{
+   const session=await client.auth.getSession();
+   if(session.error||!session.data?.session?.access_token)throw Error(msg(11));
+   const {data:current,error:identityError}=await client.auth.getUser();
+   if(identityError||!current?.user||current.user.id!==user.id)throw Error(msg(11));
+   const nonce=document.getElementById('lp29PasswordNonce')?.value.trim()||undefined;
+   const {data:changed,error}=await client.auth.updateUser({password:pass,...(nonce?{nonce}:{})});
+   if(error){
+    if(/reauth|nonce|recent/i.test(error.message||'')){
+     const request=document.getElementById('lp29RequestNonce');
+     const wrap=document.getElementById('lp29NonceWrap');
+     if(wrap)wrap.hidden=false;
+     if(request)request.hidden=false;
+    }
+    throw error;
+   }
+   if(changed?.user?.id!==current.user.id)throw Error('Account identity check failed. Contact support.');
+   // Passwords are not stored in LifePlan state, localStorage or logs.
+   document.getElementById('lp28Password').value='';document.getElementById('lp28PasswordConfirm').value='';
+   closeModal();toast(msg(10));
+  }catch(e){const message=(e&&e.message)||msg(12);fail(/reauth|recent|nonce/i.test(message)?msg(13):message);}
+  finally{if(btn&&btn.isConnected)btn.disabled=false;}
+ };
+})();
+</script>
+</body></html>
